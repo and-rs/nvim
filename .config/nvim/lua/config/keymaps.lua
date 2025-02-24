@@ -4,7 +4,7 @@ local del = vim.keymap.del
 vim.g.mapleader = " "
 
 -- repeat last macro
-map("n", "Q", "@@", { silent = true })
+map("n", "Q", "@@", { desc = "Repeat last macro" })
 
 -- quickfix navigation
 map("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
@@ -32,13 +32,10 @@ map("n", "n", "nzzzv", { desc = "Next result in search /" })
 map("n", "N", "Nzzzv", { desc = "Previous result in search /" })
 
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
-map({ "n", "v" }, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
-map({ "n", "v" }, "<leader>p", [["+p]], { desc = "Paste from system clipboard" })
-
--- diagnostic window unbinds
-del("n", "<C-w>d")
-del("n", "<C-w><C-d>")
-map("n", "<C-w>", "<nop>")
+map({ "v", "x" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
+map({ "n", "v", "x" }, "<leader>yy", '"+yy', { desc = "Yank line to clipboard" })
+map({ "n", "v", "x" }, "<leader>Y", '"+Y', { desc = "Yank to end of line to clipboard" })
+map({ "n", "v", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 
 -- window management
 map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
