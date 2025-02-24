@@ -6,9 +6,6 @@ vim.g.mapleader = " "
 -- repeat last macro
 map("n", "Q", "@@", { silent = true })
 
--- quit all buffers
-map("n", "<Leader>q", "<Cmd>qall<CR>", { silent = true })
-
 -- quickfix navigation
 map("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
 map("n", "[q", "<cmd>cprev<CR>", { desc = "Prev quickfix item" })
@@ -24,11 +21,6 @@ map("n", "<C-t>", "<C-i>")
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "" })
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "" })
 
--- diagnostic window unbinds
-del("n", "<C-w>d")
-del("n", "<C-w><C-d>")
-map("n", "<C-w>", "<nop>")
-
 -- terminal 'unbinds'
 map({ "c", "i", "t" }, "<c-j>", "<nop>")
 map({ "c", "i", "t" }, "<c-k>", "<nop>")
@@ -42,15 +34,11 @@ map("n", "N", "Nzzzv", { desc = "Previous result in search /" })
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
 map({ "n", "v" }, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
 map({ "n", "v" }, "<leader>p", [["+p]], { desc = "Paste from system clipboard" })
-map("v", "<leader>d", [["_d]], { desc = "Delete without yanking" })
 
--- replace current word
-map(
-  "n",
-  "<leader>rp",
-  [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-  { desc = "Replace current word" }
-)
+-- diagnostic window unbinds
+del("n", "<C-w>d")
+del("n", "<C-w><C-d>")
+map("n", "<C-w>", "<nop>")
 
 -- window management
 map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })

@@ -6,6 +6,7 @@ return {
       { "ma", mode = "n", desc = "Harpoon add" },
       { "M", mode = "n", desc = "Harpoon menu" },
       { "S", mode = "v", desc = "Add surround visual" },
+      { "<leader>c", group = "Column" },
       { "<leader>l", group = "LSP" },
       { "<leader>n", group = "Notifications" },
       { "<leader>f", group = "Filetree" },
@@ -15,7 +16,7 @@ return {
       { "<leader>t", group = "Tabs" },
       { "<leader>u", group = "Buffers" },
       { "<leader>w", group = "Wins" },
-      { "<leader>h", group = "Git Diff" },
+      { "<leader>g", group = "Git Diff" },
     })
   end,
   opts = {
