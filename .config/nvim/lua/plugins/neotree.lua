@@ -1,8 +1,6 @@
 return {
-  "nvim-neo-tree/neo-tree.nvim",
-  -- enabled = false,
-  --branch = "v3.x",
-  -- event = "VeryLazy",
+  dir = "~/dev/neo-tree.nvim",
+  -- "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
@@ -23,64 +21,88 @@ return {
     require("neo-tree").setup({
       default_component_configs = {
         indent = {
-          indent_size = 2,
-        },
-        modified = {
-          symbol = "*",
-        },
-        diagnostics = {
-          symbols = {
-            hint = "h",
-            info = "i",
-            warn = "w",
-            error = "e",
-          },
-        },
-        git_status = {
-          symbols = {
-            -- Change type
-            added = "",
-            deleted = "",
-            modified = "",
-            renamed = "",
-            -- Status type
-            untracked = "",
-            unstaged = "",
-            ignored = "",
-            staged = "",
-            conflict = "",
-          },
+          with_expanders = false,
+          expander_collapsed = ">",
+          expander_expanded = "-",
         },
       },
-
-      popup_border_style = "single",
-      event_handlers = { -- Close neo-tree when opening a file.
-        {
-          event = "file_opened",
-          handler = function()
-            require("neo-tree").close_all()
-          end,
-        },
-      },
-      filesystem = {
-        filtered_items = {
-          hide_dotfiles = false,
-          group_empty_dirs = true,
-          never_show = {
-            ".DS_Store",
-            ".git",
-            "__pycache__",
-          },
-        },
-        bind_to_cwd = true, -- true creates a 2-way binding between vim's cwd and neo-tree's root
-        window = {
-          mappings = {
-            ["<C-v>"] = "open_vsplit",
-            ["n"] = "toggle_node",
-            ["<space>"] = "none",
-          },
-        },
-      },
+      -- retain_hidden_root_indent = false,
+      -- hide_root_node = true,
+      --
+      -- default_component_configs = {
+      --   icon = {
+      --     folder_closed = "",
+      --     folder_open = "",
+      --     folder_empty = "",
+      --   },
+      --   indent = {
+      --     -- indent_size = 2,
+      --     -- guide_start_level = 0,
+      --   },
+      --   modified = {
+      --     symbol = "*",
+      --   },
+      --   diagnostics = {
+      --     symbols = {
+      --       hint = "h",
+      --       info = "i",
+      --       warn = "w",
+      --       error = "e",
+      --     },
+      --   },
+      --   git_status = {
+      --     symbols = {
+      --       -- Change type
+      --       added = "",
+      --       deleted = "",
+      --       modified = "",
+      --       renamed = "",
+      --       -- Status type
+      --       untracked = "",
+      --       unstaged = "",
+      --       ignored = "",
+      --       staged = "",
+      --       conflict = "",
+      --     },
+      --   },
+      -- },
+      --
+      -- popup_border_style = "single",
+      -- event_handlers = { -- Close neo-tree when opening a file.
+      --   {
+      --     event = "file_opened",
+      --     handler = function()
+      --       require("neo-tree").close_all()
+      --     end,
+      --   },
+      -- },
+      --
+      -- filesystem = {
+      --   filtered_items = {
+      --     show_hidden_count = false,
+      --     group_empty_dirs = true,
+      --     hide_dotfiles = false,
+      --     always_show = {
+      --       ".envrc",
+      --       ".env",
+      --     },
+      --     never_show = {
+      --       ".DS_Store",
+      --       ".git",
+      --       "__pycache__",
+      --     },
+      --   },
+      --   bind_to_cwd = true, -- true creates a 2-way binding between vim's cwd and neo-tree's root
+      --   window = {
+      --     mappings = {
+      --       ["<C-v>"] = "open_vsplit",
+      --       ["n"] = "toggle_node",
+      --       ["<space>"] = "none",
+      --     },
+      --   },
+      -- },
     })
+
+    vim.keymap.set("n", "0", "<cmd>Lazy reload neo-tree.nvim<CR>", { desc = "Reload neo-tree" })
   end,
 }

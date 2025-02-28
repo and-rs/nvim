@@ -13,10 +13,15 @@ return {
   config = function()
     require("mini.icons").setup({
       file = {
-        [".envrc"] = { glyph = "", hl = "MiniIconsBlue" },
+        [".env"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+        [".envrc"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+        [".env.example"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
         ["LICENSE"] = { glyph = "󰿃" },
       },
       filetype = {
+        -- typescript = { glyph = "" },
+        -- javascript = { glyph = "" },
+
         json = { glyph = "" },
         jsonc = { glyph = "" },
 
