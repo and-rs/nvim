@@ -32,9 +32,9 @@ map("n", "n", "nzzzv", { desc = "Next result in search /" })
 map("n", "N", "Nzzzv", { desc = "Previous result in search /" })
 
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
-map({ "v", "x" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
-map({ "n", "x" }, "<leader>yy", '"+yy', { desc = "Yank line to clipboard" })
-map({ "n", "x" }, "<leader>Y", '"+Y', { desc = "Yank to end of line to clipboard" })
+map({ "v" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
+map({ "n" }, "<leader>yy", '"+yy', { desc = "Yank line to clipboard" })
+map({ "n" }, "<leader>Y", '"+Y', { desc = "Yank to end of line to clipboard" })
 map({ "n", "v", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 
 -- window management
