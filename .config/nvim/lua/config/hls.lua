@@ -27,8 +27,8 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { underline = true })
 
     vim.api.nvim_set_hl(0, "NeoTreeNormal", { link = "NormalFloat" })
-    vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { link = "Function" })
-    vim.api.nvim_set_hl(0, "NeoTreeDirectoryName", { link = "Function" })
+    vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = Get_hl_hex("Function", "fg") })
+    vim.api.nvim_set_hl(0, "NeoTreeDirectoryName", { fg = Get_hl_hex("Function", "fg") })
     vim.api.nvim_set_hl(0, "NeoTreeGitUnstaged", { link = "Changed" })
     vim.api.nvim_set_hl(0, "NeoTreeGitModified", { link = "Changed" })
     vim.api.nvim_set_hl(0, "NeoTreeGitUntracked", { link = "Added" })
