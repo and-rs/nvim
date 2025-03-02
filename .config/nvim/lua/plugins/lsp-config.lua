@@ -54,6 +54,10 @@ return {
         },
       },
 
+      -- sql
+      -- postgres_lsp = {},
+      sqls = {},
+
       -- js tooling
       biome = {},
       eslint = {},
