@@ -140,9 +140,17 @@ return {
         },
         menu = {
           draw = {
+            components = {
+              source_name = {
+                width = { max = 30 },
+                text = function(ctx)
+                  return ctx.source_name
+                end,
+                highlight = "Special",
+              },
+            },
             columns = {
-              { "kind_icon", "label", "label_description", gap = 1 },
-              { "source_name" },
+              { "kind_icon", "label", "label_description", gap = 1, "source_name" },
             },
           },
           border = "single",

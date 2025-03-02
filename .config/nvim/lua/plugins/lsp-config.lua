@@ -56,7 +56,7 @@ return {
 
       -- sql
       -- postgres_lsp = {},
-      sqls = {},
+      -- sqls = {},
 
       -- js tooling
       biome = {},
