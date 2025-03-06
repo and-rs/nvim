@@ -2,7 +2,7 @@ return {
   --dir = "~/dev/statuscolumn.nvim",
   "JuanBaut/statuscolumn.nvim",
   event = { "BufReadPre", "BufNewFile" },
-  enabled = true,
+  enabled = false,
   lazy = false,
   config = function()
     require("statuscolumn").setup({

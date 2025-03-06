@@ -1,5 +1,4 @@
 local map = vim.keymap.set
-local del = vim.keymap.del
 
 vim.g.mapleader = " "
 
@@ -11,13 +10,15 @@ map("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
 map("n", "[q", "<cmd>cprev<CR>", { desc = "Prev quickfix item" })
 
 -- better end and start of the line
-map({ "n", "v" }, "L", "$", { desc = "End of the line" })
-map({ "n", "v" }, "H", "^", { desc = "Start of the line" })
+map({ "n", "v" }, "j", "gj", { desc = "Up" })
+map({ "n", "v" }, "k", "gk", { desc = "Down" })
+map({ "n", "v" }, "L", "g$", { desc = "End of the line" })
+map({ "n", "v" }, "H", "g^", { desc = "Start of the line" })
 
 -- replacing C-i because it mimics Tab
 map("n", "<C-t>", "<C-i>")
 
--- move with J and K with indents
+-- move with J and K ith indents
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "" })
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "" })
 
@@ -32,12 +33,12 @@ map("n", "n", "nzzzv", { desc = "Next result in search /" })
 map("n", "N", "Nzzzv", { desc = "Previous result in search /" })
 
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
-map({ "v" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
-map({ "n" }, "<leader>yy", '"+yy', { desc = "Yank line to clipboard" })
-map({ "n" }, "<leader>Y", '"+Y', { desc = "Yank to end of line to clipboard" })
+map("v", "<leader>y", [["+y]], { desc = "Yank to clipboard" })
+map("n", "<leader>yy", [["+yy]], { desc = "Yank line to clipboard" })
+map("n", "<leader>Y", [["+yg_]], { desc = "Yank to end of line to clipboard" })
 map({ "n", "v", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 
--- window management
+-- indow management
 map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
 map("n", "<leader>wh", "<C-w>s", { desc = "Split window horizontally" })
 map("n", "<leader>we", "<C-w>=", { desc = "Make splits equal size" })

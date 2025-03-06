@@ -1,6 +1,10 @@
 vim.loader.enable()
 vim.opt.mouse = ""
 
+vim.opt.wrap = true
+vim.opt.wrapmargin = 80
+vim.opt.linebreak = true
+
 -- remove eof character
 vim.opt.fillchars = { eob = " " }
 
@@ -41,9 +45,6 @@ vim.opt.breakindent = true
 -- Split direction
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-
--- line wrapping
-vim.opt.wrap = false
 
 -- indent symbols
 -- vim.opt.list = true
