@@ -2,6 +2,7 @@ return {
   "ibhagwan/fzf-lua",
   config = function()
     local fzf = require("fzf-lua")
+
     require("fzf-lua").setup({
       hls = {
         border = "WinBorder",
@@ -11,16 +12,14 @@ return {
       },
       actions = {
         files = {
-          true,
-          ["enter"] = fzf.file_edit_or_qf,
-          ["ctrl-s"] = fzf.file_split,
-          ["ctrl-v"] = fzf.file_vsplit,
-          ["ctrl-t"] = fzf.file_tabedit,
-          ["alt-q"] = fzf.file_sel_to_qf,
-          ["alt-Q"] = fzf.file_sel_to_ll,
-          ["alt-i"] = fzf.toggle_ignore,
-          ["alt-h"] = fzf.toggle_hidden,
-          ["alt-f"] = fzf.toggle_follow,
+          ["ctrl-s"] = fzf.actions.file_vsplit,
+          ["ctrl-t"] = fzf.actions.file_tabedit,
+          ["alt-q"] = fzf.actions.file_sel_to_qf,
+          ["alt-Q"] = fzf.actions.file_sel_to_ll,
+          ["alt-i"] = fzf.actions.toggle_ignore,
+          ["alt-h"] = fzf.actions.toggle_hidden,
+          ["alt-f"] = fzf.actions.toggle_follow,
+          ["enter"] = fzf.actions.file_edit_or_qf,
         },
       },
       fzf_colors = {

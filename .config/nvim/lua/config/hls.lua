@@ -35,6 +35,12 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     vim.api.nvim_set_hl(0, "NeoTreeGitRenamed", { link = "Added" })
     vim.api.nvim_set_hl(0, "NeoTreeGitConflict", { link = "Removed" })
     vim.api.nvim_set_hl(0, "NeoTreeFloatBorder", { link = "WinBorder" })
+
+    vim.api.nvim_set_hl(0, "SnacksPickerGitStatusUnstaged", { link = "Changed" })
+    vim.api.nvim_set_hl(0, "SnacksPickerGitStatusModified", { link = "Changed" })
+    vim.api.nvim_set_hl(0, "SnacksPickerGitStatusUntracked", { link = "Added" })
+    vim.api.nvim_set_hl(0, "SnacksPickerGitStatusRenamed", { link = "Added" })
+    vim.api.nvim_set_hl(0, "SnacksPickerGitStatusConflict", { link = "Removed" })
   end,
 })
 

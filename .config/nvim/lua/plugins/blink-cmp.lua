@@ -41,28 +41,7 @@ return {
           buffer = {
             name = "BUF",
           },
-          lsp = {
-            transform_items = function(_, items)
-              local col, before_cursor = get_cursor_context()
-              local trigger_pos = before_cursor:find(";[^;]*$")
-
-              if trigger_pos then
-                for _, item in ipairs(items) do
-                  item.textEdit = {
-                    newText = item.insertText or item.label,
-                    range = {
-                      start = { line = vim.fn.line(".") - 1, character = trigger_pos - 1 },
-                      ["end"] = { line = vim.fn.line(".") - 1, character = col },
-                    },
-                  }
-                end
-              end
-
-              return vim.tbl_filter(function(item)
-                return item.kind ~= require("blink.cmp.types").CompletionItemKind.Text
-              end, items)
-            end,
-          },
+          lsp = {},
 
           snippets = {
             name = "SNP",
