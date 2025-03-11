@@ -35,7 +35,11 @@ return {
 
     local servers = {
       -- zig, go and nix
-      zls = {},
+      zls = {
+        settings = {
+          semantic_tokens = "none",
+        },
+      },
       gopls = {},
       nil_ls = {},
 
