@@ -120,6 +120,14 @@ return {
         menu = {
           draw = {
             components = {
+
+              label = {
+                width = { max = 30 },
+                text = function(ctx)
+                  return ctx.label
+                end,
+                highlight = "@variable",
+              },
               source_name = {
                 width = { max = 30 },
                 text = function(ctx)
@@ -129,7 +137,7 @@ return {
               },
             },
             columns = {
-              { "kind_icon", "label", "label_description", gap = 1, "source_name" },
+              { "kind_icon", "label", gap = 2, "source_name" },
             },
           },
           border = "single",
