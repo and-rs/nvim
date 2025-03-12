@@ -8,6 +8,14 @@ return {
         replace_netrw = true,
       },
       picker = {
+        icons = {
+          diagnostics = {
+            Error = "×",
+            Warn = "•",
+            Hint = "•",
+            Info = "•",
+          },
+        },
         layout = {
           auto_hide = { "input" },
         },
@@ -26,6 +34,7 @@ return {
                   ["<c-s>"] = { "edit_vsplit", mode = { "i", "n" } },
                   ["x"] = "explorer_move",
                   ["c-t"] = false,
+                  ["m"] = false,
                   ["P"] = false,
                 },
               },
