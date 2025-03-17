@@ -20,7 +20,7 @@ return {
           x_padding = 0,
           y_padding = 0,
           winblend = 0,
-          relative = "win",
+          -- relative = "win",
           border = "single",
           normal_hl = "NormalFloat",
         },

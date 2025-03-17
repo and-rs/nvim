@@ -15,7 +15,11 @@ return {
       file = {
         [".env"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
         [".envrc"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+        [".env.test"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+        [".env.local"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
         [".env.example"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+        [".env.template"] = { glyph = "󰛸", hl = "MiniIconsBlue" },
+
         ["LICENSE"] = { glyph = "󰿃" },
       },
       filetype = {

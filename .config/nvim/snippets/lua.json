@@ -1,0 +1,1 @@
+{"autocmd":{"prefix":"autocmd","body":["vim.api.nvim_create_autocmd(\"${1:BufRead}\", {","  callback = function()","    ${2:do something}","  end,","  group = ${3:group},","  pattern = \"*\",","})"]}}

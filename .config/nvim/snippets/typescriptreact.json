@@ -1,0 +1,1 @@
+{"component":{"body":["${1:export default }function ${2:Component}() {","  return (","    <>","      <span>${3:Hello World}<\/span>","    <\/>","  );","}"],"prefix":"component"}}

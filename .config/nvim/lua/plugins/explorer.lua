@@ -10,10 +10,22 @@ return {
       picker = {
         icons = {
           diagnostics = {
-            Error = "×",
-            Warn = "•",
-            Hint = "•",
-            Info = "•",
+            Error = " ×",
+            Warn = " •",
+            Hint = " •",
+            Info = " •",
+          },
+          git = {
+            commit = "󰜘",
+            conflict = "",
+            staged = "",
+            added = "",
+            deleted = "",
+            modified = "",
+            ignored = "",
+            unstaged = "",
+            renamed = "",
+            untracked = "",
           },
         },
         layout = {
