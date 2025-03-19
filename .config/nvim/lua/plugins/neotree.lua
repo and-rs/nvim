@@ -1,6 +1,6 @@
 return {
   dir = "~/dev/neo-tree.nvim",
-  enabled = false,
+  -- enabled = false,
   -- "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
     "nvim-lua/plenary.nvim",

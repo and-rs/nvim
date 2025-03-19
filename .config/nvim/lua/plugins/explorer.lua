@@ -1,6 +1,6 @@
 return {
   "folke/snacks.nvim",
-  -- enabled = false,
+  enabled = false,
   config = function()
     require("snacks").setup({
       explorer = {
