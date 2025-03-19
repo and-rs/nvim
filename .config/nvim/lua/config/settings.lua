@@ -4,6 +4,7 @@ vim.opt.mouse = ""
 vim.opt.wrap = true
 vim.opt.wrapmargin = 80
 vim.opt.linebreak = true
+vim.opt.breakat = " "
 
 -- remove eof character
 vim.opt.fillchars = { eob = " " }
