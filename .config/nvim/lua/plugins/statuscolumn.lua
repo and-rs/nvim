@@ -1,12 +1,11 @@
 return {
-  --dir = "~/dev/statuscolumn.nvim",
+  -- dir = "~/dev/statuscolumn.nvim",
   "JuanBaut/statuscolumn.nvim",
+  -- enabled = false,
   event = { "BufReadPre", "BufNewFile" },
-  enabled = false,
-  lazy = false,
   config = function()
     require("statuscolumn").setup({
-      enable_border = false,
+      enable_border = true,
       gradient_hl = "Statement",
     })
   end,
