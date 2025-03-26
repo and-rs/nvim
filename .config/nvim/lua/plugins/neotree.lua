@@ -1,5 +1,5 @@
 return {
-  dir = "~/dev/neo-tree.nvim",
+  dir = "~/vault/dev/neo-tree.nvim",
   -- enabled = false,
   -- "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
