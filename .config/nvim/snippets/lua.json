@@ -1,1 +1,1 @@
-{"autocmd":{"prefix":"autocmd","body":["vim.api.nvim_create_autocmd(\"${1:BufRead}\", {","  callback = function()","    ${2:do something}","  end,","  group = ${3:group},","  pattern = \"*\",","})"]}}
+{"autocmd":{"body":["vim.api.nvim_create_autocmd(\"${1:BufRead}\", {","  callback = function()","    ${2:do something}","  end,","  group = ${3:group},","  pattern = \"*\",","})"],"prefix":"autocmd"},"hlss":{"prefix":"hlss","body":"set_hl(0, \"${1:hls}\", { fg = colors.highlight(\"${2:hls2}\", \"fg\"), bg = column_background })"}}

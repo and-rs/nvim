@@ -43,6 +43,7 @@ map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
 map("n", "<leader>wh", "<C-w>s", { desc = "Split window horizontally" })
 map("n", "<leader>we", "<C-w>=", { desc = "Make splits equal size" })
 map("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close current split" })
+map("n", "<leader>wo", "<cmd>on<CR>", { desc = "Close all other windows" })
 
 -- tab management
 map("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })

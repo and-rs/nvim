@@ -1,4 +1,4 @@
-local lint_progress = function()
+local function lint_progress()
   local linters = require("lint").get_running()
   if #linters == 0 then
     return ""
@@ -6,7 +6,7 @@ local lint_progress = function()
   return " " .. table.concat(linters, ", ")
 end
 
-local harpoon = function()
+local function harpoon()
   local mark = ""
   if package.loaded["harpoon"] then
     local current_file = vim.fn.expand("%:p")
@@ -23,20 +23,30 @@ local harpoon = function()
   return mark
 end
 
+local function location()
+  local line = vim.fn.line(".")
+  local col = vim.fn.charcol(".")
+  return line .. ":" .. col
+end
+
 return {
   "nvim-lualine/lualine.nvim",
   config = function()
     local colors = {
-      white = Get_hl_hex("Statement", "fg"),
-      red = Get_hl_hex("Constant", "fg"),
-      green = Get_hl_hex("Character", "fg"),
-      blue = Get_hl_hex("Function", "fg"),
-      yellow = Get_hl_hex("Function", "fg"),
-      grey = Get_hl_hex("Comment", "fg"),
-      dark = Get_hl_hex("StatusLineNc", "bg"),
+      white = Get_hl_hex("PreProc", "fg"),
+      border = Get_hl_hex("Conceal", "fg"),
+      background = Get_hl_hex("StatusLineNc", "bg"),
     }
 
     require("lualine").setup({
+      inactive_sections = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+      },
       sections = {
         lualine_a = {
           {
@@ -44,7 +54,7 @@ return {
             path = 0,
             symbols = {
               modified = "",
-              readonly = " ",
+              readonly = "",
               unnamed = "No name",
               newfile = "New file",
             },
@@ -58,10 +68,10 @@ return {
         lualine_y = {},
         lualine_z = {
           lint_progress,
-          { "diff", symbols = { added = "+", modified = "~", removed = "-" } },
+          location,
           "progress",
-          "location",
-          { "filetype", colored = false, icon = { align = "right" } },
+          "vim.bo.filetype",
+          { "diff", symbols = { added = "+", modified = "~", removed = "-" } },
         },
       },
 
@@ -69,39 +79,14 @@ return {
         icons_enabled = true,
         globalstatus = true,
         disabled_filetypes = { "alpha" },
-        component_separators = { left = "›", right = "‹" },
-        section_separators = { left = "›", right = "‹" },
+        component_separators = { left = "▕ ", right = " ▏" },
+        section_separators = "",
 
         theme = {
           normal = {
-            a = { bg = colors.dark, fg = colors.white, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.white },
-            c = { bg = colors.dark, fg = colors.white },
-          },
-          insert = {
-            a = { bg = colors.dark, fg = colors.blue, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.blue },
-            c = { bg = colors.dark, fg = colors.blue },
-          },
-          visual = {
-            a = { bg = colors.dark, fg = colors.red, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.red },
-            c = { bg = colors.dark, fg = colors.red },
-          },
-          replace = {
-            a = { bg = colors.dark, fg = colors.green, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.green },
-            c = { bg = colors.dark, fg = colors.green },
-          },
-          command = {
-            a = { bg = colors.dark, fg = colors.yellow, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.yellow },
-            c = { bg = colors.dark, fg = colors.yellow },
-          },
-          inactive = {
-            a = { bg = colors.dark, fg = colors.gray, gui = "bold" },
-            b = { bg = colors.dark, fg = colors.gray },
-            c = { bg = colors.dark, fg = colors.gray },
+            a = { bg = colors.background, fg = colors.white },
+            b = { bg = colors.background, fg = colors.white },
+            c = { bg = colors.background, fg = colors.white },
           },
         },
       },

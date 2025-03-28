@@ -1,8 +1,12 @@
 vim.loader.enable()
 vim.opt.mouse = ""
 
-vim.opt.wrap = true
-vim.opt.wrapmargin = 80
+-- folds
+vim.opt.foldenable = false
+vim.opt.foldmethod = "manual"
+
+-- wrap
+vim.opt.wrap = false
 vim.opt.linebreak = true
 vim.opt.breakat = " "
 
