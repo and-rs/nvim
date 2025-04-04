@@ -16,22 +16,44 @@ return {
           vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
         end
 
+        map("K", function()
+          vim.lsp.buf.hover({ border = "single" })
+        end, "Hover LSP info")
         map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
         map("gd", "<cmd>lua vim.lsp.buf.definition()<CR>", "Go to Definition")
 
         -- Diagnostics
-        map("<leader>d", vim.diagnostic.open_float, "Show line diagnostics")
+        map("<leader>d", function()
+          vim.diagnostic.open_float({ border = "single" })
+        end, "Show line diagnostics")
         map("[d", vim.diagnostic.goto_prev, "Go to previous diagnostic")
         map("]d", vim.diagnostic.goto_next, "Go to next diagnostic")
       end,
     })
 
-    -- Change the Diagnostic symbols in the sign column (gutter)
-    local signs = { Error = "×", Warn = "•", Hint = "•", Info = "•" }
-    for type, icon in pairs(signs) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-    end
+    vim.diagnostic.config({
+      virtual_text = {
+        enabled = true,
+        severity = {
+          max = vim.diagnostic.severity.WARN,
+        },
+      },
+      virtual_lines = {
+        enabled = true,
+        severity = {
+          min = vim.diagnostic.severity.ERROR,
+        },
+      },
+      underline = true,
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "×",
+          [vim.diagnostic.severity.WARN] = "•",
+          [vim.diagnostic.severity.HINT] = "•",
+          [vim.diagnostic.severity.INFO] = "•",
+        },
+      },
+    })
 
     local servers = {
       -- zig, go and nix
@@ -109,29 +131,12 @@ return {
             },
           },
         },
-        -- cmd = {...},
-        -- filetypes = { ...},
-        -- capabilities = {},
       },
-      -- clangd = {},
-      -- rust_analyzer = {},
     }
 
     for server, config in pairs(servers) do
       config.capabilities = require("blink.cmp").get_lsp_capabilities(config.capabilities)
       require("lspconfig")[server].setup(config)
     end
-
-    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-      border = { "│", "", "│", "│", "│", "", "│", "│" },
-    })
-
-    vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-      border = { "│", "", "│", "│", "│", "", "│", "│" },
-    })
-
-    vim.diagnostic.config({
-      border = { "│", "", "│", "│", "│", "", "│", "│" },
-    })
   end,
 }
