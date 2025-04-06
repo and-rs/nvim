@@ -9,6 +9,7 @@ vim.opt.foldmethod = "manual"
 vim.opt.wrap = false
 vim.opt.linebreak = true
 vim.opt.breakat = " "
+vim.opt.textwidth = 80
 
 -- remove eof character
 vim.opt.fillchars = { eob = " " }

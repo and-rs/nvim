@@ -25,6 +25,7 @@ return {
 
         "gitignore",
         "query",
+        "hurl",
 
         "markdown",
         "markdown_inline",
@@ -32,6 +33,7 @@ return {
         "dockerfile",
         "yaml",
         "toml",
+        "kdl",
 
         "bash",
         "python",

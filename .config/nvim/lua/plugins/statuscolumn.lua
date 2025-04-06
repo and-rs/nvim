@@ -1,6 +1,6 @@
 return {
-  dir = "~/vault/dev/statuscolumn.nvim",
-  -- "JuanBaut/statuscolumn.nvim",
+  -- dir = "~/vault/dev/statuscolumn.nvim",
+  "JuanBaut/statuscolumn.nvim",
   -- enabled = false,
   event = { "BufReadPre", "BufNewFile" },
   config = function()
