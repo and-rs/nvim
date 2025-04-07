@@ -8,6 +8,10 @@ return {
       append_args = { "--indent-style=space" },
     }
 
+    conform.formatters.deno_fmt = {
+      append_args = { "--prose-wrap=never" },
+    }
+
     conform.setup({
       formatters_by_ft = {
         javascript = { "biome", "rustywind" },
@@ -19,9 +23,9 @@ return {
         html = { "biome", "rustywind" },
         json = { "biome", "rustywind" },
         yaml = { "biome", "rustywind" },
-        markdown = { "biome", "rustywind" },
         graphql = { "biome", "rustywind" },
 
+        markdown = { "deno_fmt" },
         lua = { "stylua" },
         sh = { "beautysh" },
         python = { "black" },
