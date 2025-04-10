@@ -9,7 +9,7 @@ return {
 
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
-      group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+      group = vim.api.nvim_create_augroup("lsp", { clear = true }),
 
       callback = function(event)
         local map = function(keys, func, desc)
@@ -28,6 +28,22 @@ return {
         end, "Show line diagnostics")
         map("[d", vim.diagnostic.goto_prev, "Go to previous diagnostic")
         map("]d", vim.diagnostic.goto_next, "Go to next diagnostic")
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = ".env.*",
+      group = "lsp",
+      callback = function()
+        vim.diagnostic.enable(false)
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = ".env.example",
+      group = "lsp",
+      callback = function()
+        vim.cmd("setfiletype sh")
       end,
     })
 

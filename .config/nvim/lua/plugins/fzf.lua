@@ -4,6 +4,7 @@ return {
     local fzf = require("fzf-lua")
 
     require("fzf-lua").setup({
+      header = false,
       hls = {
         border = "WinBorder",
         preview_border = "WinBorder",
@@ -39,15 +40,18 @@ return {
         ["scrollbar"] = { "fg", "WinBorder" },
       },
       winopts = {
-        border = { "├", "─", "┤", "│", "┘", "─", "└", "│" },
+        -- border = { "├", "─", "┤", "│", "┘", "─", "└", "│" },
+        border = "single",
         height = 0.6,
-        width = 76,
-        row = 0,
+        width = 80,
+        row = 0.1,
         col = 0.5,
+        title_pos = "left",
         preview = {
+          hidden = true,
           border = { "┌", "─", "┐", "│", "", "", "", "│" },
           layout = "vertical",
-          vertical = "up:44%",
+          vertical = "up:42%",
           scrollbar = false,
         },
       },
@@ -64,7 +68,7 @@ return {
                 border = "single",
               },
               height = 0.2,
-              width = 40,
+              width = 50,
               row = 0.4,
               col = 0.48,
             },
