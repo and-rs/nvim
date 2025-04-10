@@ -2,6 +2,9 @@ local map = vim.keymap.set
 
 vim.g.mapleader = " "
 
+-- search visual selection (very nice)
+map("v", "//", [[y/\V<C-R>=escape(@",'/\')<cr><cr>]], { desc = "Search visual selection" })
+
 -- repeat last macro
 map("n", "Q", "@@", { desc = "Repeat last macro" })
 
@@ -21,6 +24,11 @@ map("n", "<C-t>", "<C-i>")
 -- move with J and K ith indents
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "" })
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "" })
+
+-- better terminal remaps
+map({ "c", "i", "t" }, "<c-d>", "<Del>")
+map({ "c", "i", "t" }, "<c-f>", "<Right>")
+map({ "c", "i", "t" }, "<c-b>", "<Left>")
 
 -- terminal 'unbinds'
 map({ "c", "i", "t" }, "<c-j>", "<nop>")
@@ -42,6 +50,11 @@ map({ "n", "v", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
 map("n", "<leader>wh", "<C-w>s", { desc = "Split window horizontally" })
 map("n", "<leader>we", "<C-w>=", { desc = "Make splits equal size" })
+map("n", "<leader>wr", "<C-w>r", { desc = "Rotate splits" })
+map("n", "<leader>wh", "<C-w>H", { desc = "Send split to the right" })
+map("n", "<leader>wj", "<C-w>J", { desc = "Send split to the botton" })
+map("n", "<leader>wk", "<C-w>K", { desc = "Send split to the top" })
+map("n", "<leader>wl", "<C-w>L", { desc = "Send split to the left" })
 map("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close current split" })
 map("n", "<leader>wo", "<cmd>on<CR>", { desc = "Close all other windows" })
 

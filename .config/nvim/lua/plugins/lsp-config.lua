@@ -20,7 +20,6 @@ return {
           vim.lsp.buf.hover({ border = "single" })
         end, "Hover LSP info")
         map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
-        map("gd", "<cmd>lua vim.lsp.buf.definition()<CR>", "Go to Definition")
 
         -- Diagnostics
         map("<leader>d", function()
