@@ -5,10 +5,8 @@ return {
 
     fzf.setup({
       hls = {
-        border = "WinBorder",
-        preview_border = "WinBorder",
-        header_text = "Comment",
-        header_bind = "Comment",
+        border = "FloatBorder",
+        preview_border = "FloatBorder",
       },
       actions = {
         files = {
@@ -25,13 +23,23 @@ return {
         },
       },
       fzf_colors = {
+        ["bg"] = { "bg", "FloatBorder" },
+        ["bg+"] = { "bg", "FloatBorder" },
+
         ["fg"] = { "fg", "Comment" },
         ["fg+"] = { "fg", "Normal" },
+
         ["hl"] = { "fg", "Special" },
+        ["hl+"] = { "fg", "Special" },
+
         ["spinner"] = { "fg", "Label" },
-        ["header"] = { "fg", "Comment" },
-        ["separator"] = { "fg", "WinBorder" },
-        ["scrollbar"] = { "fg", "WinBorder" },
+        ["marker"] = { "fg", "Normal" },
+        ["pointer"] = { "fg", "Normal" },
+        ["info"] = { "fg", "FloatBorder" },
+        ["prompt"] = { "fg", "FloatBorder" },
+        ["header"] = { "fg", "FloatBorder" },
+        ["separator"] = { "fg", "FloatBorder" },
+        ["scrollbar"] = { "fg", "FloatBorder" },
       },
       winopts = {
         border = "single",

@@ -112,9 +112,9 @@ return {
           auto_show = true,
           auto_show_delay_ms = 300,
           window = {
-            border = { "─", "─", "┐", "│", "┘", "─", "─", " " },
+            border = "single",
             max_height = 10,
-            winhighlight = "Normal:BlinkCmpDoc,FloatBorder:WinBorder,EndOfBuffer:BlinkCmpDoc",
+            winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,EndOfBuffer:BlinkCmpDoc",
           },
         },
         ghost_text = {
@@ -144,7 +144,7 @@ return {
             },
           },
           border = "single",
-          winhighlight = "Normal:BlinkCmpMenu,FloatBorder:WinBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
+          winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
         },
       },
 
