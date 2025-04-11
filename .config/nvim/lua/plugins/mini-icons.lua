@@ -29,6 +29,7 @@ return {
         json = { glyph = "" },
         jsonc = { glyph = "" },
 
+        hurl = { glyph = "", hl = "MiniIconsRed" },
         sh = { glyph = "󰐣", hl = "MiniIconsBlue" },
         zsh = { glyph = "󰐣" },
         bash = { glyph = "󰐣" },
