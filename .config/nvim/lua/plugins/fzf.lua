@@ -44,7 +44,7 @@ return {
       winopts = {
         border = "single",
         height = 15,
-        width = 90,
+        width = 80,
         row = 0.1,
         col = 0.5,
         preview = {
