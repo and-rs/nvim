@@ -49,6 +49,12 @@ return {
     vim.diagnostic.config({
       virtual_text = {
         enabled = true,
+        spacing = 0,
+        -- TODO = implement fucntion for severity
+        prefix = " •",
+        suffix = " |",
+        hl_mode = "blend",
+        virt_text_pos = "eol",
       },
       underline = true,
       signs = {
