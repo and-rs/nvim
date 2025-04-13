@@ -25,8 +25,14 @@ return {
         map("<leader>d", function()
           vim.diagnostic.open_float({ border = "single" })
         end, "Show line diagnostics")
-        map("[d", vim.diagnostic.goto_prev, "Go to previous diagnostic")
-        map("]d", vim.diagnostic.goto_next, "Go to next diagnostic")
+
+        map("[d", function()
+          vim.diagnostic.jump({ float = { border = "single" }, count = -1 })
+        end, "Go to previous diagnostic")
+
+        map("]d", function()
+          vim.diagnostic.jump({ float = { border = "single" }, count = -1 })
+        end, "Go to next diagnostic")
       end,
     })
 
@@ -49,20 +55,24 @@ return {
     vim.diagnostic.config({
       virtual_text = {
         enabled = true,
-        spacing = 0,
-        -- TODO = implement fucntion for severity
-        prefix = " •",
-        suffix = " |",
-        hl_mode = "blend",
-        virt_text_pos = "eol",
+        prefix = function(diagnostic)
+          if diagnostic.severity == vim.diagnostic.severity.ERROR then
+            return string.format(" × %s", diagnostic.message)
+          elseif diagnostic.severity == vim.diagnostic.severity.WARN then
+            return string.format(" ▲ %s", diagnostic.message)
+          else
+            return string.format(" • %s", diagnostic.message)
+          end
+        end,
+        suffix = "▕",
       },
       underline = true,
       signs = {
         text = {
-          [vim.diagnostic.severity.ERROR] = "×",
-          [vim.diagnostic.severity.WARN] = "•",
-          [vim.diagnostic.severity.HINT] = "•",
-          [vim.diagnostic.severity.INFO] = "•",
+          [vim.diagnostic.severity.ERROR] = " ×",
+          [vim.diagnostic.severity.WARN] = " ▲",
+          [vim.diagnostic.severity.HINT] = " •",
+          [vim.diagnostic.severity.INFO] = " •",
         },
       },
     })
