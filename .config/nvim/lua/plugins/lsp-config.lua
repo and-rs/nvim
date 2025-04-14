@@ -57,11 +57,11 @@ return {
         enabled = true,
         prefix = function(diagnostic)
           if diagnostic.severity == vim.diagnostic.severity.ERROR then
-            return string.format(" × %s", diagnostic.message)
+            return "▏× "
           elseif diagnostic.severity == vim.diagnostic.severity.WARN then
-            return string.format(" ▲ %s", diagnostic.message)
+            return "▏▲ "
           else
-            return string.format(" • %s", diagnostic.message)
+            return "▏• "
           end
         end,
         suffix = "▕",

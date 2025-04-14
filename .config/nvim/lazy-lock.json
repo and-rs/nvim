@@ -33,7 +33,7 @@
   "quicker.nvim": { "branch": "master", "commit": "1798be71cdcb15fb84fa8054148a56e17fd391dc" },
   "smart-splits.nvim": { "branch": "master", "commit": "d3011454da78dd72883e131d4b1e7239a29d086e" },
   "snacks.nvim": { "branch": "main", "commit": "bc0630e43be5699bb94dadc302c0d21615421d93" },
-  "statuscolumn.nvim": { "branch": "main", "commit": "5d750be5f7510fd6f4f225d9f40feca0d247fddf" },
+  "statuscolumn.nvim": { "branch": "main", "commit": "4896784ae30a231191d93021f83c878e5181cab6" },
   "tokyonight.nvim": { "branch": "main", "commit": "057ef5d260c1931f1dffd0f052c685dcd14100a3" },
   "typescript-tools.nvim": { "branch": "master", "commit": "a4109c70e7d6a3a86f971cefea04ab6720582ba9" },
   "which-key.nvim": { "branch": "main", "commit": "370ec46f710e058c9c1646273e6b225acf47cbed" },
