@@ -16,16 +16,8 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
   group = vim.api.nvim_create_augroup("Color", {}),
   pattern = "*",
   callback = function()
-    -- vim.api.nvim_set_hl(
-    --   0,
-    --   "WinBorder",
-    --   { bg = Get_hl_hex("NormalFloat", "bg"), fg = Get_hl_hex("Comment", "fg") }
-    -- )
+    vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { underline = true })
     vim.api.nvim_set_hl(0, "WinSeparator", { link = "FloatBorder" })
-    -- vim.api.nvim_set_hl(0, "FloatBorder", { link = "WinBorder" })
-    -- vim.api.nvim_set_hl(0, "FloatTitle", { link = "WinBorder" })
-    -- vim.api.nvim_set_hl(0, "QuickFixLineNr", { link = "@variable" })
-    -- vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { underline = true })
 
     vim.api.nvim_set_hl(0, "NeoTreeNormal", { link = "NormalFloat" })
     vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = Get_hl_hex("Function", "fg") })

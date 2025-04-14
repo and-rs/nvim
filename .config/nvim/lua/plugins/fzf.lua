@@ -8,10 +8,9 @@ return {
         border = "FloatBorder",
         preview_border = "FloatBorder",
       },
+      keymap = { fzf = { ["ctrl-y"] = "toggle" } },
       actions = {
         files = {
-          -- ["ctrl-y"] = "--select-1|-q",
-
           ["ctrl-v"] = fzf.actions.file_vsplit,
           ["ctrl-t"] = fzf.actions.file_tabedit,
           ["alt-q"] = fzf.actions.file_sel_to_qf,
