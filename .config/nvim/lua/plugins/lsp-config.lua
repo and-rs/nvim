@@ -37,6 +37,14 @@ return {
     })
 
     vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = "*",
+      group = "lsp",
+      callback = function()
+        vim.diagnostic.enable()
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("BufEnter", {
       pattern = { ".env", ".env.*" },
       group = "lsp",
       callback = function()
