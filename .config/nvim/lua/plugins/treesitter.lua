@@ -9,6 +9,20 @@ return {
     local treesitter = require("nvim-treesitter.configs")
     vim.treesitter.language.register("bash", "env")
 
+    vim.filetype.add({
+      extension = {
+        env = "env",
+      },
+      filename = {
+        [".env"] = "env",
+      },
+      pattern = {
+        ["%.env%.[%w_.-]+"] = "env",
+      },
+    })
+
+    vim.treesitter.language.register("bash", "env")
+
     treesitter.setup({
       highlight = {
         enable = true,
