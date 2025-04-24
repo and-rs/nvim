@@ -36,30 +36,6 @@ return {
       end,
     })
 
-    vim.api.nvim_create_autocmd("BufEnter", {
-      pattern = "*",
-      group = "lsp",
-      callback = function()
-        vim.diagnostic.enable()
-      end,
-    })
-
-    vim.api.nvim_create_autocmd("BufEnter", {
-      pattern = { ".env", ".env.*" },
-      group = "lsp",
-      callback = function()
-        vim.diagnostic.enable(false)
-      end,
-    })
-
-    vim.api.nvim_create_autocmd("BufEnter", {
-      pattern = ".env.example",
-      group = "lsp",
-      callback = function()
-        vim.cmd("setfiletype sh")
-      end,
-    })
-
     vim.diagnostic.config({
       virtual_text = {
         enabled = true,
@@ -85,7 +61,22 @@ return {
       },
     })
 
+    vim.filetype.add({
+      extension = {
+        env = "env",
+      },
+      filename = {
+        [".env"] = "env",
+      },
+      pattern = {
+        ["%.env%.[%w_.-]+"] = "env",
+      },
+    })
+
     local servers = {
+      -- bash
+      bashls = {},
+
       -- zig, go and nix
       zls = {
         settings = {
@@ -144,9 +135,6 @@ return {
           },
         },
       },
-
-      -- bash
-      bashls = {},
 
       -- lua
       lua_ls = {
