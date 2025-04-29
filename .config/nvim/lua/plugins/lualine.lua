@@ -53,7 +53,7 @@ return {
             "filename",
             path = 0,
             symbols = {
-              modified = "",
+              modified = " ",
               readonly = "",
               unnamed = "No name",
               newfile = "New file",
@@ -79,7 +79,7 @@ return {
         icons_enabled = true,
         globalstatus = true,
         disabled_filetypes = { "alpha" },
-        component_separators = { left = "▕ ", right = " ▏" },
+        component_separators = " │ ",
         section_separators = "",
 
         theme = {
