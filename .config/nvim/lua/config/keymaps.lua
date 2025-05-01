@@ -1,29 +1,35 @@
-local map = vim.keymap.set
+local map = function(mode, keys, action, desc)
+  local description = ""
+  if desc then
+    description = desc
+  end
+  vim.keymap.set(mode, keys, action, { desc = description, silent = true, noremap = true })
+end
 
 vim.g.mapleader = " "
 
 -- search visual selection (very nice)
-map("v", "//", [[y/\V<C-R>=escape(@",'/\')<cr><cr>]], { desc = "Search visual selection" })
+map("v", "//", [[y/\V<C-R>=escape(@",'/\')<cr><cr>]], "Search visual selection")
 
 -- repeat last macro
-map("n", "Q", "@@", { desc = "Repeat last macro" })
+map("n", "Q", "@@", "Repeat last macro")
 
 -- quickfix navigation
-map("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
-map("n", "[q", "<cmd>cprev<CR>", { desc = "Prev quickfix item" })
+map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
+map("n", "[q", "<cmd>cprev<CR>", "Prev quickfix item")
 
 -- better end and start of the line
-map({ "n", "v" }, "j", "gj", { desc = "Up" })
-map({ "n", "v" }, "k", "gk", { desc = "Down" })
-map({ "n", "v" }, "L", "g$", { desc = "End of the line" })
-map({ "n", "v" }, "H", "g^", { desc = "Start of the line" })
+map({ "n", "v" }, "j", "gj", "Up")
+map({ "n", "v" }, "k", "gk", "Down")
+map({ "n", "v" }, "L", "g$", "End of the line")
+map({ "n", "v" }, "H", "g^", "Start of the line")
 
 -- replacing C-i because it mimics Tab
 map("n", "<C-t>", "<C-i>")
 
 -- move with J and K ith indents
-map("v", "J", ":m '>+1<CR>gv=gv", { desc = "" })
-map("v", "K", ":m '<-2<CR>gv=gv", { desc = "" })
+map("v", "J", ":m '>+1<CR>gv=gv")
+map("v", "K", ":m '<-2<CR>gv=gv")
 
 -- better terminal remaps
 map({ "c", "i", "t" }, "<c-d>", "<Del>")
@@ -36,31 +42,41 @@ map({ "c", "i", "t" }, "<c-k>", "<nop>")
 map({ "n", "v", "i" }, "<c-l>", "<nop>")
 
 -- keep cursor centered
-map("n", "J", "mzJ`z", { desc = "Move current line up" })
-map("n", "n", "nzzzv", { desc = "Next result in search /" })
-map("n", "N", "Nzzzv", { desc = "Previous result in search /" })
+map("n", "J", "mzJ`z", "Move current line up")
+map("n", "n", "nzzzv", "Next result in search /")
+map("n", "N", "Nzzzv", "Previous result in search /")
 
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
-map("v", "<leader>y", [["+y]], { desc = "Yank to clipboard" })
-map("n", "<leader>yy", [["+yy]], { desc = "Yank line to clipboard" })
-map("n", "<leader>Y", [["+yg_]], { desc = "Yank to end of line to clipboard" })
-map({ "n", "v", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
+map("v", "<leader>y", [["+y]], "Yank to clipboard")
+map("n", "<leader>yy", [["+yy]], "Yank line to clipboard")
+map("n", "<leader>Y", [["+yg_]], "Yank to end of line to clipboard")
+map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
+
+-- yank and format selection to markdown automagically
+map("v", "<leader>md", function()
+  vim.cmd('normal! "+y')
+  local content = vim.fn.getreg("+")
+  local filetype = vim.bo.filetype
+  local filename = vim.fn.expand("%")
+  local result = table.concat({ "### ", filename, "\n```", filetype, "\n", content, "```" })
+  vim.fn.setreg("+", result)
+end, "Yank with filename as heading and wrap in md fence")
 
 -- indow management
-map("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
-map("n", "<leader>wh", "<C-w>s", { desc = "Split window horizontally" })
-map("n", "<leader>we", "<C-w>=", { desc = "Make splits equal size" })
-map("n", "<leader>wr", "<C-w>r", { desc = "Rotate splits" })
-map("n", "<leader>wh", "<C-w>H", { desc = "Send split to the right" })
-map("n", "<leader>wj", "<C-w>J", { desc = "Send split to the botton" })
-map("n", "<leader>wk", "<C-w>K", { desc = "Send split to the top" })
-map("n", "<leader>wl", "<C-w>L", { desc = "Send split to the left" })
-map("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close current split" })
-map("n", "<leader>wo", "<cmd>on<CR>", { desc = "Close all other windows" })
+map("n", "<leader>wv", "<C-w>v", "Split window vertically")
+map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
+map("n", "<leader>we", "<C-w>=", "Make splits equal size")
+map("n", "<leader>wr", "<C-w>r", "Rotate splits")
+map("n", "<leader>wh", "<C-w>H", "Send split to the right")
+map("n", "<leader>wj", "<C-w>J", "Send split to the botton")
+map("n", "<leader>wk", "<C-w>K", "Send split to the top")
+map("n", "<leader>wl", "<C-w>L", "Send split to the left")
+map("n", "<leader>wx", "<cmd>close<CR>", "Close current split")
+map("n", "<leader>wo", "<cmd>on<CR>", "Close all other windows")
 
 -- tab management
-map("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })
-map("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })
-map("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })
-map("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })
-map("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" })
+map("n", "<leader>to", "<cmd>tabnew<CR>", "Open new tab")
+map("n", "<leader>tx", "<cmd>tabclose<CR>", "Close current tab")
+map("n", "<leader>tn", "<cmd>tabn<CR>", "Go to next tab")
+map("n", "<leader>tp", "<cmd>tabp<CR>", "Go to previous tab")
+map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
