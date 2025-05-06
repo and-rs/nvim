@@ -8,7 +8,7 @@ return {
         border = "FloatBorder",
         preview_border = "FloatBorder",
       },
-      keymap = { fzf = { ["ctrl-y"] = "toggle" } },
+      keymap = { fzf = { ["ctrl-y"] = "toggle+down" } },
       actions = {
         files = {
           ["ctrl-v"] = fzf.actions.file_vsplit,
