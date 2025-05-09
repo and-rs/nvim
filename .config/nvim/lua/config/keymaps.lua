@@ -6,6 +6,14 @@ local map = function(mode, keys, action, desc)
   vim.keymap.set(mode, keys, action, { desc = description, silent = true, noremap = true })
 end
 
+local wrap_with_markdown = function()
+  local content = vim.fn.getreg("+")
+  local filetype = vim.bo.filetype
+  local filename = vim.fn.expand("%")
+  local result = table.concat({ "### ", filename, "\n```", filetype, "\n", content, "```" })
+  vim.fn.setreg("+", result)
+end
+
 vim.g.mapleader = " "
 
 -- search visual selection (very nice)
@@ -53,14 +61,15 @@ map("n", "<leader>Y", [["+yg_]], "Yank to end of line to clipboard")
 map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
 
 -- yank and format selection to markdown automagically
-map("v", "<leader>md", function()
+map("n", "<leader>mf", function()
+  vim.cmd('normal! ggVG"+y')
+  wrap_with_markdown()
+end, "Yank file with filename as heading and wrap in md fence")
+
+map("v", "<leader>ms", function()
   vim.cmd('normal! "+y')
-  local content = vim.fn.getreg("+")
-  local filetype = vim.bo.filetype
-  local filename = vim.fn.expand("%")
-  local result = table.concat({ "### ", filename, "\n```", filetype, "\n", content, "```" })
-  vim.fn.setreg("+", result)
-end, "Yank with filename as heading and wrap in md fence")
+  wrap_with_markdown()
+end, "Yank selection with filename as heading and wrap in markdown")
 
 -- indow management
 map("n", "<leader>wv", "<C-w>v", "Split window vertically")
