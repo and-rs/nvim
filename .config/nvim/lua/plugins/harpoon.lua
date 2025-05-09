@@ -10,7 +10,8 @@ return {
     local toggle_opts = {
       title = " Harpoon ",
       title_pos = "center",
-      ui_width_ratio = 0.40,
+      ui_max_width = 80,
+      ui_width_ratio = 1,
     }
 
     vim.keymap.set("n", "M", function()
