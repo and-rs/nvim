@@ -4,9 +4,15 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   config = function()
     require("nvim-surround").setup({
-      delimiters = {
-        pairs = {
-          ["F"] = { "<>", "</>" },
+      surrounds = {
+        F = {
+          add = { "<>", "</>" },
+          find = "<>.-</>",
+          delete = "^(<>)().-(</>)()$",
+          change = {
+            target = "^(<>)().-(</>)()$",
+            replacement = { "<>", "</>" },
+          },
         },
       },
     })
