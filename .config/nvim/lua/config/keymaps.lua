@@ -3,7 +3,7 @@ local map = function(mode, keys, action, desc)
   if desc then
     description = desc
   end
-  vim.keymap.set(mode, keys, action, { desc = description, silent = true, noremap = true })
+  vim.keymap.set(mode, keys, action, { desc = description })
 end
 
 local wrap_with_markdown = function()
@@ -17,7 +17,7 @@ end
 vim.g.mapleader = " "
 
 -- search visual selection (very nice)
-map("v", "//", [[y/\V<C-R>=escape(@",'/\')<cr><cr>]], "Search visual selection")
+map("v", "//", [[y:let @/ = '\V' . escape(@", '/\\')<CR>]], "Search visual selection")
 
 -- repeat last macro
 map("n", "Q", "@@", "Repeat last macro")
