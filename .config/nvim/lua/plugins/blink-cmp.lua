@@ -100,6 +100,11 @@ return {
       keymap = {
         ["<C-l>"] = { "snippet_forward", "fallback" },
         ["<C-h>"] = { "snippet_backward", "fallback" },
+        ["<C-c>"] = {
+          function(list)
+            list.show()
+          end,
+        },
       },
 
       completion = {
