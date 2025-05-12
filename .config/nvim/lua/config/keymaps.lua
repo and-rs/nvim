@@ -1,9 +1,11 @@
-local map = function(mode, keys, action, desc)
-  local description = ""
-  if desc then
-    description = desc
-  end
-  vim.keymap.set(mode, keys, action, { desc = description })
+local function map(mode, keys, action, desc, opts)
+  local defaults = {
+    desc = desc or "",
+    noremap = true,
+  }
+
+  local merged = vim.tbl_extend("force", defaults, opts or {})
+  vim.keymap.set(mode, keys, action, merged)
 end
 
 local wrap_with_markdown = function()
@@ -17,7 +19,7 @@ end
 vim.g.mapleader = " "
 
 -- search visual selection (very nice)
-map("v", "//", [[y:let @/ = '\V' . escape(@", '/\\')<CR>]], "Search visual selection")
+map("v", "//", [[y:let@/='\V'.escape(@",'/\\')<CR>]], "Search visual selection", { silent = true })
 
 -- repeat last macro
 map("n", "Q", "@@", "Repeat last macro")
@@ -36,8 +38,8 @@ map({ "n", "v" }, "H", "g^", "Start of the line")
 map("n", "<C-t>", "<C-i>")
 
 -- move with J and K ith indents
-map("v", "J", ":m '>+1<CR>gv=gv")
-map("v", "K", ":m '<-2<CR>gv=gv")
+map("v", "J", ":m '>+1<CR>gv=gv", "Move line down", { silent = true })
+map("v", "K", ":m '<-2<CR>gv=gv", "Move line up", { silent = true })
 
 -- better terminal remaps
 map({ "c", "i", "t" }, "<c-d>", "<Del>")
