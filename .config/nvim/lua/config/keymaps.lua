@@ -9,9 +9,9 @@ local function map(mode, keys, action, desc, opts)
 end
 
 local wrap_with_markdown = function()
+  local path = vim.fn.expand("%")
   local content = vim.fn.getreg("+")
   local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
-  local path = vim.fn.expand("%")
   local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "```" })
   vim.fn.setreg("+", result)
 end
