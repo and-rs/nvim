@@ -9,7 +9,7 @@ local function map(mode, keys, action, desc, opts)
 end
 
 local wrap_with_markdown = function()
-  local path = vim.fn.expand("%")
+  local path = vim.fn.expand("%:.")
   local content = vim.fn.getreg("+")
   local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
   local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "```" })
@@ -17,6 +17,10 @@ local wrap_with_markdown = function()
 end
 
 vim.g.mapleader = " "
+
+-- better manual indenting
+map("v", "<", "<gv<C-o>'<", "Inner indent while remaining in visual mode")
+map("v", ">", ">gv<C-o>'<", "Outer indent while remaining in visual mode")
 
 -- search visual selection (very nice)
 map("v", "//", [[y:let@/='\V'.escape(@",'/\\')<CR>]], "Search visual selection", { silent = true })

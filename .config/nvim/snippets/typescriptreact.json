@@ -1,1 +1,1 @@
-{"component":{"body":["${1:export default }function ${2:Component}() {","  return (","    <>","      <span>${3:Hello World}<\/span>","    <\/>","  );","}"],"prefix":"component"}}
+{"iconcmp":{"body":["export default function ${1:Icon}() {","  return (","    <div className=\"[&_svg]:size-7\">","      ${2:svg}","    </div>","  );","}"],"prefix":"iconcmp"},"component":{"body":["${1:export default }function ${2:Component}() {","  return (","    <>","      <span>${3:Hello World}</span>","    </>","  );","}"],"prefix":"component"}}
