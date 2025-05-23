@@ -80,13 +80,14 @@ return {
           group_empty_dirs = true,
           hide_dotfiles = false,
           always_show = {
+            ".env.local",
             ".envrc",
             ".env",
           },
           never_show = {
+            "__pycache__",
             ".DS_Store",
             ".git",
-            "__pycache__",
           },
         },
         bind_to_cwd = true, -- true creates a 2-way binding between vim's cwd and neo-tree's root

@@ -8,14 +8,6 @@ local function map(mode, keys, action, desc, opts)
   vim.keymap.set(mode, keys, action, merged)
 end
 
-local wrap_with_markdown = function()
-  local path = vim.fn.expand("%:.")
-  local content = vim.fn.getreg("+")
-  local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
-  local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "```" })
-  vim.fn.setreg("+", result)
-end
-
 vim.g.mapleader = " "
 
 -- better manual indenting
@@ -66,17 +58,6 @@ map("n", "<leader>yy", [["+yy]], "Yank line to clipboard")
 map("n", "<leader>Y", [["+yg_]], "Yank to end of line to clipboard")
 map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
 
--- yank and format selection to markdown automagically
-map("n", "<leader>mf", function()
-  vim.cmd('normal! ggVG"+y')
-  wrap_with_markdown()
-end, "Yank file with filename as heading and wrap in md fence")
-
-map("v", "<leader>ms", function()
-  vim.cmd('normal! "+y')
-  wrap_with_markdown()
-end, "Yank selection with filename as heading and wrap in markdown")
-
 -- indow management
 map("n", "<leader>wv", "<C-w>v", "Split window vertically")
 map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
@@ -95,3 +76,27 @@ map("n", "<leader>tx", "<cmd>tabclose<CR>", "Close current tab")
 map("n", "<leader>tn", "<cmd>tabn<CR>", "Go to next tab")
 map("n", "<leader>tp", "<cmd>tabp<CR>", "Go to previous tab")
 map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
+
+local wrap_with_markdown = function(content)
+  local path = vim.fn.expand("%:.")
+  local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
+  local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "\n```" })
+  vim.fn.setreg("+", result)
+end
+
+map("n", "<leader>mf", function()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local content = table.concat(lines, "\n")
+  wrap_with_markdown(content)
+  vim.notify("Entire file copied with MD formatting")
+end, "Yank file with filename as heading and wrap in md fence")
+
+map("v", "<leader>ms", function()
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
+  local lines =
+    vim.api.nvim_buf_get_text(0, start_pos[2] - 1, start_pos[3] - 1, end_pos[2] - 1, end_pos[3], {})
+  local content = table.concat(lines, "\n")
+  wrap_with_markdown(content)
+  vim.notify("Selection copied with MD formatting")
+end, "Yank selection with filename as heading and wrap in markdown")
