@@ -92,11 +92,11 @@ map("n", "<leader>mf", function()
 end, "Yank file with filename as heading and wrap in md fence")
 
 map("v", "<leader>ms", function()
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-  local lines =
-    vim.api.nvim_buf_get_text(0, start_pos[2] - 1, start_pos[3] - 1, end_pos[2] - 1, end_pos[3], {})
+  local v_start = vim.fn.getpos("'<")
+  local v_end = vim.fn.getpos("'>")
+  local lines = vim.api.nvim_buf_get_lines(0, v_start[2] - 1, v_end[2], false)
   local content = table.concat(lines, "\n")
+
   wrap_with_markdown(content)
   vim.notify("Selection copied with MD formatting")
 end, "Yank selection with filename as heading and wrap in markdown")
