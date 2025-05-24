@@ -101,14 +101,17 @@ return {
         },
       },
 
-      -- sql
-      -- postgres_lsp = {},
-      -- sqls = {},
-
       -- js tooling
       biome = {},
       eslint = {},
-      tailwindcss = {},
+      tailwindcss = {
+        cmd = {
+          "bunx",
+          "--bun",
+          "@tailwindcss/language-server",
+          "--stdio",
+        },
+      },
 
       -- html, json, css
       html = {},
@@ -153,7 +156,6 @@ return {
     }
 
     for server, config in pairs(servers) do
-      config.capabilities = require("blink.cmp").get_lsp_capabilities(config.capabilities)
       require("lspconfig")[server].setup(config)
     end
   end,

@@ -27,7 +27,7 @@ map("n", "[q", "<cmd>cprev<CR>", "Prev quickfix item")
 -- better end and start of the line
 map({ "n", "v" }, "j", "gj", "Up")
 map({ "n", "v" }, "k", "gk", "Down")
-map({ "n", "v" }, "L", "g$", "End of the line")
+map({ "n", "v" }, "L", "$", "End of the line")
 map({ "n", "v" }, "H", "g^", "Start of the line")
 
 -- replacing C-i because it mimics Tab

@@ -1,6 +1,8 @@
 return {
   "saghen/blink.cmp",
-  event = { "CmdlineEnter", "BufNewFile", "BufReadPre" },
+  lazy = false,
+  enabled = true,
+  event = { "CmdlineEnter", "InsertEnter" },
   dependencies = {
     "L3MON4D3/LuaSnip",
     dependencies = "rafamadriz/friendly-snippets",
@@ -15,19 +17,14 @@ return {
   version = "*",
   config = function()
     local cmp = require("blink.cmp")
-
-    local function get_cursor_context()
-      local col = vim.api.nvim_win_get_cursor(0)[2]
-      local line = vim.api.nvim_get_current_line()
-      return col, line:sub(1, col)
-    end
-
-    local function is_snippet_trigger()
-      local _, before_cursor = get_cursor_context()
-      return before_cursor:match(";%w*$") ~= nil
-    end
+    local trigger_text = ";"
 
     cmp.setup({
+      enabled = function()
+        local filetype = vim.bo[0].filetype == "fzf"
+        return filetype and false or true
+      end,
+
       snippets = {
         preset = "luasnip",
       },
@@ -44,63 +41,53 @@ return {
           buffer = {
             name = "BUF",
           },
-          lsp = {},
+          lsp = {
+            name = "LSP",
+            async = false,
+            timeout_ms = 0,
+            max_items = 20,
+          },
 
           snippets = {
-            name = "SNP",
-            enabled = true,
-            max_items = 20,
-            min_keyword_length = 1,
-            module = "blink.cmp.sources.snippets",
-
-            -- Higher number is higher priority
             score_offset = 85,
-
-            -- Only show snippets after ';' character
+            min_keyword_length = 2,
+            module = "blink.cmp.sources.snippets",
             should_show_items = function()
-              return is_snippet_trigger()
+              local col = vim.api.nvim_win_get_cursor(0)[2]
+              local before_cursor = vim.api.nvim_get_current_line():sub(1, col)
+              return before_cursor:match(trigger_text .. "%w*$") ~= nil
             end,
-
             transform_items = function(_, items)
-              local col, before_cursor = get_cursor_context()
-              local trigger_pos = before_cursor:find(";[^;]*$")
-
-              if trigger_pos then
+              local line = vim.api.nvim_get_current_line()
+              local col = vim.api.nvim_win_get_cursor(0)[2]
+              local before_cursor = line:sub(1, col)
+              local start_pos, end_pos =
+                before_cursor:find(trigger_text .. "[^" .. trigger_text .. "]*$")
+              if start_pos then
                 for _, item in ipairs(items) do
-                  item.textEdit = {
-                    newText = item.insertText or item.label,
-                    range = {
-                      start = { line = vim.fn.line(".") - 1, character = trigger_pos - 1 },
-                      ["end"] = { line = vim.fn.line(".") - 1, character = col },
-                    },
-                  }
+                  if not item.trigger_text_modified then
+                    ---@diagnostic disable-next-line: inject-field
+                    item.trigger_text_modified = true
+                    item.textEdit = {
+                      newText = item.insertText or item.label,
+                      range = {
+                        start = { line = vim.fn.line(".") - 1, character = start_pos - 1 },
+                        ["end"] = { line = vim.fn.line(".") - 1, character = end_pos },
+                      },
+                    }
+                  end
                 end
               end
-
-              -- Reload snippets otherwise it won't work correctly, idk why
-              vim.schedule(function()
-                require("blink.cmp").reload("snippets")
-              end)
               return items
             end,
           },
         },
-
-        -- Filter snippets if they are not triggered
-        transform_items = function(_, items)
-          if is_snippet_trigger() then
-            return items
-          end
-          return vim.tbl_filter(function(item)
-            return item.kind ~= require("blink.cmp.types").CompletionItemKind.Snippet
-          end, items)
-        end,
       },
 
       keymap = {
         ["<C-l>"] = { "snippet_forward", "fallback" },
         ["<C-h>"] = { "snippet_backward", "fallback" },
-        ["<C-c>"] = {
+        ["<C-t>"] = {
           function(list)
             list.show()
           end,
@@ -109,13 +96,14 @@ return {
 
       completion = {
         list = {
+          max_items = 20,
           selection = {
             preselect = false,
           },
         },
         documentation = {
           auto_show = true,
-          auto_show_delay_ms = 300,
+          auto_show_delay_ms = 200,
           window = {
             border = "single",
             max_height = 10,
@@ -128,7 +116,6 @@ return {
         menu = {
           draw = {
             components = {
-
               label = {
                 width = { max = 30 },
                 text = function(ctx)
@@ -162,24 +149,19 @@ return {
           Method = "󰊕",
           Function = "󰊕",
           Constructor = "󰒓",
-
           Field = "󰜢",
           Variable = "󰆦",
           Property = "",
-
           Class = "󱡠",
           Interface = "󱡠",
           Struct = "󱡠",
           Module = "󰅩",
-
           Unit = "󰪚",
           Value = "",
           Enum = "",
           EnumMember = "",
-
           Keyword = "󰌋",
           Constant = "󰏿",
-
           Snippet = "󰅪",
           Color = "󰏘",
           File = "󰈔",

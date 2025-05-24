@@ -27,14 +27,14 @@ return {
         ["bg+"] = { "bg", "FloatBorder" },
 
         ["fg"] = { "fg", "Comment" },
-        ["fg+"] = { "fg", "Normal" },
+        ["fg+"] = { "fg", "PreProc" },
 
-        ["hl"] = { "fg", "Special" },
-        ["hl+"] = { "fg", "Special" },
+        ["hl"] = { "fg", "Constant" },
+        ["hl+"] = { "fg", "Constant" },
 
         ["spinner"] = { "fg", "Label" },
-        ["marker"] = { "fg", "Normal" },
-        ["pointer"] = { "fg", "Normal" },
+        ["marker"] = { "fg", "PreProc" },
+        ["pointer"] = { "fg", "PreProc" },
         ["info"] = { "fg", "FloatBorder" },
         ["prompt"] = { "fg", "FloatBorder" },
         ["header"] = { "fg", "FloatBorder" },
@@ -44,8 +44,8 @@ return {
       winopts = {
         border = "single",
         height = 15,
-        width = 80,
-        row = 0.1,
+        width = 76,
+        row = 0.2,
         col = 0.5,
         preview = {
           hidden = true,
