@@ -43,7 +43,7 @@ return {
           },
           lsp = {
             name = "LSP",
-            async = false,
+            async = true,
             timeout_ms = 0,
             max_items = 20,
           },
