@@ -50,6 +50,7 @@ return {
         "toml",
         "kdl",
 
+        "nu",
         "bash",
         "python",
 
