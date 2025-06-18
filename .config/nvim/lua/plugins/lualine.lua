@@ -35,7 +35,7 @@ return {
     local colors = {
       white = Get_hl_hex("PreProc", "fg"),
       border = Get_hl_hex("Conceal", "fg"),
-      background = Get_hl_hex("StatusLineNc", "bg"),
+      background = Get_hl_hex("NormalFloat", "bg"),
     }
 
     require("lualine").setup({

@@ -53,5 +53,6 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 -- indent symbols
--- vim.opt.list = true
--- vim.opt.listchars = { tab = "· ", trail = " ", nbsp = "␣" }
+-- tab cannot be less than 2
+vim.opt.list = true
+vim.opt.listchars = { tab = "  ", trail = "›", nbsp = "␣" }
