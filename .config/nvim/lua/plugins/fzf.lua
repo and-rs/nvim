@@ -6,6 +6,7 @@ return {
 
     fzf.setup({
       hls = {
+        prompt = "Constant",
         border = "FloatBorder",
         preview_border = "FloatBorder",
       },
@@ -35,11 +36,13 @@ return {
         ["spinner"] = { "fg", "Label" },
         ["marker"] = { "fg", "PreProc" },
         ["pointer"] = { "fg", "PreProc" },
-        ["info"] = { "fg", "FloatBorder" },
-        ["prompt"] = { "fg", "FloatBorder" },
-        ["header"] = { "fg", "FloatBorder" },
-        ["separator"] = { "fg", "FloatBorder" },
-        ["scrollbar"] = { "fg", "FloatBorder" },
+
+        ["prompt"] = { "fg", "Special" },
+        ["info"] = { "fg", "Special" },
+
+        ["header"] = { "fg", "Normal" },
+        ["separator"] = { "fg", "Normal" },
+        ["scrollbar"] = { "fg", "Normal" },
       },
       winopts = {
         border = "single",
