@@ -8,6 +8,10 @@ return {
       append_args = { "--indent-style=space" },
     }
 
+    conform.formatters.sleek = {
+      append_args = { "--indent-spaces=2" },
+    }
+
     conform.formatters.deno_fmt = {
       append_args = { "--prose-wrap=never" },
     }
@@ -30,6 +34,7 @@ return {
         sh = { "beautysh" },
         python = { "black" },
         nix = { "nixfmt" },
+        sql = { "sleek" },
       },
       format_on_save = {
         lsp_fallback = true,
