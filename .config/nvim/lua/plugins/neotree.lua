@@ -41,10 +41,16 @@ return {
         },
         diagnostics = {
           symbols = {
-            hint = "h",
-            info = "i",
-            warn = "w",
-            error = "e",
+            error = "×",
+            warn = "▲",
+            hint = "•",
+            info = "•",
+          },
+          highlights = {
+            hint = "DiagnosticHint",
+            info = "DiagnosticInfo",
+            warn = "DiagnosticWarn",
+            error = "DiagnosticError",
           },
         },
         git_status = {

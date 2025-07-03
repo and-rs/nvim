@@ -10,7 +10,13 @@ return {
         border = "FloatBorder",
         preview_border = "FloatBorder",
       },
-      keymap = { fzf = { ["ctrl-y"] = "toggle+down" } },
+      keymap = {
+        fzf = { ["ctrl-y"] = "toggle+down", ["ctrl-i"] = "up+toggle" },
+        -- builtin = {
+        --   ["<C-e>"] = "toggle-fullscreen+toggle_preview",
+        --   ["<F1>"] = "toggle-help",
+        -- },
+      },
       actions = {
         files = {
           ["ctrl-v"] = fzf.actions.file_vsplit,
@@ -76,7 +82,7 @@ return {
       color_icons = false,
     }
 
-    local map = function(keys, picker, desc)
+    local map = function(keys, picker, desc, mode)
       local command
       if type(picker) == "string" then
         command = function()
@@ -87,7 +93,7 @@ return {
       else
         error("Invalid picker type: must be a string or function")
       end
-      vim.keymap.set("n", keys, command, { desc = desc })
+      vim.keymap.set(mode and mode or "n", keys, command, { desc = desc })
     end
 
     local extend = function(table1, table2)
@@ -121,5 +127,11 @@ return {
     map("<leader>lc", "lsp_code_actions", "LSP Code Actions")
     map("<leader>lt", "lsp_typedefs", "LSP Type Definitions")
     map("<leader>lI", "lsp_implementations", "LSP Implementations")
+
+    --util
+    map("<C-e>", function()
+      require("fzf-lua.win").toggle_fullscreen()
+      require("fzf-lua.win").toggle_preview()
+    end, "Toggle FZF fullscreen", { "c", "i", "t" })
   end,
 }
