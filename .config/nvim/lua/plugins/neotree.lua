@@ -1,7 +1,7 @@
 return {
-  -- dir = "~/vault/dev/neo-tree.nvim",
+  dir = "~/vault/dev/neo-tree.nvim",
   -- enabled = false,
-  "nvim-neo-tree/neo-tree.nvim",
+  -- "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
