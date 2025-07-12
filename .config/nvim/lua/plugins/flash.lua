@@ -6,12 +6,6 @@ return {
       backdrop = true,
       matches = true,
       priority = 5000,
-      groups = {
-        current = "PreProc",
-        match = "Function",
-        label = "Constant",
-        --backdrop = "FlashBackdrop",
-      },
     },
     modes = {
       char = {

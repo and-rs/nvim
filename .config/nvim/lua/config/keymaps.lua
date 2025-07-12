@@ -80,23 +80,20 @@ map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
 local wrap_with_markdown = function(content)
   local path = vim.fn.expand("%:.")
   local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
-  local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "\n```" })
+  local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "```" })
   vim.fn.setreg("+", result)
 end
 
 map("n", "<leader>mf", function()
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-  local content = table.concat(lines, "\n")
+  vim.cmd('normal! ggVG"ny')
+  local content = vim.fn.getreg("n") .. "\n"
   wrap_with_markdown(content)
   vim.notify("Entire file copied with MD formatting")
 end, "Yank file with filename as heading and wrap in md fence")
 
 map("v", "<leader>ms", function()
-  local v_start = vim.fn.getpos("'<")
-  local v_end = vim.fn.getpos("'>")
-  local lines = vim.api.nvim_buf_get_lines(0, v_start[2] - 1, v_end[2], false)
-  local content = table.concat(lines, "\n")
-
+  vim.cmd('normal! "ny')
+  local content = vim.fn.getreg("n")
   wrap_with_markdown(content)
   vim.notify("Selection copied with MD formatting")
 end, "Yank selection with filename as heading and wrap in markdown")

@@ -12,12 +12,22 @@ function Get_hl_hex(name, option)
   return hex_color
 end
 
-vim.g.termguicolors = true
-
 vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
   group = vim.api.nvim_create_augroup("Color", {}),
   pattern = "*",
   callback = function()
+    vim.api.nvim_set_hl(0, "Type", { link = "String" })
+    vim.api.nvim_set_hl(0, "Delimiter", { link = "Variable" })
+    vim.api.nvim_set_hl(0, "Statement", { fg = Get_hl_hex("Identifier", "fg"), italic = true })
+
+    vim.api.nvim_set_hl(0, "Search", { fg = Get_hl_hex("Special", "fg") })
+
+    vim.api.nvim_set_hl(
+      0,
+      "Substitute",
+      { bg = Get_hl_hex("String", "fg"), fg = Get_hl_hex("Normal", "bg") }
+    )
+
     vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { underline = true })
     vim.api.nvim_set_hl(0, "WinSeparator", { link = "FloatBorder" })
 

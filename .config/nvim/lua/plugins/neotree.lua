@@ -1,6 +1,5 @@
 return {
   dir = "~/vault/dev/neo-tree.nvim",
-  -- enabled = false,
   -- "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -25,16 +24,19 @@ return {
 
       default_component_configs = {
         icon = {
-          folder_closed = "",
-          folder_open = "",
-          folder_empty = "",
+          folder_closed = "►",
+          folder_open = "▼",
+          folder_empty = "/",
+          -- folder_closed = "",
+          -- folder_open = "",
+          -- folder_empty = "",
         },
         indent = {
           indent_size = 2,
           marker_start_level = 1,
           -- with_expanders = true,
-          -- expander_collapsed = "»",
-          -- expander_expanded = "↓",
+          -- expander_collapsed = "►",
+          -- expander_expanded = "▼",
         },
         modified = {
           symbol = "*",
@@ -56,16 +58,16 @@ return {
         git_status = {
           symbols = {
             -- Change type
-            added = "",
-            deleted = "",
+            added = "+",
+            deleted = "-",
             modified = "",
-            renamed = "",
+            renamed = ">",
             -- Status type
-            untracked = "",
-            unstaged = "",
-            ignored = "",
-            staged = "",
-            conflict = "",
+            untracked = "?",
+            unstaged = "~",
+            ignored = "/",
+            staged = "•",
+            conflict = "!",
           },
         },
       },
@@ -102,6 +104,44 @@ return {
             ["<C-v>"] = "open_vsplit",
             ["n"] = "toggle_node",
             ["<space>"] = "none",
+          },
+        },
+      },
+
+      renderers = {
+        directory = { --> this is for directories
+          { "indent" },
+          { "icon" }, --> left icon that you want to disable
+          { "current_filter" },
+          {
+            "container",
+            content = {
+              { "name", zindex = 10 },
+              { "clipboard", zindex = 10 },
+              {
+                "diagnostics",
+                errors_only = true,
+                zindex = 20,
+                align = "right",
+                hide_when_expanded = true,
+              }, --> right icon that you want to config
+              { "git_status", zindex = 20, align = "right", hide_when_expanded = true }, --> right icon that you want to config
+            },
+          },
+        },
+        file = { --> this is for files
+          { "indent" },
+          { "" }, --> left icon that you want to disable
+          {
+            "container",
+            content = {
+              { "name", zindex = 10 },
+              { "clipboard", zindex = 10 },
+              { "bufnr", zindex = 10 },
+              { "modified", zindex = 20, align = "right" },
+              { "diagnostics", zindex = 20, align = "right" }, --> right icon that you want to config
+              { "git_status", zindex = 20, align = "right" }, --> right icon that you want to config
+            },
           },
         },
       },

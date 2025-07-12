@@ -8,6 +8,10 @@ return {
       append_args = { "--indent-style=space" },
     }
 
+    conform.formatters.black = {
+      append_args = { "--line-length=80" },
+    }
+
     conform.formatters.sleek = {
       append_args = { "--indent-spaces=2" },
     }
@@ -24,7 +28,7 @@ return {
         typescriptreact = { "biome", "rustywind" },
         svelte = { "biome", "rustywind" },
         css = { "biome", "rustywind" },
-        html = { "biome", "rustywind" },
+        html = { "deno_fmt", "rustywind" },
         json = { "biome", "rustywind" },
         yaml = { "biome", "rustywind" },
         graphql = { "biome", "rustywind" },

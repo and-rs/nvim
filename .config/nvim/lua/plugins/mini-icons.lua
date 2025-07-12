@@ -26,6 +26,8 @@ return {
         -- typescript = { glyph = "" },
         -- javascript = { glyph = "" },
 
+        markdown = { glyph = "" },
+
         json = { glyph = "" },
         jsonc = { glyph = "" },
 
