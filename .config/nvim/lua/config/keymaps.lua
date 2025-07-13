@@ -68,7 +68,7 @@ map("n", "<leader>wj", "<C-w>J", "Send split to the botton")
 map("n", "<leader>wk", "<C-w>K", "Send split to the top")
 map("n", "<leader>wl", "<C-w>L", "Send split to the left")
 map("n", "<leader>wx", "<cmd>close<CR>", "Close current split")
-map("n", "<leader>wo", "<cmd>on<CR>", "Close all other windows")
+map("n", "<leader>wo", "<cmd>on | diffoff<CR>", "Close all other windows")
 
 -- tab management
 map("n", "<leader>to", "<cmd>tabnew<CR>", "Open new tab")
