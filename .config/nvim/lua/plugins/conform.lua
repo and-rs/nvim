@@ -33,9 +33,11 @@ return {
         yaml = { "biome", "rustywind" },
         graphql = { "biome", "rustywind" },
 
+        zsh = { "beautysh" },
+        sh = { "beautysh" },
+
         markdown = { "deno_fmt" },
         lua = { "stylua" },
-        sh = { "beautysh" },
         python = { "black" },
         nix = { "nixfmt" },
         sql = { "sleek" },

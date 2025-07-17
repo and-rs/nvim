@@ -75,7 +75,11 @@ return {
 
     local servers = {
       -- bash
-      bashls = {},
+      bashls = {
+        settings = {
+          filetypes = { "sh", "zsh" },
+        },
+      },
 
       -- zig, go and nix
       zls = {

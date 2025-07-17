@@ -20,7 +20,6 @@ return {
     })
 
     vim.treesitter.language.register("bash", "env")
-    vim.treesitter.language.register("bash", "zsh")
 
     treesitter.setup({
       highlight = {
