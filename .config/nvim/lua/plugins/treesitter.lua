@@ -7,8 +7,6 @@ return {
   --},
   config = function()
     local treesitter = require("nvim-treesitter.configs")
-    vim.treesitter.language.register("bash", "env")
-
     vim.filetype.add({
       extension = {
         env = "env",
@@ -22,6 +20,7 @@ return {
     })
 
     vim.treesitter.language.register("bash", "env")
+    vim.treesitter.language.register("bash", "zsh")
 
     treesitter.setup({
       highlight = {
