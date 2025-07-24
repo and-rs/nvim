@@ -36,9 +36,12 @@ return {
         zsh = { "beautysh" },
         sh = { "beautysh" },
 
+        htmldjango = { "djlint", "rustywind" },
+        jinja = { "djlint", "rustywind" },
+        python = { "black" },
+
         markdown = { "deno_fmt" },
         lua = { "stylua" },
-        python = { "black" },
         nix = { "nixfmt" },
         sql = { "sleek" },
       },

@@ -1,4 +1,9 @@
-require("config")
+require("config.settings")
+require("config.keymaps")
+require("config.lazy")
+
+require("utils.highlights")
+require("utils.tailwind")
 
 if vim.g.neovide then
   vim.o.guifont = "Input Mono,Symbols Nerd Font Mono:h12"

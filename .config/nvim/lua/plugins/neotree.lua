@@ -147,6 +147,7 @@ return {
       },
     })
 
-    vim.keymap.set("n", "0", "<cmd>Lazy reload neo-tree.nvim<CR>", { desc = "Reload neo-tree" })
+    -- only while debuggin
+    -- vim.keymap.set("n", "0", "<cmd>Lazy reload neo-tree.nvim<CR>", { desc = "Reload neo-tree" })
   end,
 }

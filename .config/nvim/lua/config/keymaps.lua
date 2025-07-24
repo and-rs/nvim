@@ -24,14 +24,9 @@ map("n", "Q", "@@", "Repeat last macro")
 map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
 map("n", "[q", "<cmd>cprev<CR>", "Prev quickfix item")
 
--- better end and start of the line
+-- better up and down
 map({ "n", "v" }, "j", "gj", "Up")
 map({ "n", "v" }, "k", "gk", "Down")
-map({ "n", "v" }, "L", "$", "End of the line")
-map({ "n", "v" }, "H", "g^", "Start of the line")
-
--- replacing C-i because it mimics Tab
-map("n", "<C-t>", "<C-i>")
 
 -- move with J and K ith indents
 map("v", "J", ":m '>+1<CR>gv=gv", "Move line down", { silent = true })
@@ -86,7 +81,7 @@ end
 
 map("n", "<leader>mf", function()
   vim.cmd('normal! ggVG"ny')
-  local content = vim.fn.getreg("n") .. "\n"
+  local content = vim.fn.getreg("n")
   wrap_with_markdown(content)
   vim.notify("Entire file copied with MD formatting")
 end, "Yank file with filename as heading and wrap in md fence")

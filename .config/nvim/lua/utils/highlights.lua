@@ -1,3 +1,6 @@
+---@param name string
+---@param option string
+---@return string | nil
 function Get_hl_hex(name, option)
   if type(name) ~= "string" or (option ~= "fg" and option ~= "bg") then
     error("Invalid arguments. Usage: highlight(name: string, option: 'fg' | 'bg')")
@@ -31,9 +34,10 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { underline = true })
     vim.api.nvim_set_hl(0, "WinSeparator", { link = "FloatBorder" })
 
-    vim.api.nvim_set_hl(0, "NeoTreeNormal", { link = "NormalFloat" })
     vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = Get_hl_hex("Identifier", "fg") })
     vim.api.nvim_set_hl(0, "NeoTreeDirectoryName", { fg = Get_hl_hex("Identifier", "fg") })
+    vim.api.nvim_set_hl(0, "NeoTreeNormal", { link = "NormalFloat" })
+
     vim.api.nvim_set_hl(0, "NeoTreeGitUnstaged", { link = "Changed" })
     vim.api.nvim_set_hl(0, "NeoTreeGitModified", { link = "Changed" })
     vim.api.nvim_set_hl(0, "NeoTreeGitUntracked", { link = "Added" })

@@ -17,9 +17,9 @@ return {
         delay = 0,
       },
       blank = {
-        enable = true,
+        enable = false,
         chars = {
-          "·",
+          "▏",
         },
       },
     })

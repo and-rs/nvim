@@ -74,14 +74,6 @@ return {
     })
 
     local servers = {
-      -- bash
-      bashls = {
-        settings = {
-          filetypes = { "sh", "zsh" },
-        },
-      },
-
-      -- zig, go and nix
       zls = {
         settings = {
           semantic_tokens = "none",
@@ -89,6 +81,7 @@ return {
       },
       gopls = {},
       nil_ls = {},
+      bashls = {},
 
       -- python
       ruff = {},
@@ -105,20 +98,14 @@ return {
         },
       },
 
-      -- js tooling
-      biome = {},
-      eslint = {},
-      tailwindcss = {
-        cmd = {
-          "bunx",
-          "--bun",
-          "@tailwindcss/language-server",
-          "--stdio",
-        },
+      --filetype list is huge so I moved it
+      tailwindcss = require("utils.tailwind").lsp,
+      html = {
+        filetypes = { "jinja", "htmldjango" },
       },
 
-      -- html, json, css
-      html = {},
+      biome = {},
+      eslint = {},
       jsonls = {},
       cssls = {
         settings = {
@@ -143,7 +130,6 @@ return {
         },
       },
 
-      -- lua
       lua_ls = {
         settings = {
           Lua = {

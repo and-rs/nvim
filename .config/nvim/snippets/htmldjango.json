@@ -1,0 +1,1 @@
+{"jinjatag":{"body":["{% block ${1:name} %}","{% endblock ${1:name} %}"],"prefix":"jblock"},"jext":{"prefix":"jext","body":"{% extends '${1:base}' %}"}}

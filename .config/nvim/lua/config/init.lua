@@ -1,5 +1,0 @@
-require("config.settings")
-require("config.keymaps")
-require("config.hls")
-require("config.lazy")
-require("config.tw")

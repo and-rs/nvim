@@ -3,19 +3,28 @@ local function lint_progress()
   if #linters == 0 then
     return ""
   end
-  return " " .. table.concat(linters, ", ")
+  return "* " .. table.concat(linters, ", ")
+end
+
+-- Returns the current Git branch name, or nil if not in a repo.
+local function get_git_branch()
+  local handle = io.popen("git rev-parse --abbrev-ref HEAD 2>/dev/null")
+  if not handle then
+    return nil
+  end
+  local branch = handle:read("*a"):gsub("%s+$", "")
+  handle:close()
+  return (branch ~= "" and branch ~= "HEAD") and branch or nil
 end
 
 local function harpoon()
   local mark = ""
   if package.loaded["harpoon"] then
     local current_file = vim.fn.expand("%:p")
-
     for id, item in ipairs(require("harpoon"):list().items) do
       local item_file = vim.fn.fnamemodify(item.value, ":p")
-
       if item_file == current_file then
-        mark = id .. " "
+        mark = "#" .. id
         break
       end
     end
@@ -29,15 +38,16 @@ local function location()
   return line .. ":" .. col
 end
 
+require("utils.highlights")
+local colors = {
+  white = Get_hl_hex("PreProc", "fg"),
+  border = Get_hl_hex("Conceal", "fg"),
+  background = Get_hl_hex("NormalFloat", "bg"),
+}
+
 return {
   "nvim-lualine/lualine.nvim",
   config = function()
-    local colors = {
-      white = Get_hl_hex("PreProc", "fg"),
-      border = Get_hl_hex("Conceal", "fg"),
-      background = Get_hl_hex("NormalFloat", "bg"),
-    }
-
     require("lualine").setup({
       inactive_sections = {
         lualine_a = {},
@@ -49,17 +59,20 @@ return {
       },
       sections = {
         lualine_a = {
+          "separator",
+          { "mode", padding = { right = 1, left = 2 } },
           {
             "filename",
             path = 0,
             symbols = {
-              modified = " ",
-              readonly = "",
+              modified = "*",
+              readonly = "×",
               unnamed = "No name",
               newfile = "New file",
             },
           },
-          { "branch", icon = { "", align = "right" } },
+
+          get_git_branch,
           harpoon,
         },
         lualine_b = {},
@@ -70,8 +83,14 @@ return {
           lint_progress,
           location,
           "progress",
-          "vim.bo.filetype",
-          { "diff", symbols = { added = "+", modified = "~", removed = "-" } },
+          {
+            "vim.bo.filetype",
+          },
+          {
+            "diff",
+            symbols = { added = "+", modified = "~", removed = "-" },
+            padding = { right = 2, left = 1 },
+          },
         },
       },
 
@@ -79,7 +98,7 @@ return {
         icons_enabled = true,
         globalstatus = true,
         disabled_filetypes = { "alpha" },
-        component_separators = " │ ",
+        component_separators = { left = " ╱ ", right = " ╲ " },
         section_separators = "",
 
         theme = {

@@ -1,6 +1,9 @@
 vim.loader.enable()
 vim.opt.mouse = ""
 
+-- no mode on the cmd line, only shown on lualine
+vim.opt.showmode = false
+
 -- folds
 vim.opt.foldenable = false
 vim.opt.foldmethod = "manual"
