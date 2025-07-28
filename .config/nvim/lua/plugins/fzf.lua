@@ -7,15 +7,12 @@ return {
     fzf.setup({
       hls = {
         prompt = "Constant",
+        title = "FloatBorder",
         border = "FloatBorder",
         preview_border = "FloatBorder",
       },
       keymap = {
         fzf = { ["ctrl-y"] = "toggle+down", ["ctrl-i"] = "up+toggle" },
-        -- builtin = {
-        --   ["<C-e>"] = "toggle-fullscreen+toggle_preview",
-        --   ["<F1>"] = "toggle-help",
-        -- },
       },
       actions = {
         files = {
@@ -104,10 +101,14 @@ return {
       fzf.builtin(extend(builtin_opts, picker_opts))
     end, "FZF")
 
-    map("<leader>sf", "files", "Files")
+    map("<leader>sf", function()
+      fzf.files(extend(picker_opts, { cmd = "rg --no-hidden --files --sort modified" }))
+    end, "Files")
     map("<leader>sh", "help_tags", "Help")
     map("<leader>sb", "buffers", "Buffers")
-    map("<leader>sr", "oldfiles", "Recent files")
+    map("<leader>sr", function()
+      fzf.oldfiles(extend(picker_opts, { include_current_session = true }))
+    end, "Recent files")
     map("<leader>sv", "grep_visual", "Grep Visual")
     map("<leader>sc", "grep_cword", "Current Word")
     map("<leader>sg", "live_grep_native", "Grep Word")
