@@ -102,13 +102,12 @@ return {
     end, "FZF")
 
     map("<leader>sf", function()
-      fzf.files(
-        extend(
-          picker_opts,
-          { rg_opts = "--no-ignore --hidden --files --sort=modified --sort=accessed" }
-        )
-      )
+      fzf.files(extend(picker_opts, {
+        cmd = "rg --files --hidden --ignore --glob='!.git' --sortr=accessed",
+        fzf_opts = { ["--scheme"] = "history" },
+      }))
     end, "Files")
+
     map("<leader>sh", "help_tags", "Help")
     map("<leader>sb", "buffers", "Buffers")
     map("<leader>sr", function()
