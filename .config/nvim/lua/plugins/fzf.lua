@@ -102,7 +102,12 @@ return {
     end, "FZF")
 
     map("<leader>sf", function()
-      fzf.files(extend(picker_opts, { rg_opts = "--no-ignore --hidden --files --sort modified" }))
+      fzf.files(
+        extend(
+          picker_opts,
+          { rg_opts = "--no-ignore --hidden --files --sort=modified --sort=accessed" }
+        )
+      )
     end, "Files")
     map("<leader>sh", "help_tags", "Help")
     map("<leader>sb", "buffers", "Buffers")
