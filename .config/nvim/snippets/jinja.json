@@ -1,0 +1,1 @@
+{"macro":{"prefix":"macro","body":["{% macro ${1:item}(${2:text}) %}","    <div>{{ ${2:text} }}</div>","{% endmacro %}"]},"import":{"prefix":"import","body":"{% from '${1:file}' import ${2:name} %}"}}
