@@ -110,7 +110,7 @@ tailwind.lsp = {
   },
   root_dir = function(fname)
     local root_file = {
-      "static/input.css", -- this way tailwind will work with a custom css setup
+      "static/output.css", -- this way tailwind will work with a custom css setup
       "tailwind.config.js",
       "tailwind.config.cjs",
       "tailwind.config.mjs",

@@ -20,7 +20,7 @@ return {
     })
 
     vim.treesitter.language.register("bash", "env")
-    vim.treesitter.language.register("htmldjango", "jinja")
+    vim.treesitter.language.register("html", "jinja")
 
     treesitter.setup({
       highlight = {

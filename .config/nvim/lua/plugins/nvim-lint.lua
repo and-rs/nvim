@@ -1,12 +1,13 @@
 return {
   "mfussenegger/nvim-lint",
-  lazy = true,
   enabled = false,
+  lazy = true,
   event = { "BufReadPre", "BufNewFile" },
   config = function()
     local lint = require("lint")
 
     lint.linters_by_ft = {
+      css = { "stylelint" },
       sh = { "shellcheck" },
       zsh = { "shellcheck" },
     }

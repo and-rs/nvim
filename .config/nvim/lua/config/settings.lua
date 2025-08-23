@@ -10,9 +10,9 @@ vim.opt.foldmethod = "manual"
 
 -- wrap
 vim.opt.wrap = false
-vim.opt.linebreak = true
 vim.opt.breakat = " "
-vim.opt.textwidth = 80
+-- vim.opt.linebreak = true
+-- vim.opt.textwidth = 80
 
 -- remove eof character
 vim.opt.fillchars = { eob = " " }
@@ -54,6 +54,8 @@ vim.opt.breakindent = true
 -- Split direction
 vim.opt.splitright = true
 vim.opt.splitbelow = true
+
+vim.opt.background = "dark"
 
 -- indent symbols
 -- tab cannot be less than 2
