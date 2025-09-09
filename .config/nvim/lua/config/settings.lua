@@ -11,7 +11,7 @@ vim.opt.foldmethod = "manual"
 -- wrap
 vim.opt.wrap = false
 vim.opt.breakat = " "
--- vim.opt.linebreak = true
+vim.opt.linebreak = true
 -- vim.opt.textwidth = 80
 
 -- remove eof character
