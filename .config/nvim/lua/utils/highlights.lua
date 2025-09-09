@@ -77,7 +77,8 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("DiagnosticUnnecessary", { underline = true })
     set_hl("WinSeparator", { link = "FloatBorder" })
 
-    set_hl("NeoTreeNormal", { link = "NormalFloat" })
+    set_hl("NeoTreeNormalNC", { bg = Get_hl_hex("NormalFloat", "bg") })
+    set_hl("NeoTreeNormal", { bg = Get_hl_hex("NormalFloat", "bg") })
     set_hl("NeoTreeDirectoryIcon", { fg = Get_hl_hex("Identifier", "fg") })
     set_hl("NeoTreeDirectoryName", { fg = Get_hl_hex("Identifier", "fg") })
     set_hl("NeoTreeGitUnstaged", { link = "Changed" })
