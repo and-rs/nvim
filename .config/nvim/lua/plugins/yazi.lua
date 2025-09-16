@@ -17,8 +17,8 @@ return {
     keymaps = {
       show_help = "<f1>",
     },
-    floating_window_scaling_factor = { height = 0.92, width = 1 },
-    yazi_floating_window_border = "bold",
+    floating_window_scaling_factor = { height = 0.92, width = 0.98 },
+    yazi_floating_window_border = "rounded",
   },
   init = function()
     vim.g.loaded_netrwPlugin = 1

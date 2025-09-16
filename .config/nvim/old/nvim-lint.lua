@@ -36,7 +36,7 @@ return {
 
     -- Diagnostics
     vim.keymap.set("n", "<leader>d", function()
-      vim.diagnostic.open_float({ border = "single" })
+      vim.diagnostic.open_float({ border = "rounded" })
     end, { desc = "Show line diagnostics" })
 
     vim.keymap.set("n", "<leader>ml", function()

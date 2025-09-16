@@ -16,21 +16,21 @@ return {
         end
 
         map("K", function()
-          vim.lsp.buf.hover({ border = "single" })
+          vim.lsp.buf.hover({ border = "rounded" })
         end, "Hover LSP info")
         map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
 
         -- Diagnostics
         map("<leader>d", function()
-          vim.diagnostic.open_float({ border = "single" })
+          vim.diagnostic.open_float({ border = "rounded" })
         end, "Show line diagnostics")
 
         map("[d", function()
-          vim.diagnostic.jump({ float = { border = "single" }, count = -1 })
+          vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
         end, "Go to previous diagnostic")
 
         map("]d", function()
-          vim.diagnostic.jump({ float = { border = "single" }, count = -1 })
+          vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
         end, "Go to next diagnostic")
       end,
     })

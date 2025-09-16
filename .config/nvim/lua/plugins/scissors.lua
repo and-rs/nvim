@@ -7,7 +7,7 @@ return {
     editSnippetPopup = {
       height = 0.4,
       width = 0.5,
-      border = "single",
+      border = "rounded",
     },
   },
 }

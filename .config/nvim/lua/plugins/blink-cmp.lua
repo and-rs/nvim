@@ -70,7 +70,7 @@ return {
           auto_show = true,
           auto_show_delay_ms = 200,
           window = {
-            border = "single",
+            border = "rounded",
             max_height = 10,
             winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,EndOfBuffer:BlinkCmpDoc",
           },
@@ -100,7 +100,7 @@ return {
               { "kind_icon", "label", gap = 2, "source_name" },
             },
           },
-          border = "single",
+          border = "rounded",
           winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,CursorLine:BlinkCmpMenuSelection,Search:None,BlinkCmpKind:Special",
         },
       },

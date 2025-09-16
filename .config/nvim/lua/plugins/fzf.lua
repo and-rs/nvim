@@ -43,12 +43,12 @@ return {
         ["prompt"] = { "fg", "Special" },
         ["info"] = { "fg", "Special" },
 
-        ["header"] = { "fg", "Normal" },
-        ["separator"] = { "fg", "Normal" },
-        ["scrollbar"] = { "fg", "Normal" },
+        ["header"] = { "fg", "FloatBorder" },
+        ["separator"] = { "fg", "FloatBorder" },
+        ["scrollbar"] = { "fg", "FloatBorder" },
       },
       winopts = {
-        border = "single",
+        border = "rounded",
         height = 15,
         width = 76,
         row = 0.2,
@@ -61,9 +61,9 @@ return {
 
     local builtin_opts = {
       winopts = {
-        border = "single",
+        border = "rounded",
         preview = {
-          border = "single",
+          border = "rounded",
         },
         height = 8,
         width = 50,

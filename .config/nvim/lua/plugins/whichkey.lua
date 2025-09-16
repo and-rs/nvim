@@ -28,7 +28,7 @@ return {
     },
     win = {
       height = { max = 20 },
-      border = "single",
+      border = "rounded",
       padding = { 0, 1 },
     },
     keys = {
