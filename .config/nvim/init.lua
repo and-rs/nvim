@@ -5,6 +5,16 @@ require("config.lazy")
 require("utils.highlights")
 require("utils.tailwind")
 
+-- local filetree = require("utils.filetree")
+--
+-- filetree.setup({
+--   mode = "keep",
+-- })
+--
+-- vim.keymap.set("n", "<leader>fe", function()
+--   filetree.toggle()
+-- end, { desc = "Toggle file tree" })
+
 if vim.g.neovide then
   vim.o.guifont = "Input Mono,Symbols Nerd Font Mono:h12"
   vim.opt.linespace = 3

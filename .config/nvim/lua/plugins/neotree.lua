@@ -1,14 +1,14 @@
 return {
   dir = "~/vault/dev/neo-tree.nvim",
   -- "nvim-neo-tree/neo-tree.nvim",
+  enabled = false,
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
   },
 
   config = function()
-    local keymap = vim.keymap
-    keymap.set(
+    vim.keymap.set(
       "n",
       "<leader>fe",
       "<cmd>Neotree toggle focus right reveal_force_cwd<cr>",
