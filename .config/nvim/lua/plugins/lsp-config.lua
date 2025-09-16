@@ -3,7 +3,6 @@ return {
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
     "saghen/blink.cmp",
-    { "antosha417/nvim-lsp-file-operations", config = true },
     { "j-hui/fidget.nvim", opts = {} },
   },
 
@@ -133,6 +132,8 @@ return {
       },
     }
 
+    -- vim.lsp.enable("pyrefly")
+    -- vim.lsp.enable("ty")
     for server, config in pairs(servers) do
       require("lspconfig")[server].setup(config)
     end
