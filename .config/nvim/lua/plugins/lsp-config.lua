@@ -1,141 +1,140 @@
-return {
-  "neovim/nvim-lspconfig",
-  event = { "BufReadPre", "BufNewFile" },
-  dependencies = {
-    "saghen/blink.cmp",
-    { "j-hui/fidget.nvim", opts = {} },
-  },
+MiniDeps.later(function()
+  MiniDeps.add({
+    source = "neovim/nvim-lspconfig",
+    dependencies = {
+      "saghen/blink.cmp",
+      "j-hui/fidget.nvim",
+    },
+  })
 
-  config = function()
-    vim.api.nvim_create_autocmd("LspAttach", {
-      group = vim.api.nvim_create_augroup("lsp", { clear = true }),
+  vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("lsp", { clear = true }),
 
-      callback = function(event)
-        local map = function(keys, func, desc)
-          vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
+    callback = function(event)
+      local map = function(keys, func, desc)
+        vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
+      end
+
+      map("K", function()
+        vim.lsp.buf.hover({ border = "rounded" })
+      end, "Hover LSP info")
+      map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
+
+      -- Diagnostics
+      map("<leader>d", function()
+        vim.diagnostic.open_float({ border = "rounded" })
+      end, "Show line diagnostics")
+
+      map("[d", function()
+        vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
+      end, "Go to previous diagnostic")
+
+      map("]d", function()
+        vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
+      end, "Go to next diagnostic")
+    end,
+  })
+
+  vim.diagnostic.config({
+    virtual_text = {
+      enabled = true,
+      prefix = function(diagnostic)
+        if diagnostic.severity == vim.diagnostic.severity.ERROR then
+          return "🭰× "
+        elseif diagnostic.severity == vim.diagnostic.severity.WARN then
+          return "🭰▲ "
+        else
+          return "🭰• "
         end
-
-        map("K", function()
-          vim.lsp.buf.hover({ border = "rounded" })
-        end, "Hover LSP info")
-        map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
-
-        -- Diagnostics
-        map("<leader>d", function()
-          vim.diagnostic.open_float({ border = "rounded" })
-        end, "Show line diagnostics")
-
-        map("[d", function()
-          vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
-        end, "Go to previous diagnostic")
-
-        map("]d", function()
-          vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
-        end, "Go to next diagnostic")
       end,
-    })
-
-    vim.diagnostic.config({
-      virtual_text = {
-        enabled = true,
-        prefix = function(diagnostic)
-          if diagnostic.severity == vim.diagnostic.severity.ERROR then
-            return "🭰× "
-          elseif diagnostic.severity == vim.diagnostic.severity.WARN then
-            return "🭰▲ "
-          else
-            return "🭰• "
-          end
-        end,
-        suffix = "🭵",
+      suffix = "🭵",
+    },
+    underline = true,
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = " ×",
+        [vim.diagnostic.severity.WARN] = " ▲",
+        [vim.diagnostic.severity.HINT] = " •",
+        [vim.diagnostic.severity.INFO] = " •",
       },
-      underline = true,
-      signs = {
-        text = {
-          [vim.diagnostic.severity.ERROR] = " ×",
-          [vim.diagnostic.severity.WARN] = " ▲",
-          [vim.diagnostic.severity.HINT] = " •",
-          [vim.diagnostic.severity.INFO] = " •",
+    },
+  })
+
+  vim.filetype.add({
+    extension = {
+      env = "env",
+    },
+    filename = {
+      [".env"] = "env",
+    },
+    pattern = {
+      ["%.env%.[%w_.-]+"] = "env",
+    },
+  })
+
+  local servers = {
+    zls = {
+      settings = {
+        semantic_tokens = "none",
+      },
+    },
+    gopls = {},
+    nil_ls = {},
+    bashls = {},
+
+    -- python
+    ruff = {},
+    basedpyright = {
+      settings = {
+        pyright = {
+          disableOrganizeImports = true,
         },
-      },
-    })
-
-    vim.filetype.add({
-      extension = {
-        env = "env",
-      },
-      filename = {
-        [".env"] = "env",
-      },
-      pattern = {
-        ["%.env%.[%w_.-]+"] = "env",
-      },
-    })
-
-    local servers = {
-      zls = {
-        settings = {
-          semantic_tokens = "none",
-        },
-      },
-      gopls = {},
-      nil_ls = {},
-      bashls = {},
-
-      -- python
-      ruff = {},
-      basedpyright = {
-        settings = {
-          pyright = {
-            disableOrganizeImports = true,
-          },
-          python = {
-            analysis = {
-              ignore = { "*" },
-            },
+        python = {
+          analysis = {
+            ignore = { "*" },
           },
         },
       },
+    },
 
-      --filetype list is huge so I moved it
-      tailwindcss = require("utils.tailwind").lsp,
-      html = {
-        filetypes = { "jinja", "htmldjango" },
-      },
+    --filetype list is huge so I moved it
+    tailwindcss = require("utils.tailwind").lsp,
+    html = {
+      filetypes = { "jinja", "htmldjango" },
+    },
 
-      biome = {},
-      eslint = {},
-      jsonls = {},
-      cssls = {
-        settings = {
-          css = {
-            validate = true,
-            lint = {
-              unknownAtRules = "ignore",
-            },
+    biome = {},
+    eslint = {},
+    jsonls = {},
+    cssls = {
+      settings = {
+        css = {
+          validate = true,
+          lint = {
+            unknownAtRules = "ignore",
           },
         },
       },
+    },
 
-      lua_ls = {
-        settings = {
-          Lua = {
-            completion = {
-              callSnippet = "Replace",
-            },
-            diagnostics = {
-              globals = { "vim" },
-              disable = { "missing-fields" },
-            },
+    lua_ls = {
+      settings = {
+        Lua = {
+          completion = {
+            callSnippet = "Replace",
+          },
+          diagnostics = {
+            globals = { "vim" },
+            disable = { "missing-fields" },
           },
         },
       },
-    }
+    },
+  }
 
-    -- vim.lsp.enable("pyrefly")
-    -- vim.lsp.enable("ty")
-    for server, config in pairs(servers) do
-      require("lspconfig")[server].setup(config)
-    end
-  end,
-}
+  -- vim.lsp.enable("pyrefly")
+  -- vim.lsp.enable("ty")
+  for server, config in pairs(servers) do
+    require("lspconfig")[server].setup(config)
+  end
+end)

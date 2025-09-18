@@ -1,8 +1,7 @@
-return {
-  "andrewferrier/wrapping.nvim",
-  config = function()
-    require("wrapping").setup({
-      set_nvim_opt_defaults = false,
-    })
-  end,
-}
+MiniDeps.later(function()
+  MiniDeps.add({ source = "andrewferrier/wrapping.nvim" })
+
+  require("wrapping").setup({
+    set_nvim_opt_defaults = false,
+  })
+end)

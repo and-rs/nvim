@@ -1,52 +1,33 @@
-require("config.settings")
-require("config.keymaps")
-require("config.lazy")
-
 require("utils.highlights")
+require("utils.settings")
+require("utils.keymaps")
 require("utils.tailwind")
+require("utils.profile")
 
--- local filetree = require("utils.filetree")
---
--- filetree.setup({
---   mode = "keep",
--- })
---
--- vim.keymap.set("n", "<leader>fe", function()
---   filetree.toggle()
--- end, { desc = "Toggle file tree" })
-
-if vim.g.neovide then
-  vim.o.guifont = "Input Mono,Symbols Nerd Font Mono:h12"
-  vim.opt.linespace = 3
-  vim.g.neovide_show_border = true
-  vim.g.neovide_scroll_animation_lenght = 0.1
+-- install mini.deps
+local path_package = vim.fn.stdpath("data") .. "/site/"
+local mini_path = path_package .. "pack/deps/start/mini.deps"
+if not vim.loop.fs_stat(mini_path) then
+  vim.cmd('echo "Installing `mini.deps`" | redraw')
+  local clone_cmd =
+    { "git", "clone", "--filter=blob:none", "https://github.com/nvim-mini/mini.deps", mini_path }
+  vim.fn.system(clone_cmd)
+  vim.cmd("packadd mini.deps | helptags ALL")
+  vim.cmd('echo "Installed `mini.deps`" | redraw')
 end
 
-local should_profile = os.getenv("NVIM_PROFILE")
-if should_profile then
-  require("profile").instrument_autocmds()
-  if should_profile:lower():match("^start") then
-    require("profile").start("*")
-  else
-    require("profile").instrument("*")
+-- setup mini.deps
+require("mini.deps").setup({ path = { package = path_package } })
+MiniDeps = require("mini.deps")
+
+-- require all plugin files
+local function require_plugins()
+  local dir = vim.fn.stdpath("config") .. "/lua/plugins"
+  for name, t in vim.fs.dir(dir) do
+    if t == "file" and name:sub(-4) == ".lua" then
+      require("plugins." .. name:sub(1, -5))
+    end
   end
 end
 
-local function toggle_profile()
-  local prof = require("profile")
-  if prof.is_recording() then
-    prof.stop()
-    vim.ui.input(
-      { prompt = "Save profile to:", completion = "file", default = "profile.json" },
-      function(filename)
-        if filename then
-          prof.export(filename)
-          vim.notify(string.format("Wrote %s", filename))
-        end
-      end
-    )
-  else
-    prof.start("blink*")
-  end
-end
-vim.keymap.set("", "<f1>", toggle_profile)
+require_plugins()

@@ -1,69 +1,70 @@
-return {
-  "nvim-treesitter/nvim-treesitter",
-  event = { "BufReadPre", "BufNewFile" },
-  build = ":TSUpdate",
-  --dependencies = {
-  --  "nvim-treesitter/nvim-treesitter-textobjects",
-  --},
-  config = function()
-    local treesitter = require("nvim-treesitter.configs")
-    vim.filetype.add({
-      extension = {
-        env = "env",
-      },
-      filename = {
-        [".env"] = "env",
-      },
-      pattern = {
-        ["%.env%.[%w_.-]+"] = "env",
-      },
-    })
+MiniDeps.later(function()
+  MiniDeps.add({
+    source = "nvim-treesitter/nvim-treesitter",
+    hooks = {
+      post_checkout = function()
+        vim.cmd("TSUpdate")
+      end,
+    },
+  })
 
-    vim.treesitter.language.register("bash", "env")
-    vim.treesitter.language.register("html", "jinja")
+  local treesitter = require("nvim-treesitter.configs")
+  vim.filetype.add({
+    extension = {
+      env = "env",
+    },
+    filename = {
+      [".env"] = "env",
+    },
+    pattern = {
+      ["%.env%.[%w_.-]+"] = "env",
+    },
+  })
 
-    treesitter.setup({
-      highlight = {
-        enable = true,
-      },
-      indent = { enable = true },
-      ensure_installed = {
-        "jsonc",
-        "json",
-        "javascript",
-        "typescript",
-        "tsx",
-        "html",
-        "css",
-        "svelte",
+  vim.treesitter.language.register("bash", "env")
+  vim.treesitter.language.register("html", "jinja")
 
-        "gitignore",
-        "query",
-        "hurl",
+  treesitter.setup({
+    highlight = {
+      enable = true,
+    },
+    indent = { enable = true },
+    ensure_installed = {
+      "jsonc",
+      "json",
+      "javascript",
+      "typescript",
+      "tsx",
+      "html",
+      "css",
+      "svelte",
 
-        "markdown",
-        "markdown_inline",
+      "gitignore",
+      "query",
+      "hurl",
 
-        "dockerfile",
-        "yaml",
-        "toml",
-        "kdl",
+      "markdown",
+      "markdown_inline",
 
-        "nu",
-        "bash",
+      "dockerfile",
+      "yaml",
+      "toml",
+      "kdl",
 
-        "jinja",
-        "python",
-        "htmldjango",
+      "nu",
+      "bash",
 
-        "vim",
-        "vimdoc",
+      "jinja",
+      "python",
+      "htmldjango",
 
-        "luadoc",
-        "lua",
-        "zig",
-        "go",
-      },
-    })
-  end,
-}
+      "vim",
+      "vimdoc",
+
+      "luadoc",
+      "lua",
+      "zig",
+      "go",
+    },
+  })
+end)

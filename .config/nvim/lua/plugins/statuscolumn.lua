@@ -1,10 +1,8 @@
-return {
-  "JuanBaut/statuscolumn.nvim",
-  -- dir = "~/vault/dev/statuscolumn.nvim",
-  config = function()
-    require("statuscolumn").setup({
-      enable_border = true,
-      gradient_hl = "PreProc",
-    })
-  end,
-}
+MiniDeps.now(function()
+  MiniDeps.add({ source = "and-rs/statuscolumn.nvim" })
+
+  require("statuscolumn").setup({
+    enable_border = true,
+    gradient_hl = "PreProc",
+  })
+end)

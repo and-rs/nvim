@@ -1,25 +1,7 @@
-return {
-  "folke/which-key.nvim",
-  event = "VeryLazy",
-  init = function()
-    require("which-key").add({
-      { "ma", mode = "n", desc = "Harpoon add" },
-      { "M", mode = "n", desc = "Harpoon menu" },
-      { "S", mode = "v", desc = "Add surround visual" },
-      { "<leader>c", group = "Column" },
-      { "<leader>l", group = "LSP" },
-      { "<leader>n", group = "Notifications" },
-      { "<leader>f", group = "Filetree" },
-      { "<leader>m", group = "Format or Linting" },
-      { "<leader>r", group = "Rename" },
-      { "<leader>s", group = "Search" },
-      { "<leader>t", group = "Tabs" },
-      { "<leader>u", group = "Buffers" },
-      { "<leader>w", group = "Wins" },
-      { "<leader>g", group = "Git Diff" },
-    })
-  end,
-  opts = {
+MiniDeps.now(function()
+  MiniDeps.add({ source = "folke/which-key.nvim" })
+
+  require("which-key").setup({
     preset = "helix",
     plugins = {
       presets = {
@@ -47,5 +29,22 @@ return {
       separator = "→",
     },
     show_help = false,
-  },
-}
+  })
+
+  require("which-key").add({
+    { "ma", mode = "n", desc = "Harpoon add" },
+    { "M", mode = "n", desc = "Harpoon menu" },
+    { "S", mode = "v", desc = "Add surround visual" },
+    { "<leader>c", group = "Column" },
+    { "<leader>l", group = "LSP" },
+    { "<leader>n", group = "Notifications" },
+    { "<leader>f", group = "Filetree" },
+    { "<leader>m", group = "Format or Linting" },
+    { "<leader>r", group = "Rename" },
+    { "<leader>s", group = "Search" },
+    { "<leader>t", group = "Tabs" },
+    { "<leader>u", group = "Buffers" },
+    { "<leader>w", group = "Wins" },
+    { "<leader>g", group = "Git Diff" },
+  })
+end)
