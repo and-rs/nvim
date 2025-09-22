@@ -3,19 +3,24 @@ MiniDeps.now(function()
 
   require("tokyonight").setup({
     transparent = false,
+    -- on_colors = function(colors)
+    -- colors.bg = "#0D1017"
+    -- colors.bg_dark = "#0D1017"
+    -- colors.bg_float = "#131621"
+    -- colors.bg_popup = "#131621"
+    -- colors.bg_search = "#131621"
+    -- colors.bg_sidebar = "#131621"
+    -- colors.bg_statusline = "#131621"
+    -- end,
+
     on_colors = function(colors)
-      colors.bg = "#0D1017"
-      colors.bg_dark = "#0D1017"
-      colors.bg_float = "#131621"
-      colors.bg_popup = "#131621"
-      colors.bg_search = "#131621"
-      colors.bg_sidebar = "#131621"
-      colors.bg_statusline = "#131621"
+      colors.terminal.black = "#dddde3"
     end,
+
     styles = {
       functions = { italic = true },
     },
   })
 
-  vim.cmd.colorscheme("tokyonight")
+  vim.cmd.colorscheme("tokyonight-day")
 end)

@@ -64,6 +64,14 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("YaziFloatBorder", { link = "Conceal" })
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
 
+    -- light theme tweaks
+    set_hl("FzfLuaBackdrop", { link = "NormalSB" })
+    set_hl("MasonBackdrop", { link = "NormalSB" })
+    set_hl("FloatShadow", { link = "NormalSB" })
+    set_hl("FloatShadowThrough", { link = "NormalSB" })
+    set_hl("FzfLuaLiveSym", { link = "Normal" })
+    set_hl("FzfLuaLivePrompt", { link = "Normal" })
+
     -- [NOTE] highlight tweaks for default theme
     -- local hint_color = Get_hl_hex("DiagnosticHint", "fg")
     -- local warn_color = Get_hl_hex("DiagnosticWarn", "fg")
@@ -74,16 +82,6 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     -- set_hl("Type", { link = "String" })
     -- set_hl("Delimiter", { link = "Variable" })
     -- set_hl("Statement", { fg = Get_hl_hex("Identifier", "fg"), italic = true })
-
-    -- set_hl("NeoTreeNormalNC", { bg = Get_hl_hex("NormalFloat", "bg") })
-    -- set_hl("NeoTreeNormal", { bg = Get_hl_hex("NormalFloat", "bg") })
-    -- set_hl("NeoTreeDirectoryIcon", { fg = Get_hl_hex("Special", "fg") })
-    -- set_hl("NeoTreeDirectoryName", { fg = Get_hl_hex("Special", "fg") })
-    -- set_hl("NeoTreeGitUnstaged", { link = "Changed" })
-    -- set_hl("NeoTreeGitModified", { link = "Changed" })
-    -- set_hl("NeoTreeGitUntracked", { link = "Added" })
-    -- set_hl("NeoTreeGitRenamed", { link = "Added" })
-    -- set_hl("NeoTreeGitConflict", { link = "Removed" })
   end,
 })
 
