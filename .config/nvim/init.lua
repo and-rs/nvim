@@ -30,4 +30,6 @@ local function require_plugins()
   end
 end
 
+vim.g.smart_splits_multiplexer_integration = "tmux"
+
 require_plugins()

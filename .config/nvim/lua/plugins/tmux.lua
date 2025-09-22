@@ -1,28 +1,43 @@
 MiniDeps.now(function()
-  MiniDeps.add({ source = "mrjones2014/smart-splits.nvim" })
+  MiniDeps.add({ source = "aserowy/tmux.nvim" })
 
-  require("smart-splits").setup({
-    ignored_filetypes = { "neo-tree" },
-    at_edge = "stop",
-    resize_mode = {
-      quit_key = "<ESC>",
-      resize_keys = { "h", "j", "k", "l" },
-      silent = false,
-      hooks = {
-        on_enter = nil,
-        on_leave = nil,
-      },
+  require("tmux").setup({
+    copy_sync = {
+      enable = true,
+      ignore_buffers = { empty = false },
+      redirect_to_clipboard = false,
+      register_offset = 0,
+
+      sync_registers_keymap_put = true,
+      sync_registers_keymap_reg = true,
+      sync_clipboard = true,
+      sync_registers = true,
+      sync_deletes = true,
+      sync_unnamed = true,
+    },
+    navigation = {
+      enable_default_keybindings = false,
+      cycle_navigation = false,
+      persist_zoom = true,
+    },
+    resize = {
+      enable_default_keybindings = false,
+      resize_step_x = 1,
+      resize_step_y = 1,
+    },
+    swap = {
+      cycle_navigation = false,
+      enable_default_keybindings = false,
     },
   })
 
-  vim.keymap.set("n", "<A-h>", require("smart-splits").resize_left)
-  vim.keymap.set("n", "<A-j>", require("smart-splits").resize_down)
-  vim.keymap.set("n", "<A-k>", require("smart-splits").resize_up)
-  vim.keymap.set("n", "<A-l>", require("smart-splits").resize_right)
+  vim.keymap.set("n", "<A-h>", require("tmux").resize_left)
+  vim.keymap.set("n", "<A-j>", require("tmux").resize_bottom)
+  vim.keymap.set("n", "<A-k>", require("tmux").resize_top)
+  vim.keymap.set("n", "<A-l>", require("tmux").resize_right)
 
-  vim.keymap.set("n", "<C-h>", require("smart-splits").move_cursor_left)
-  vim.keymap.set("n", "<C-j>", require("smart-splits").move_cursor_down)
-  vim.keymap.set("n", "<C-k>", require("smart-splits").move_cursor_up)
-  vim.keymap.set("n", "<C-l>", require("smart-splits").move_cursor_right)
-  vim.keymap.set("n", "<C-\\>", require("smart-splits").move_cursor_previous)
+  vim.keymap.set("n", "<C-h>", require("tmux").move_left)
+  vim.keymap.set("n", "<C-j>", require("tmux").move_bottom)
+  vim.keymap.set("n", "<C-k>", require("tmux").move_top)
+  vim.keymap.set("n", "<C-l>", require("tmux").move_right)
 end)
