@@ -14,6 +14,14 @@ vim.g.mapleader = " "
 map("v", "<", "<gv<C-o>'<", "Inner indent while remaining in visual mode")
 map("v", ">", ">gv<C-o>'<", "Outer indent while remaining in visual mode")
 
+map("n", "<leader>mw",function ()
+  if vim.o.wrap == false then
+    vim.o.wrap = true
+  else
+    vim.o.wrap = false
+  end
+end, "Set line wrap")
+
 -- search visual selection (very nice)
 map("v", "//", [[y:let@/='\V'.escape(@",'/\\')<CR>]], "Search visual selection", { silent = true })
 

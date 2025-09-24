@@ -61,10 +61,7 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("DiagnosticUnnecessary", { underline = true })
     set_hl("WinSeparator", { link = "FloatBorder" })
 
-    set_hl(
-      "FlashLabel",
-      { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("DiagnosticHint", "fg"), bold = true }
-    )
+    set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
     set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })
     set_hl("IncSearch", { link = "Search" })
 

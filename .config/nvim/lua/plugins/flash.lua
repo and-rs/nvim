@@ -12,6 +12,10 @@ MiniDeps.now(function()
         enabled = false,
       },
     },
+    prompt = {
+      enabled = true,
+      prefix = { { "jump: ", "FlashPromptIcon" } },
+    },
   })
 
   vim.keymap.set({ "n", "x", "o" }, "s", function()
