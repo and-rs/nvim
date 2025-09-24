@@ -8,13 +8,33 @@ MiniDeps.now(function()
     end
     local branch = handle:read("*a"):gsub("%s+$", "")
     handle:close()
-    return (branch ~= "" and branch ~= "HEAD") and branch or nil
+    return (branch ~= "" and branch ~= "HEAD") and branch or ""
   end
 
   local function location()
     local line = vim.fn.line(".")
     local col = vim.fn.charcol(".")
-    return line .. ":" .. col
+    if vim.o.columns > 67 then
+      return line .. ":" .. col
+    else
+      return ""
+    end
+  end
+
+  local function progress()
+    local cur = vim.fn.line(".")
+    local total = vim.fn.line("$")
+    if vim.o.columns > 67 then
+      if cur == 1 then
+        return "Top"
+      elseif cur == total then
+        return "Bot"
+      else
+        return string.format("%2d%%%%", math.floor(cur / total * 100))
+      end
+    else
+      return ""
+    end
   end
 
   require("utils.highlights")
@@ -39,7 +59,8 @@ MiniDeps.now(function()
         { "mode", padding = { right = 1, left = 2 } },
         {
           "filename",
-          path = 0,
+          path = 4,
+          new_file_status = true,
           symbols = {
             modified = "*",
             readonly = "×",
@@ -47,8 +68,6 @@ MiniDeps.now(function()
             newfile = "New file",
           },
         },
-
-        get_git_branch,
       },
       lualine_b = {},
       lualine_c = {},
@@ -56,13 +75,18 @@ MiniDeps.now(function()
       lualine_y = {},
       lualine_z = {
         location,
-        "progress",
-        {
-          "vim.bo.filetype",
-        },
+        progress,
         {
           "diff",
+          separator = "@",
           symbols = { added = "+", modified = "~", removed = "-" },
+          padding = { right = 1, left = 1 },
+        },
+        {
+          get_git_branch,
+        },
+        {
+          "vim.bo.filetype",
           padding = { right = 2, left = 1 },
         },
       },
