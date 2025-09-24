@@ -51,5 +51,10 @@ MiniDeps.now(function()
     hl = "Special",
   }
 
+  dashboard.section.footer.opts = {
+    position = "center",
+    hl = "Bold",
+  }
+
   alpha.setup(dashboard.config)
 end)

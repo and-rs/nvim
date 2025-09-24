@@ -14,7 +14,7 @@ MiniDeps.now(function()
     -- end,
 
     on_colors = function(colors)
-      colors.terminal.black = "#dddde3"
+      colors.terminal.black = "#d0d5e3"
     end,
 
     styles = {
