@@ -14,11 +14,13 @@ vim.g.mapleader = " "
 map("v", "<", "<gv<C-o>'<", "Inner indent while remaining in visual mode")
 map("v", ">", ">gv<C-o>'<", "Outer indent while remaining in visual mode")
 
-map("n", "<leader>mw",function ()
+map("n", "<leader>mw", function()
   if vim.o.wrap == false then
     vim.o.wrap = true
+    vim.notify("Word wrap enabled")
   else
     vim.o.wrap = false
+    vim.notify("Word wrap disabled")
   end
 end, "Set line wrap")
 

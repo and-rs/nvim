@@ -72,69 +72,61 @@ MiniDeps.later(function()
     },
   })
 
-  local servers = {
-    zls = {
-      settings = {
-        semantic_tokens = "none",
+  vim.lsp.enable("gopls")
+  vim.lsp.enable("nil_ls")
+  vim.lsp.enable("bashls")
+  vim.lsp.enable("zls")
+  vim.lsp.config.zls = {
+    settings = {
+      semantic_tokens = "none",
+    },
+  }
+
+  -- vim.lsp.enable("ty")
+  -- vim.lsp.enable("zuban")
+  -- vim.lsp.enable("pyrefly")
+  vim.lsp.enable({ "ruff", "basedpyright" })
+  vim.lsp.config.basedpyright = {
+    settings = {
+      pyright = {
+        disableOrganizeImports = true,
       },
-    },
-    gopls = {},
-    nil_ls = {},
-    bashls = {},
-
-    -- python
-    ruff = {},
-    basedpyright = {
-      settings = {
-        pyright = {
-          disableOrganizeImports = true,
-        },
-        python = {
-          analysis = {
-            ignore = { "*" },
-          },
-        },
-      },
-    },
-
-    --filetype list is huge so I moved it
-    tailwindcss = require("utils.tailwind").lsp,
-    html = {
-      filetypes = { "jinja", "htmldjango" },
-    },
-
-    biome = {},
-    eslint = {},
-    jsonls = {},
-    cssls = {
-      settings = {
-        css = {
-          validate = true,
-          lint = {
-            unknownAtRules = "ignore",
-          },
-        },
-      },
-    },
-
-    lua_ls = {
-      settings = {
-        Lua = {
-          completion = {
-            callSnippet = "Replace",
-          },
-          diagnostics = {
-            globals = { "vim" },
-            disable = { "missing-fields" },
-          },
+      python = {
+        analysis = {
+          ignore = { "*" },
         },
       },
     },
   }
 
-  -- vim.lsp.enable("pyrefly")
-  -- vim.lsp.enable("ty")
-  for server, config in pairs(servers) do
-    require("lspconfig")[server].setup(config)
-  end
+  vim.lsp.enable({ "jsonls", "eslint", "biome", "tailwindcss", "html", "cssls" })
+  vim.lsp.config.tailwindcss = require("utils.tailwind").lsp
+  vim.lsp.config.html = {
+    filetypes = { "jinja", "htmldjango" },
+  }
+  vim.lsp.config.cssls = {
+    settings = {
+      css = {
+        validate = true,
+        lint = {
+          unknownAtRules = "ignore",
+        },
+      },
+    },
+  }
+
+  vim.lsp.enable("lua_ls")
+  vim.lsp.config.lua_ls = {
+    settings = {
+      Lua = {
+        completion = {
+          callSnippet = "Replace",
+        },
+        diagnostics = {
+          globals = { "vim" },
+          disable = { "missing-fields" },
+        },
+      },
+    },
+  }
 end)
