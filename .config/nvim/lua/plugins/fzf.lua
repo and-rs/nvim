@@ -104,7 +104,7 @@ MiniDeps.now(function()
   map("<leader>sf", function()
     fzf.files(extend(picker_opts, {
       cmd = "rg --files --hidden --ignore --glob='!.git' --sortr=modified",
-      fzf_opts = { ["--scheme"] = "history", ["--tiebreak"] = "index" },
+      fzf_opts = { ["--scheme"] = "path", ["--tiebreak"] = "index" },
     }))
   end, "Files")
 

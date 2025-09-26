@@ -60,6 +60,8 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("Substitute", { bg = Get_hl_hex("String", "fg"), fg = Get_hl_hex("Normal", "bg") })
     set_hl("DiagnosticUnnecessary", { underline = true })
     set_hl("WinSeparator", { link = "FloatBorder" })
+    set_hl("FzfLuaBackdrop", { link = "NormalSB" })
+    set_hl("MasonBackdrop", { link = "NormalSB" })
 
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
 
@@ -67,14 +69,10 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     -- set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })
     -- set_hl("IncSearch", { link = "Search" })
     -- set_hl("YaziFloatBorder", { link = "Conceal" })
-    -- set_hl("FzfLuaBackdrop", { link = "NormalSB" })
-    -- set_hl("MasonBackdrop", { link = "NormalSB" })
-    -- set_hl("FloatShadow", { link = "NormalSB" })
-    -- set_hl("FloatShadowThrough", { link = "NormalSB" })
     -- set_hl("FzfLuaLiveSym", { link = "Normal" })
     -- set_hl("FzfLuaLivePrompt", { link = "Normal" })
 
-    -- [NOTE] highlight tweaks for default theme
+    -- [NOTE] highlight tweaks for neovim default theme
     -- local hint_color = Get_hl_hex("DiagnosticHint", "fg")
     -- local warn_color = Get_hl_hex("DiagnosticWarn", "fg")
     -- local error_color = Get_hl_hex("DiagnosticError", "fg")
