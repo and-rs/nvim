@@ -22,7 +22,7 @@ MiniDeps.now(function()
     require("flash").jump()
   end, { desc = "Flash" })
 
-  vim.keymap.set({ "n", "x", "o" }, "<Tab>", function()
+  vim.keymap.set({ "n", "x", "o" }, "<C-t>", function()
     require("flash").treesitter()
   end, { desc = "Flash Treesitter" })
 

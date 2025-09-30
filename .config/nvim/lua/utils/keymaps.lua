@@ -3,7 +3,6 @@ local function map(mode, keys, action, desc, opts)
     desc = desc or "",
     noremap = true,
   }
-
   local merged = vim.tbl_extend("force", defaults, opts or {})
   vim.keymap.set(mode, keys, action, merged)
 end
@@ -42,15 +41,18 @@ map({ "n", "v" }, "k", "gk", "Down")
 map("v", "J", ":m '>+1<CR>gv=gv", "Move line down", { silent = true })
 map("v", "K", ":m '<-2<CR>gv=gv", "Move line up", { silent = true })
 
--- better terminal remaps
-map({ "c", "i", "t" }, "<c-d>", "<Del>")
-map({ "c", "i", "t" }, "<c-f>", "<Right>")
-map({ "c", "i", "t" }, "<c-b>", "<Left>")
+--idk what this is
+map({ "n", "v", "i" }, "<C-l>", "<nop>")
 
 -- terminal 'unbinds'
-map({ "c", "i", "t" }, "<c-j>", "<nop>")
-map({ "c", "i", "t" }, "<c-k>", "<nop>")
-map({ "n", "v", "i" }, "<c-l>", "<nop>")
+map({ "c", "i", "t" }, "<C-j>", "<nop>")
+map({ "c", "i", "t" }, "<C-k>", "<nop>")
+
+-- terminal remaps
+map({ "c", "i", "t" }, "<C-a>", "<Home>")
+map({ "c", "i", "t" }, "<C-d>", "<Del>")
+map({ "c", "i", "t" }, "<C-f>", "<Right>")
+map({ "c", "i", "t" }, "<C-b>", "<Left>")
 
 -- keep cursor centered
 map("n", "J", "mzJ`z", "Move current line up")

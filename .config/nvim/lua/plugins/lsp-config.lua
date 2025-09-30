@@ -99,8 +99,8 @@ MiniDeps.later(function()
     },
   }
 
-  vim.lsp.enable({ "jsonls", "eslint", "biome", "tailwindcss", "html", "cssls" })
-  vim.lsp.config.tailwindcss = require("utils.tailwind").lsp
+  vim.lsp.enable({ "jsonls", "eslint", "biome", "html", "cssls" })
+
   vim.lsp.config.html = {
     filetypes = { "jinja", "htmldjango" },
   }
@@ -114,6 +114,9 @@ MiniDeps.later(function()
       },
     },
   }
+
+  vim.lsp.enable("tailwindcss")
+  vim.lsp.config("tailwindcss", require("lsp.tailwind"))
 
   vim.lsp.enable("lua_ls")
   vim.lsp.config.lua_ls = {
