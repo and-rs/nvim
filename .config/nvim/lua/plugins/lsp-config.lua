@@ -115,6 +115,8 @@ MiniDeps.later(function()
     },
   }
 
+  vim.lsp.enable("glsl_analyzer")
+
   vim.lsp.enable("tailwindcss")
   vim.lsp.config("tailwindcss", require("lsp.tailwind"))
 
