@@ -13,8 +13,8 @@ MiniDeps.now(function()
       cycle_open_buffers = "<tab>",
       open_file_in_tab = "<c-t>",
     },
-    floating_window_scaling_factor = { height = 0.98, width = 1 },
-    yazi_floating_window_border = "none",
+    floating_window_scaling_factor = { height = 0.92, width = 1 },
+    yazi_floating_window_border = "rounded",
   })
 
   vim.keymap.set(

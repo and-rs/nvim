@@ -64,11 +64,11 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("MasonBackdrop", { link = "NormalSB" })
 
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
+    set_hl("YaziFloatBorder", { link = "Conceal" })
 
     -- [NOTE] light theme tweaks
     -- set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })
     -- set_hl("IncSearch", { link = "Search" })
-    -- set_hl("YaziFloatBorder", { link = "Conceal" })
     -- set_hl("FzfLuaLiveSym", { link = "Normal" })
     -- set_hl("FzfLuaLivePrompt", { link = "Normal" })
 

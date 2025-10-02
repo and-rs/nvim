@@ -65,7 +65,8 @@ map("n", "<leader>yy", [["+yy]], "Yank line to clipboard")
 map("n", "<leader>Y", [["+yg_]], "Yank to end of line to clipboard")
 map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
 
--- indow management
+-- window management
+map("n", "<leader>wn", "<C-w>w", "Select next window")
 map("n", "<leader>wv", "<C-w>v", "Split window vertically")
 map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
 map("n", "<leader>we", "<C-w>=", "Make splits equal size")
