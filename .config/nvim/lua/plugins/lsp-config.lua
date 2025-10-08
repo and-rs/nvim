@@ -100,6 +100,11 @@ MiniDeps.later(function()
   }
 
   vim.lsp.enable({ "jsonls", "eslint", "biome", "html", "cssls" })
+  vim.lsp.config("jsonls", {
+    init_options = {
+      provideFormatter = false,
+    },
+  })
 
   vim.lsp.config.html = {
     filetypes = { "jinja", "htmldjango" },

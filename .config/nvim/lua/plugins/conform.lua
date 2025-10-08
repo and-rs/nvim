@@ -26,11 +26,13 @@ MiniDeps.later(function()
       javascriptreact = { "biome", "rustywind" },
       typescriptreact = { "biome", "rustywind" },
       svelte = { "biome", "rustywind" },
-      css = { "biome", "rustywind" },
+      css = { "biome" },
+      yaml = { "biome" },
+      graphql = { "biome" },
+
       html = { "deno_fmt", "rustywind" },
-      json = { "biome", "rustywind" },
-      yaml = { "biome", "rustywind" },
-      graphql = { "biome", "rustywind" },
+      json = { "deno_fmt" },
+      jsonc = { "deno_fmt" },
 
       zsh = { "beautysh" },
       sh = { "beautysh" },
