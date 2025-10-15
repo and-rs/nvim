@@ -129,12 +129,13 @@ MiniDeps.later(function()
   vim.lsp.config.lua_ls = {
     settings = {
       Lua = {
+        runtime = { version = "LuaJIT", path = vim.split(package.path, ";") },
         completion = {
           callSnippet = "Replace",
         },
-        diagnostics = {
-          globals = { "vim" },
-          disable = { "missing-fields" },
+        workspace = {
+          ignoreSubmodules = true,
+          library = { vim.env.VIMRUNTIME },
         },
       },
     },

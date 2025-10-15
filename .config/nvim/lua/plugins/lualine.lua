@@ -39,7 +39,7 @@ MiniDeps.now(function()
 
   require("utils.highlights")
   local colors = {
-    white = Get_hl_hex("PreProc", "fg"),
+    white = Get_hl_hex("Constant", "fg"),
     border = Get_hl_hex("Conceal", "fg"),
     background = Get_hl_hex("NormalFloat", "bg"),
   }

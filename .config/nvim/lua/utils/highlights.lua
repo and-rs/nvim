@@ -59,12 +59,21 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
   callback = function()
     set_hl("Substitute", { bg = Get_hl_hex("String", "fg"), fg = Get_hl_hex("Normal", "bg") })
     set_hl("DiagnosticUnnecessary", { underline = true })
-    set_hl("WinSeparator", { link = "FloatBorder" })
+
+    set_hl(
+      "FloatBorder",
+      { bg = Get_hl_hex("StatusLine", "fg"), fg = Get_hl_hex("StatusLine", "bg") }
+    )
+    set_hl(
+      "WinSeparator",
+      { bg = Get_hl_hex("StatusLine", "fg"), fg = Get_hl_hex("StatusLine", "bg") }
+    )
+
     set_hl("FzfLuaBackdrop", { link = "NormalSB" })
     set_hl("MasonBackdrop", { link = "NormalSB" })
 
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
-    set_hl("YaziFloatBorder", { link = "Conceal" })
+    set_hl("YaziFloatBorder", { fg = Get_hl_hex("StatusLine", "bg") })
 
     -- [NOTE] light theme tweaks
     -- set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })
