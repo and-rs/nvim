@@ -12,7 +12,14 @@ MiniDeps.now(function()
       preview_border = "FloatBorder",
     },
     keymap = {
-      fzf = { ["ctrl-y"] = "toggle+down", ["ctrl-i"] = "up+toggle" },
+      fzf = {
+        ["ctrl-f"] = "page-down",
+        ["ctrl-b"] = "page-up",
+        ["ctrl-d"] = "half-page-down",
+        ["ctrl-u"] = "half-page-up",
+        ["ctrl-y"] = "toggle+down",
+        ["ctrl-i"] = "up+toggle",
+      },
     },
     actions = {
       files = {
@@ -137,5 +144,5 @@ MiniDeps.now(function()
   map("<C-e>", function()
     require("fzf-lua.win").toggle_fullscreen()
     require("fzf-lua.win").toggle_preview()
-  end, "Toggle FZF fullscreen",  "t" )
+  end, "Toggle FZF fullscreen", "t")
 end)

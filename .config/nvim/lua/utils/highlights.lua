@@ -75,6 +75,15 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
     set_hl("YaziFloatBorder", { fg = Get_hl_hex("StatusLine", "bg") })
 
+    -- [NOTE] github theme tweaks
+    local hint_color = Get_hl_hex("DiagnosticHint", "fg")
+    local warn_color = Get_hl_hex("DiagnosticWarn", "fg")
+    local error_color = Get_hl_hex("DiagnosticError", "fg")
+    set_hl("DiagnosticVirtualTextHint", { fg = hint_color, bg = Darken_hex(hint_color) })
+    set_hl("DiagnosticVirtualTextWarn", { fg = warn_color, bg = Darken_hex(warn_color) })
+    set_hl("DiagnosticVirtualTextError", { fg = error_color, bg = Darken_hex(error_color) })
+    set_hl("WhichKeyTitle", { bg = Get_hl_hex("StatusLine", "fg") })
+
     -- [NOTE] light theme tweaks
     -- set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })
     -- set_hl("IncSearch", { link = "Search" })

@@ -72,6 +72,7 @@ MiniDeps.later(function()
     },
   })
 
+  vim.lsp.enable("yamlls")
   vim.lsp.enable("gopls")
   vim.lsp.enable("nil_ls")
   vim.lsp.enable("bashls")

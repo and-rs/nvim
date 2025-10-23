@@ -27,7 +27,6 @@ MiniDeps.later(function()
       typescriptreact = { "biome", "rustywind" },
       svelte = { "biome", "rustywind" },
       css = { "biome" },
-      yaml = { "biome" },
       graphql = { "biome" },
 
       html = { "deno_fmt", "rustywind" },
