@@ -3,9 +3,13 @@ MiniDeps.later(function()
 
   local conform = require("conform")
 
-  conform.formatters.biome = {
-    append_args = { "--indent-style=space" },
+  conform.formatters.qmlformat = {
+    append_args = { "-w 2" },
   }
+
+  -- conform.formatters.biome = {
+  --   append_args = { "--indent-style=space" },
+  -- }
 
   conform.formatters.black = {
     append_args = { "--line-length=80" },
@@ -40,6 +44,7 @@ MiniDeps.later(function()
       jinja = { "djlint", "rustywind" },
       python = { "black" },
 
+      qml = { "qmlformat" },
       markdown = { "deno_fmt" },
       lua = { "stylua" },
       nix = { "nixfmt" },

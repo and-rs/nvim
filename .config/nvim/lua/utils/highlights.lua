@@ -62,18 +62,18 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
 
     set_hl(
       "FloatBorder",
-      { bg = Get_hl_hex("StatusLine", "fg"), fg = Get_hl_hex("StatusLine", "bg") }
+      { bg = Get_hl_hex("StatusLine", "bg"), fg = Get_hl_hex("StatusLine", "fg") }
     )
     set_hl(
       "WinSeparator",
-      { bg = Get_hl_hex("StatusLine", "fg"), fg = Get_hl_hex("StatusLine", "bg") }
+      { bg = Get_hl_hex("StatusLine", "bg"), fg = Get_hl_hex("StatusLine", "fg") }
     )
 
     set_hl("FzfLuaBackdrop", { link = "NormalSB" })
     set_hl("MasonBackdrop", { link = "NormalSB" })
 
     set_hl("FlashLabel", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Normal", "fg") })
-    set_hl("YaziFloatBorder", { fg = Get_hl_hex("StatusLine", "bg") })
+    set_hl("YaziFloatBorder", { fg = Get_hl_hex("StatusLine", "fg") })
 
     -- [NOTE] github theme tweaks
     local hint_color = Get_hl_hex("DiagnosticHint", "fg")
@@ -82,7 +82,7 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
     set_hl("DiagnosticVirtualTextHint", { fg = hint_color, bg = Darken_hex(hint_color) })
     set_hl("DiagnosticVirtualTextWarn", { fg = warn_color, bg = Darken_hex(warn_color) })
     set_hl("DiagnosticVirtualTextError", { fg = error_color, bg = Darken_hex(error_color) })
-    set_hl("WhichKeyTitle", { bg = Get_hl_hex("StatusLine", "fg") })
+    set_hl("WhichKeyTitle", { bg = Get_hl_hex("StatusLine", "bg") })
 
     -- [NOTE] light theme tweaks
     -- set_hl("Search", { fg = Get_hl_hex("Normal", "bg"), bg = Get_hl_hex("Search", "bg") })

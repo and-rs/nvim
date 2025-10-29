@@ -1,9 +1,5 @@
 MiniDeps.now(function()
   MiniDeps.add({ source = "folke/tokyonight.nvim" })
-  MiniDeps.add({ source = "projekt0n/github-nvim-theme" })
-
-  require("github-theme").setup({})
-  vim.cmd("colorscheme github_dark_default")
 
   require("tokyonight").setup({
     transparent = false,
@@ -85,5 +81,5 @@ MiniDeps.now(function()
     --   end,
   })
 
-  -- vim.cmd.colorscheme("tokyonight-moon")
+  vim.cmd.colorscheme("tokyonight-moon")
 end)

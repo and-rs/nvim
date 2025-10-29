@@ -23,7 +23,6 @@ MiniDeps.later(function()
   })
 
   vim.treesitter.language.register("bash", "env")
-  -- vim.treesitter.language.register("tsx", "jinja")
 
   treesitter.setup({
     highlight = {
@@ -55,12 +54,14 @@ MiniDeps.later(function()
       "nu",
       "bash",
 
+      "jinja",
       "python",
 
       "vim",
       "vimdoc",
 
       "luadoc",
+      "nix",
       "lua",
       "zig",
       "go",
