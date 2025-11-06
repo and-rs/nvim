@@ -8,13 +8,13 @@ MiniDeps.now(function()
     },
 
     on_colors = function(colors)
-      colors.bg = "#212330"
-      colors.bg_dark = "#212330"
-      colors.bg_float = "#252837"
-      colors.bg_popup = "#252837"
-      colors.bg_search = "#252837"
-      colors.bg_sidebar = "#252837"
-      colors.bg_statusline = "#252837"
+      colors.bg = "#232634"
+      colors.bg_dark = "#232634"
+      colors.bg_float = "#292c3c"
+      colors.bg_popup = "#292c3c"
+      colors.bg_search = "#292c3c"
+      colors.bg_sidebar = "#292c3c"
+      colors.bg_statusline = "#292c3c"
     end,
 
     --   on_colors = function(colors)
@@ -81,5 +81,5 @@ MiniDeps.now(function()
     --   end,
   })
 
-  vim.cmd.colorscheme("tokyonight-moon")
+  -- vim.cmd.colorscheme("tokyonight-moon")
 end)

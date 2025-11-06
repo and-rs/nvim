@@ -6,19 +6,23 @@ MiniDeps.now(function()
 
   fzf.setup({
     hls = {
-      prompt = "Constant",
       title = "FloatBorder",
       border = "FloatBorder",
       preview_border = "FloatBorder",
+      preview_normal = "FloatBorder",
+      preview_title = "FloatBorder",
+    },
+    oldfiles = {
+      cwd_only = true,
     },
     keymap = {
       fzf = {
+        ["ctrl-y"] = "toggle+down",
+        ["ctrl-i"] = "up+toggle",
         ["ctrl-f"] = "page-down",
         ["ctrl-b"] = "page-up",
         ["ctrl-d"] = "half-page-down",
         ["ctrl-u"] = "half-page-up",
-        ["ctrl-y"] = "toggle+down",
-        ["ctrl-i"] = "up+toggle",
       },
     },
     actions = {
@@ -35,7 +39,11 @@ MiniDeps.now(function()
     },
     fzf_colors = {
       ["bg"] = { "bg", "FloatBorder" },
-      ["bg+"] = { "bg", "FloatBorder" },
+      ["bg+"] = { "bg", "Normal" },
+
+      ["border"] = { "fg", "FloatBorder" },
+      ["separator"] = { "fg", "Normal" },
+      ["scrollbar"] = { "fg", "Normal" },
 
       ["fg"] = { "fg", "Comment" },
       ["fg+"] = { "fg", "PreProc" },
@@ -49,10 +57,6 @@ MiniDeps.now(function()
 
       ["prompt"] = { "fg", "Special" },
       ["info"] = { "fg", "Special" },
-
-      ["header"] = { "fg", "FloatBorder" },
-      ["separator"] = { "fg", "FloatBorder" },
-      ["scrollbar"] = { "fg", "FloatBorder" },
     },
     winopts = {
       border = "rounded",

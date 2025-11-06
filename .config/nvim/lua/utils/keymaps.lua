@@ -49,10 +49,10 @@ map({ "c", "i", "t" }, "<C-j>", "<nop>")
 map({ "c", "i", "t" }, "<C-k>", "<nop>")
 
 -- terminal remaps
-map({ "c", "i", "t" }, "<C-a>", "<Home>")
-map({ "c", "i", "t" }, "<C-d>", "<Del>")
-map({ "c", "i", "t" }, "<C-f>", "<Right>")
-map({ "c", "i", "t" }, "<C-b>", "<Left>")
+map({ "c", "i" }, "<C-a>", "<Home>")
+map({ "c", "i" }, "<C-d>", "<Del>")
+map({ "c", "i" }, "<C-f>", "<Right>")
+map({ "c", "i" }, "<C-b>", "<Left>")
 
 -- keep cursor centered
 map("n", "J", "mzJ`z", "Move current line up")
