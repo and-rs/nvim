@@ -1,6 +1,6 @@
 MiniDeps.now(function()
   MiniDeps.add({
-    source = "mikavilpas/yazi.nvim",
+    source = "and-rs/yazi.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
   })
 
@@ -13,8 +13,7 @@ MiniDeps.now(function()
       cycle_open_buffers = "<tab>",
       open_file_in_tab = "<c-t>",
     },
-    floating_window_scaling_factor = { height = 0.92, width = 1 },
-    yazi_floating_window_border = "rounded",
+    floating_window_scaling_factor = { height = 0.7, width = 0.8 },
   })
 
   vim.keymap.set(

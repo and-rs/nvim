@@ -1,4 +1,5 @@
 require("utils.highlights")
+require("utils.statuscolumn")
 require("utils.settings")
 require("utils.keymaps")
 require("utils.tailwind")

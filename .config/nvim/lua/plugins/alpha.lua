@@ -11,8 +11,20 @@ MiniDeps.now(function()
     return second_word
   end
 
+  local plugin_count = function()
+    local dir = vim.fn.stdpath("config") .. "/lua/plugins"
+    local count = 0
+    for name, t in vim.fs.dir(dir) do
+      if t == "file" and name:sub(-4) == ".lua" then
+        count = count + 1
+      end
+    end
+    return count
+  end
+
   dashboard.section.header.val = {
     [[│  Neovim ]] .. version(),
+    [[│  Currently ]] .. plugin_count() .. [[ plugins installed]],
     [[│  Open source and freely distributable]],
   }
   dashboard.section.footer.val = {
@@ -48,12 +60,11 @@ MiniDeps.now(function()
 
   dashboard.section.header.opts = {
     position = "left",
-    hl = "Special",
+    hl = "Statement",
   }
 
   dashboard.section.footer.opts = {
     position = "center",
-    hl = "@property",
   }
 
   alpha.setup(dashboard.config)

@@ -1,5 +1,6 @@
 MiniDeps.later(function()
   MiniDeps.add({ source = "shellRaining/hlchunk.nvim" })
+  local coloring = require("utils.coloring")
   require("hlchunk").setup({
     chunk = {
       enable = true,
@@ -10,7 +11,7 @@ MiniDeps.later(function()
         left_bottom = "└",
         right_arrow = "─",
       },
-      style = Get_hl_hex("Comment", "fg"),
+      style = coloring.highlight("NvimGrey", "fg"),
       duration = 0,
       delay = 0,
     },

@@ -1,107 +1,98 @@
----returns the specific hex code from a selected highlight
----@param name string
----@param option string
----@return string | nil
-function Get_hl_hex(name, option)
-  if type(name) ~= "string" or (option ~= "fg" and option ~= "bg") then
-    error("Invalid arguments. Usage: highlight(name: string, option: 'fg' | 'bg')")
-  end
-  local hl = vim.api.nvim_get_hl(0, { name = name })
-  local color = hl[option]
-  if not color then
-    print("No " .. option .. " color found for highlight group: " .. name)
-    return nil
-  end
-  local hex_color = string.format("#%06x", color)
-  return hex_color
-end
+local coloring = require("utils.coloring")
 
-local function hex_to_rgb(hex)
-  hex = hex:gsub("#", "")
-  return tonumber("0x" .. hex:sub(1, 2)),
-    tonumber("0x" .. hex:sub(3, 4)),
-    tonumber("0x" .. hex:sub(5, 6))
-end
-
-local function rgb_to_hex(r, g, b)
-  return string.format("#%02x%02x%02x", r, g, b)
-end
-
----darkens a hex value, with a factor of 0(black) to 1(unchanged)
----@param hex string | nil
----@param factor number | nil
----@return string | nil
-function Darken_hex(hex, factor)
-  if hex == nil then
-    error("Nil value passed as hex, verify hex source")
-    return
-  end
-  factor = factor or 0.15
-  if factor > 1 or factor < 0 then
-    factor = 0.15
-    warn("Can't darken hex values with a factor higher than 1 or less than 0, defaulting to 0.15")
-  end
-  local r, g, b = hex_to_rgb(hex)
-  local color = rgb_to_hex(math.floor(r * factor), math.floor(g * factor), math.floor(b * factor))
-  return color
-end
-
----shorter function call
----@param highlight string
----@param options table
 local function set_hl(highlight, options)
   vim.api.nvim_set_hl(0, highlight, options)
 end
 
-vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
-  group = vim.api.nvim_create_augroup("Color", {}),
+vim.api.nvim_create_autocmd("VimEnter", {
   pattern = "*",
+  group = coloring.augroup,
   callback = function()
-    set_hl("TreesitterContext", { bg = Get_hl_hex("Normal", "bg") })
+    set_hl("NvimPink", { fg = "#ffcaff" })
+    set_hl("NvimBlue", { fg = "#a6dbff" })
+    set_hl("NvimGrey", { fg = "#79839c" })
+    set_hl("NvimWhite", { fg = "#e0e2ea" })
+
+    set_hl("Type", { link = "NvimPink" })
+    set_hl("Boolean", { link = "NvimPink" })
+    set_hl("Special", { link = "NvimPink" })
+    set_hl("Keyword", { link = "NvimBlue" })
+    set_hl("Statement", { link = "NvimBlue" })
+    set_hl("Comment", { link = "NvimGrey" })
+    set_hl("NonText", { link = "NvimGrey" })
+    set_hl("Variable", { link = "NvimGrey" })
+    set_hl("Operator", { link = "NvimGrey" })
+    set_hl("Delimiter", { link = "NvimGrey" })
+    set_hl("Identifier", { link = "NvimWhite" })
+
+    set_hl("MatchParen", {
+      bg = coloring.highlight("Normal", "fg"),
+      fg = coloring.highlight("Normal", "bg"),
+      bold = true,
+    })
+    set_hl("Substitute", {
+      bg = coloring.highlight("String", "fg"),
+      fg = coloring.highlight("Normal", "bg"),
+    })
+    set_hl("Visual", {
+      bg = coloring.darken_hex(coloring.highlight("NvimGrey", "fg"), 0.35),
+    })
+    set_hl("IncSearch", {
+      bg = coloring.highlight("Visual", "bg"),
+      fg = coloring.highlight("String", "fg"),
+      underline = true,
+    })
+    set_hl("Search", {
+      bg = coloring.highlight("Normal", "bg"),
+      fg = coloring.highlight("Normal", "fg"),
+      underline = true,
+    })
+
+    local hint_color = coloring.highlight("DiagnosticHint", "fg")
+    local warn_color = coloring.highlight("DiagnosticWarn", "fg")
+    local error_color = coloring.highlight("DiagnosticError", "fg")
+
+    if hint_color then
+      set_hl("DiagnosticVirtualTextHint", {
+        fg = hint_color,
+        bg = coloring.darken_hex(hint_color),
+      })
+    end
+    if warn_color then
+      set_hl("DiagnosticVirtualTextWarn", {
+        fg = warn_color,
+        bg = coloring.darken_hex(warn_color),
+      })
+    end
+    if error_color then
+      set_hl("DiagnosticVirtualTextError", {
+        fg = error_color,
+        bg = coloring.darken_hex(error_color),
+      })
+    end
+
+    set_hl("DiagnosticUnnecessary", { underline = true })
+
+    set_hl("TreesitterContext", { bg = coloring.highlight("Normal", "bg") })
     set_hl("TreesitterContextLineNumberBottom", { link = "LineNr" })
     set_hl("TreesitterContextBottom", {
-      bg = Get_hl_hex("Normal", "bg"),
+      bg = coloring.highlight("Normal", "bg"),
+      sp = coloring.highlight("NvimGrey", "fg"),
       underline = true,
-      sp = Get_hl_hex("Comment", "fg"),
     })
 
     set_hl("FzfLuaBackdrop", { link = "NormalSB" })
     set_hl("MasonBackdrop", { link = "NormalSB" })
-    set_hl("YaziFloatBorder", { fg = Get_hl_hex("StatusLine", "fg") })
-    set_hl("WhichKeyTitle", { bg = Get_hl_hex("NormalFloat", "bg") })
-
-    set_hl("Type", { link = "String" })
-    set_hl("Delimiter", { link = "Variable" })
-    set_hl("Statement", { fg = Get_hl_hex("Identifier", "fg"), italic = true })
-    set_hl("Substitute", { bg = Get_hl_hex("String", "fg"), fg = Get_hl_hex("Normal", "bg") })
-    set_hl("IncSearch", {
-      bg = Get_hl_hex("Normal", "bg"),
-      fg = Get_hl_hex("String", "fg"),
-      underline = true,
-    })
-    set_hl("Search", {
-      bg = Get_hl_hex("Normal", "bg"),
-      fg = Get_hl_hex("Normal", "fg"),
-      underline = true,
-    })
-
-    -- [NOTE] highlight tweaks for neovim default theme
-    local hint_color = Get_hl_hex("DiagnosticHint", "fg")
-    local warn_color = Get_hl_hex("DiagnosticWarn", "fg")
-    local error_color = Get_hl_hex("DiagnosticError", "fg")
-    set_hl("DiagnosticVirtualTextHint", { fg = hint_color, bg = Darken_hex(hint_color) })
-    set_hl("DiagnosticVirtualTextWarn", { fg = warn_color, bg = Darken_hex(warn_color) })
-    set_hl("DiagnosticVirtualTextError", { fg = error_color, bg = Darken_hex(error_color) })
-    set_hl("DiagnosticUnnecessary", { underline = true })
+    set_hl("YaziFloatBorder", { link = "NormalFloat" })
+    set_hl("YaziFloat", { bg = coloring.highlight("NormalFloat", "bg") })
+    set_hl("WhichKeyTitle", { bg = coloring.highlight("NormalFloat", "bg") })
   end,
 })
 
--- highlight on yank
-local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
+  pattern = "*",
+  group = coloring.augroup,
   callback = function()
     vim.highlight.on_yank({ higroup = "Substitute" })
   end,
-  group = highlight_group,
-  pattern = "*",
 })

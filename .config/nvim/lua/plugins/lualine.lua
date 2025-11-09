@@ -37,14 +37,27 @@ MiniDeps.now(function()
     end
   end
 
-  require("utils.highlights")
+  local coloring = require("utils.coloring")
   local colors = {
-    white = Get_hl_hex("PreProc", "fg"),
-    border = Get_hl_hex("Conceal", "fg"),
-    background = Get_hl_hex("NormalFloat", "bg"),
+    white = coloring.highlight("Normal", "fg"),
+    background = coloring.highlight("NormalFloat", "bg"),
   }
 
   require("lualine").setup({
+    options = {
+      icons_enabled = true,
+      globalstatus = true,
+      component_separators = { left = " ╱ ", right = " ╲ " },
+      section_separators = "",
+      theme = {
+        normal = {
+          a = { bg = colors.background, fg = colors.white },
+          b = { bg = colors.background, fg = colors.white },
+          c = { bg = colors.background, fg = colors.white },
+        },
+      },
+    },
+
     inactive_sections = {
       lualine_a = {},
       lualine_b = {},
@@ -78,6 +91,12 @@ MiniDeps.now(function()
         progress,
         {
           "diff",
+          colored = true,
+          diff_color = {
+            added = "GitSignsAdd",
+            modified = "GitSignsChange",
+            removed = "GitSignsDelete",
+          },
           separator = "@",
           symbols = { added = "+", modified = "~", removed = "-" },
           padding = { right = 1, left = 1 },
@@ -88,21 +107,6 @@ MiniDeps.now(function()
         {
           "vim.bo.filetype",
           padding = { right = 2, left = 1 },
-        },
-      },
-    },
-
-    options = {
-      icons_enabled = true,
-      globalstatus = true,
-      component_separators = { left = " ╱ ", right = " ╲ " },
-      section_separators = "",
-
-      theme = {
-        normal = {
-          a = { bg = colors.background, fg = colors.white },
-          b = { bg = colors.background, fg = colors.white },
-          c = { bg = colors.background, fg = colors.white },
         },
       },
     },

@@ -7,10 +7,6 @@ MiniDeps.later(function()
     append_args = { "-w 2" },
   }
 
-  -- conform.formatters.biome = {
-  --   append_args = { "--indent-style=space" },
-  -- }
-
   conform.formatters.black = {
     append_args = { "--line-length=80" },
   }
