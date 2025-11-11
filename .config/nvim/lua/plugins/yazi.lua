@@ -12,6 +12,8 @@ MiniDeps.now(function()
       show_help = "<f1>",
       cycle_open_buffers = "<tab>",
       open_file_in_tab = "<c-t>",
+      open_file_in_vertical_split = "<nop>",
+      open_file_in_horizontal_split = "<nop>",
     },
     floating_window_scaling_factor = { height = 0.7, width = 0.8 },
   })
