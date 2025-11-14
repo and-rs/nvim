@@ -15,6 +15,10 @@ MiniDeps.now(function()
       open_file_in_vertical_split = "<nop>",
       open_file_in_horizontal_split = "<nop>",
     },
+    highlight_groups = {
+      hovered_buffer = { link = "Normal" },
+    },
+    highlight_hovered_buffers_in_same_directory = false,
     floating_window_scaling_factor = { height = 0.7, width = 0.8 },
   })
 

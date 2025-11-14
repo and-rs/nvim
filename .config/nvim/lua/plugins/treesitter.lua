@@ -8,14 +8,6 @@ MiniDeps.later(function()
     },
   })
 
-  MiniDeps.add({
-    source = "nvim-treesitter/nvim-treesitter-context",
-  })
-  require("treesitter-context").setup({
-    min_window_height = 10,
-    zindex = 100,
-  })
-
   local treesitter = require("nvim-treesitter.configs")
   vim.filetype.add({
     extension = {
