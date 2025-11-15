@@ -58,6 +58,7 @@ vim.opt.background = "dark"
 vim.opt.list = true
 vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
 
+-- center the last lines of the buffer like in helix
 vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
   group = vim.api.nvim_create_augroup("ScrollOffEOF", { clear = true }),
   callback = function()
@@ -69,5 +70,20 @@ vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
     local desired_topline = math.max(1, cur_line - half_height)
 
     vim.fn.winrestview({ topline = desired_topline })
+  end,
+})
+
+-- share neovim's clipboard between instances
+local group = vim.api.nvim_create_augroup("shared_registers", { clear = true })
+vim.api.nvim_create_autocmd("TextYankPost", {
+  group = group,
+  callback = function()
+    vim.cmd("wshada")
+  end,
+})
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
+  group = group,
+  callback = function()
+    vim.cmd("rshada")
   end,
 })

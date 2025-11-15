@@ -61,7 +61,6 @@ MiniDeps.now(function()
     winopts = {
       border = "rounded",
       height = 15,
-      width = 76,
       row = 0.2,
       col = 0.5,
       preview = {
@@ -76,7 +75,7 @@ MiniDeps.now(function()
       preview = {
         border = "rounded",
       },
-      height = 8,
+      height = 10,
       width = 50,
       row = 0.4,
       col = 0.48,
@@ -90,63 +89,82 @@ MiniDeps.now(function()
     color_icons = false,
   }
 
-  local map = function(keys, picker, desc, mode)
+  local function dynamic_width()
+    return vim.o.columns > 67 and 76 or 0.9
+  end
+
+  local function extend(t1, t2)
+    return vim.tbl_extend("force", t1, t2)
+  end
+
+  local fzf_dynamic = setmetatable({}, {
+    __index = function(_, k)
+      local orig = fzf[k]
+      if type(orig) ~= "function" then
+        return orig
+      end
+      return function(opts)
+        opts = opts or {}
+        if k ~= "builtin" then
+          opts.winopts = extend(opts.winopts or {}, { width = dynamic_width() })
+        end
+        return orig(opts)
+      end
+    end,
+  })
+
+  local function map(keys, picker, desc, mode)
     local command
     if type(picker) == "string" then
       command = function()
-        fzf[picker](picker_opts)
+        fzf_dynamic[picker](picker_opts)
       end
     elseif type(picker) == "function" then
       command = picker
     else
       error("Invalid picker type: must be a string or function")
     end
-    vim.keymap.set(mode and mode or "n", keys, command, { desc = desc })
-  end
-
-  local extend = function(table1, table2)
-    return vim.tbl_extend("force", table1, table2)
+    vim.keymap.set(mode or "n", keys, command, { desc = desc })
   end
 
   map("<leader>sa", function()
-    fzf.builtin(extend(builtin_opts, picker_opts))
+    fzf_dynamic.builtin(extend(builtin_opts, picker_opts))
   end, "FZF")
 
   map("<leader>sf", function()
-    fzf.files(extend(picker_opts, {
+    fzf_dynamic.files(extend(picker_opts, {
       cmd = "rg --files --hidden --ignore --glob='!.git' --sortr=modified",
       fzf_opts = { ["--scheme"] = "path", ["--tiebreak"] = "index" },
     }))
   end, "Files")
 
-  map("<leader>sh", "help_tags", "Help")
-  map("<leader>sb", "buffers", "Buffers")
   map("<leader>sr", function()
-    fzf.oldfiles(extend(picker_opts, { include_current_session = true }))
+    fzf_dynamic.oldfiles(extend(picker_opts, { include_current_session = true }))
   end, "Recent files")
-  map("<leader>sv", "grep_visual", "Grep Visual")
-  map("<leader>sc", "grep_cword", "Current Word")
-  map("<leader>sg", "live_grep_native", "Grep Word")
-  map("<leader>sd", "diagnostics_document", "Diagnostics")
 
-  --lsp
   map("gd", function()
-    fzf.lsp_definitions(extend(picker_opts, { jump1 = true }))
+    fzf_dynamic.lsp_definitions(extend(picker_opts, { jump1 = true }))
   end, "LSP Definitions")
 
   map("<leader>lr", function()
-    fzf.lsp_references(
-      extend(picker_opts, { includeDeclaration = false, ignore_current_line = true })
-    )
+    fzf_dynamic.lsp_references(extend(picker_opts, {
+      includeDeclaration = false,
+      ignore_current_line = true,
+    }))
   end, "LSP References")
 
-  map("<leader>lc", "lsp_code_actions", "LSP Code Actions")
-  map("<leader>lt", "lsp_typedefs", "LSP Type Definitions")
-  map("<leader>lI", "lsp_implementations", "LSP Implementations")
-
-  --util
   map("<C-e>", function()
     require("fzf-lua.win").toggle_fullscreen()
     require("fzf-lua.win").toggle_preview()
   end, "Toggle FZF fullscreen", "t")
+
+  map("<leader>sh", "help_tags", "Help")
+  map("<leader>sb", "buffers", "Buffers")
+  map("<leader>sv", "grep_visual", "Grep Visual")
+  map("<leader>sc", "grep_cword", "Current Word")
+  map("<leader>sg", "live_grep_native", "Grep Word")
+  map("<leader>sd", "diagnostics_document", "Diagnostics")
+  map("<leader>lc", "lsp_code_actions", "LSP Code Actions")
+  map("<leader>lt", "lsp_typedefs", "LSP Type Definitions")
+  map("<leader>lI", "lsp_implementations", "LSP Implementations")
 end)
