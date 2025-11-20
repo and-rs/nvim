@@ -25,11 +25,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
     set_hl("Delimiter", { link = "NvimGrey" })
     set_hl("Identifier", { link = "NvimWhite" })
 
-    set_hl("MatchParen", {
-      bg = coloring.highlight("Normal", "fg"),
-      fg = coloring.highlight("Normal", "bg"),
-      bold = true,
-    })
     set_hl("Substitute", {
       bg = coloring.highlight("String", "fg"),
       fg = coloring.highlight("Normal", "bg"),
@@ -45,6 +40,12 @@ vim.api.nvim_create_autocmd("VimEnter", {
     set_hl("Search", {
       bg = coloring.highlight("Normal", "bg"),
       fg = coloring.highlight("Normal", "fg"),
+      underline = true,
+    })
+    set_hl("MatchParen", {
+      bg = coloring.highlight("Visual", "bg"),
+      fg = coloring.highlight("String", "fg"),
+      bold = true,
       underline = true,
     })
 
