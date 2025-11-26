@@ -32,8 +32,6 @@ MiniDeps.now(function()
   })
 
   require("which-key").add({
-    { "ma", mode = "n", desc = "Harpoon add" },
-    { "M", mode = "n", desc = "Harpoon menu" },
     { "S", mode = "v", desc = "Add surround visual" },
     { "<leader>c", group = "Column" },
     { "<leader>l", group = "LSP" },

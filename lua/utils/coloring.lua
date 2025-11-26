@@ -2,6 +2,13 @@ local M = {}
 
 M.augroup = vim.api.nvim_create_augroup("Highlighting", { clear = false })
 
+---@param highlight string
+---@param options vim.api.keyset.highlight
+---@return nil
+function M.set(highlight, options)
+  vim.api.nvim_set_hl(0, highlight, options)
+end
+
 ---@param name string
 ---@param option "fg" | "bg"
 ---@return string | nil

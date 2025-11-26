@@ -1,4 +1,4 @@
 .DS_Store
+.luarc.json
 tags
 test.sh
-.luarc.json

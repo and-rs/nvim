@@ -1,26 +1,22 @@
-local coloring = require("utils.coloring")
-
-local function set_hl(highlight, options)
-  vim.api.nvim_set_hl(0, highlight, options)
-end
+local color = require("utils.coloring")
 
 local function gradient_two_steps(start_hex, end_hex)
-  coloring.validate_hex(start_hex)
-  coloring.validate_hex(end_hex)
+  color.validate_hex(start_hex)
+  color.validate_hex(end_hex)
 
-  local start_r, start_g, start_b = coloring.hex_to_rgb(start_hex)
-  local end_r, end_g, end_b = coloring.hex_to_rgb(end_hex)
+  local start_r, start_g, start_b = color.hex_to_rgb(start_hex)
+  local end_r, end_g, end_b = color.hex_to_rgb(end_hex)
 
   local factor1 = 0.6
   local factor2 = 0.8
 
-  local color1 = coloring.rgb_to_hex(
+  local color1 = color.rgb_to_hex(
     math.floor(start_r + (end_r - start_r) * factor1),
     math.floor(start_g + (end_g - start_g) * factor1),
     math.floor(start_b + (end_b - start_b) * factor1)
   )
 
-  local color2 = coloring.rgb_to_hex(
+  local color2 = color.rgb_to_hex(
     math.floor(start_r + (end_r - start_r) * factor2),
     math.floor(start_g + (end_g - start_g) * factor2),
     math.floor(start_b + (end_b - start_b) * factor2)
@@ -33,50 +29,64 @@ local function gradient_two_steps(start_hex, end_hex)
 end
 
 vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
-  group = coloring.augroup,
+  group = color.augroup,
   pattern = "*",
   callback = function()
-    local primary = coloring.highlight("NvimBlue", "fg")
-    local secondary = coloring.highlight("NvimGrey", "fg")
-    local background = coloring.highlight("StatusLine", "bg")
-    local column_background = coloring.highlight("NormalFloat", "bg")
+    local primary = color.highlight("NvimBlue", "fg")
+    local secondary = color.highlight("NvimGrey", "fg")
+    local background = color.highlight("StatusLine", "bg")
+    local column_background = color.highlight("NormalFloat", "bg")
 
     local numbers = gradient_two_steps(primary, secondary)
 
-    set_hl("ColumnBackground", { fg = coloring.adjust_hex(secondary, 0.3), bg = column_background })
-    set_hl("ColumnBase0", { fg = secondary, bg = column_background })
-    set_hl("ColumnBase1", { fg = background, bg = column_background })
-    set_hl("Column0", { fg = primary, bg = column_background, bold = true })
-    set_hl("Column1", { fg = numbers.dark, bg = column_background })
-    set_hl("Column2", { fg = numbers.light, bg = column_background })
+    color.set("ColumnBackground", {
+      fg = color.adjust_hex(secondary, 0.3),
+      bg = column_background,
+    })
+    color.set("ColumnBase0", { fg = secondary, bg = column_background })
+    color.set("ColumnBase1", { fg = background, bg = column_background })
+    color.set("Column0", { fg = primary, bg = column_background, bold = true })
+    color.set("Column1", { fg = numbers.dark, bg = column_background })
+    color.set("Column2", { fg = numbers.light, bg = column_background })
+    color.set("SignColumn", { bg = column_background })
 
-    set_hl("SignColumn", { bg = column_background })
-
-    set_hl("DiagnosticSignOk", {
-      fg = coloring.highlight("DiagnosticOk", "fg"),
+    color.set("DiagnosticSignOk", {
+      fg = color.highlight("DiagnosticOk", "fg"),
       bg = column_background,
     })
-    set_hl("DiagnosticSignHint", {
-      fg = coloring.highlight("DiagnosticHint", "fg"),
+    color.set("DiagnosticSignHint", {
+      fg = color.highlight("DiagnosticHint", "fg"),
       bg = column_background,
     })
-    set_hl("DiagnosticSignWarn", {
-      fg = coloring.highlight("DiagnosticWarn", "fg"),
+    color.set("DiagnosticSignWarn", {
+      fg = color.highlight("DiagnosticWarn", "fg"),
       bg = column_background,
     })
-    set_hl("DiagnosticSignInfo", {
-      fg = coloring.highlight("DiagnosticInfo", "fg"),
+    color.set("DiagnosticSignInfo", {
+      fg = color.highlight("DiagnosticInfo", "fg"),
       bg = column_background,
     })
-    set_hl("DiagnosticSignError", {
-      fg = coloring.highlight("DiagnosticError", "fg"),
+    color.set("DiagnosticSignError", {
+      fg = color.highlight("DiagnosticError", "fg"),
       bg = column_background,
     })
 
-    set_hl("GitSignsAdd", { fg = coloring.highlight("Added", "fg"), bg = column_background })
-    set_hl("GitSignsUntracked", { fg = coloring.highlight("Added", "fg"), bg = column_background })
-    set_hl("GitSignsChange", { fg = coloring.highlight("Changed", "fg"), bg = column_background })
-    set_hl("GitSignsDelete", { fg = coloring.highlight("Removed", "fg"), bg = column_background })
+    color.set("GitSignsAdd", {
+      fg = color.highlight("Added", "fg"),
+      bg = column_background,
+    })
+    color.set("GitSignsUntracked", {
+      fg = color.highlight("Added", "fg"),
+      bg = column_background,
+    })
+    color.set("GitSignsChange", {
+      fg = color.highlight("Changed", "fg"),
+      bg = column_background,
+    })
+    color.set("GitSignsDelete", {
+      fg = color.highlight("Removed", "fg"),
+      bg = column_background,
+    })
   end,
 })
 
