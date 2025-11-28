@@ -19,7 +19,11 @@ MiniDeps.now(function()
       hovered_buffer = { link = "Normal" },
     },
     highlight_hovered_buffers_in_same_directory = false,
-    floating_window_scaling_factor = { height = 0.7, width = 0.8 },
+    floating_window_scaling_factor = {
+      height = 0.7,
+      width = 0.8,
+      row = 2,
+    },
   })
 
   vim.keymap.set(
