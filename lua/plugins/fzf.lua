@@ -61,6 +61,7 @@ MiniDeps.now(function()
     winopts = {
       border = "rounded",
       height = 15,
+      width = 76,
       row = 0.2,
       col = 0.5,
       preview = {
@@ -90,7 +91,7 @@ MiniDeps.now(function()
   }
 
   local function dynamic_width()
-    return vim.o.columns > 67 and 76 or 0.9
+    return math.min(76, vim.o.columns - 4)
   end
 
   local function extend(t1, t2)

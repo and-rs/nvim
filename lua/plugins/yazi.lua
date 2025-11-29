@@ -1,10 +1,14 @@
 MiniDeps.now(function()
   MiniDeps.add({
-    source = "and-rs/yazi.nvim",
+    source = "mikavilpas/yazi.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
   })
 
   vim.g.loaded_netrwPlugin = 1
+
+  local function dynamic_width()
+    return math.min(90, vim.o.columns - 6)
+  end
 
   require("yazi").setup({
     open_for_directories = true,
@@ -19,10 +23,16 @@ MiniDeps.now(function()
       hovered_buffer = { link = "Normal" },
     },
     highlight_hovered_buffers_in_same_directory = false,
+    hooks = {
+      before_opening_window = function(window_options)
+        window_options.row = 2
+        window_options.width = dynamic_width()
+        window_options.col = math.floor((vim.o.columns - dynamic_width()) / 2) - 1
+      end,
+    },
     floating_window_scaling_factor = {
-      height = 0.7,
-      width = 0.8,
-      row = 2,
+      height = 18,
+      width = dynamic_width(),
     },
   })
 
