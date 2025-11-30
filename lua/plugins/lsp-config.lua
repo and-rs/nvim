@@ -72,22 +72,37 @@ MiniDeps.later(function()
     },
   })
 
-  -- vim.lsp.enable("qmlls")
-  vim.lsp.enable("yamlls")
-  vim.lsp.enable("gopls")
-  vim.lsp.enable("nil_ls")
-  vim.lsp.enable("bashls")
-  vim.lsp.enable("zls")
+  local enabled_lsps = {
+    -- js
+    "html",
+    "biome",
+    "cssls",
+    "jsonls",
+    "eslint",
+    "tailwindcss",
+    -- py
+    "ruff",
+    "basedpyright",
+    -- random
+    "zls",
+    "gopls",
+    "yamlls",
+    "qmlls",
+    "nil_ls",
+    "bashls",
+    "lua_ls",
+    "glsl_analyzer",
+  }
+
+  vim.lsp.enable(enabled_lsps)
+  vim.lsp.config("tailwindcss", require("lsp.tailwind"))
+
   vim.lsp.config.zls = {
     settings = {
       semantic_tokens = "none",
     },
   }
 
-  -- vim.lsp.enable("ty")
-  -- vim.lsp.enable("zuban")
-  -- vim.lsp.enable("pyrefly")
-  vim.lsp.enable({ "ruff", "basedpyright" })
   vim.lsp.config.basedpyright = {
     settings = {
       pyright = {
@@ -101,16 +116,16 @@ MiniDeps.later(function()
     },
   }
 
-  vim.lsp.enable({ "jsonls", "eslint", "biome", "html", "cssls" })
-  vim.lsp.config("jsonls", {
+  vim.lsp.config.jsonls = {
     init_options = {
       provideFormatter = false,
     },
-  })
+  }
 
   vim.lsp.config.html = {
     filetypes = { "jinja", "htmldjango" },
   }
+
   vim.lsp.config.cssls = {
     settings = {
       css = {
@@ -122,19 +137,9 @@ MiniDeps.later(function()
     },
   }
 
-  vim.lsp.enable("glsl_analyzer")
-
-  vim.lsp.enable("tailwindcss")
-  vim.lsp.config("tailwindcss", require("lsp.tailwind"))
-
-  vim.lsp.enable("lua_ls")
   vim.lsp.config.lua_ls = {
     settings = {
       Lua = {
-        -- runtime = { version = "LuaJIT", path = vim.split(package.path, ";") },
-        -- completion = {
-        --   callSnippet = "Replace",
-        -- },
         workspace = {
           ignoreSubmodules = true,
           library = { vim.env.VIMRUNTIME },

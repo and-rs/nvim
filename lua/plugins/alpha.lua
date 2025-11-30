@@ -12,10 +12,10 @@ MiniDeps.now(function()
   end
 
   local plugin_count = function()
-    local dir = vim.fn.stdpath("config") .. "/lua/plugins"
+    local dir = vim.fn.stdpath("data") .. "/site/pack/deps/opt"
     local count = 0
-    for name, t in vim.fs.dir(dir) do
-      if t == "file" and name:sub(-4) == ".lua" then
+    for _, type in vim.fs.dir(dir) do
+      if type == "directory" then
         count = count + 1
       end
     end
@@ -36,12 +36,12 @@ MiniDeps.now(function()
     [[//'  '':#\      \#.    #/'          ]],
     [['       \*#\     |#.  #/ ./#####::. ]],
     [[          \*#\   |#: #/ /##/      '\]],
-    [[       __##-= .=_***$*-. ===._      ]],
-    [[  __::::###*.-*$######$*-. =::#*.   ]],
-    [[ --/'      .-+*$########$*-.  '::\  ]],
-    [[//'       ; .-+*$#######$*-.    ':| ]],
-    [['        ;#/  .-+*$####$*-.     ':| ]],
-    [[        :#/  .#. '-*##*-'       ':| ]],
+    [[       __##-= .=_****$*-. ===._      ]],
+    [[  __::::###*.-*$#######$*-. =::#*.   ]],
+    [[ --/'      .-+*$#########$*-.  '::\  ]],
+    [[//'       ; .-+*$########$*-.    ':| ]],
+    [['        ;#/  .-+*$#####$*-.     ':| ]],
+    [[        :#/  .#. '-*###*-'       ':| ]],
     [[       .#|   |#.                :/  ]],
     [[       :|    |#:                '   ]],
     [[       '      |:                    ]],

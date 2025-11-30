@@ -9,10 +9,6 @@ end
 
 vim.g.mapleader = " "
 
--- better manual indenting
-map("v", "<", "<gv<C-o>'<", "Inner indent while remaining in visual mode")
-map("v", ">", ">gv<C-o>'<", "Outer indent while remaining in visual mode")
-
 map("n", "<leader>mw", function()
   if vim.o.wrap == false then
     vim.o.wrap = true
@@ -34,12 +30,26 @@ map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
 map("n", "[q", "<cmd>cprev<CR>", "Prev quickfix item")
 
 -- better up and down
-map({ "n", "v" }, "j", "gj", "Up")
-map({ "n", "v" }, "k", "gk", "Down")
+map(
+  { "n", "x" },
+  "j",
+  'v:count || mode(1)[0:1] == "no" ? "j" : "gj"',
+  "Move down",
+  { expr = true, silent = true }
+)
+map(
+  { "n", "x" },
+  "k",
+  'v:count || mode(1)[0:1] == "no" ? "k" : "gk"',
+  "Move up",
+  { expr = true, silent = true }
+)
 
--- move with J and K ith indents
+-- move lines up, down, right, left
 map("v", "J", ":m '>+1<CR>gv=gv", "Move line down", { silent = true })
 map("v", "K", ":m '<-2<CR>gv=gv", "Move line up", { silent = true })
+map("v", "<", "<gv<C-o>'<", "Inner indent")
+map("v", ">", ">gv<C-o>'<", "Outer indent")
 
 --idk what this is
 map({ "n", "v", "i" }, "<C-l>", "<nop>")
@@ -88,6 +98,9 @@ map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
 local wrap_with_markdown = function(content)
   local path = vim.fn.expand("%:.")
   local filetype = vim.bo.filetype == "typescriptreact" and "jsx" or vim.bo.filetype
+  if not content:match("\n$") then
+    content = content .. "\n"
+  end
   local result = table.concat({ "- ", path, "\n```", filetype, "\n", content, "```" })
   vim.fn.setreg("+", result)
 end
@@ -97,11 +110,11 @@ map("n", "<leader>mf", function()
   local content = vim.fn.getreg("n")
   wrap_with_markdown(content)
   vim.notify("Entire file copied with MD formatting")
-end, "Yank file with filename as heading and wrap in md fence")
+end, "Yank file and wrap in md fence")
 
 map("v", "<leader>ms", function()
   vim.cmd('normal! "ny')
   local content = vim.fn.getreg("n")
   wrap_with_markdown(content)
   vim.notify("Selection copied with MD formatting")
-end, "Yank selection with filename as heading and wrap in markdown")
+end, "Yank selection and wrap in markdown")
