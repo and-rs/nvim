@@ -1,4 +1,4 @@
-local color = require("utils.coloring")
+local color = require("config.coloring")
 
 local function gradient_two_steps(start_hex, end_hex)
   color.validate_hex(start_hex)
@@ -133,7 +133,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     local bufnr = ev.buf
     if vim.bo[bufnr].buftype == "" and vim.bo[bufnr].filetype ~= "" then
       vim.opt.relativenumber = true
-      vim.opt.statuscolumn = "%!v:lua.require('utils.statuscolumn').bootstrap()"
+      vim.opt.statuscolumn = "%!v:lua.require('config.statuscolumn').bootstrap()"
       vim.opt.signcolumn = "yes:1"
     else
       vim.opt.relativenumber = false

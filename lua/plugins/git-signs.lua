@@ -42,10 +42,6 @@ MiniDeps.later(function()
 
   map("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "Toggle Blame Line" })
 
-  map("n", "<leader>gd", function()
-    gitsigns.diffthis("~", { vertical = true, split = "botright" })
-  end, { desc = "Show Diff" })
-
   map("n", "<leader>gx", gitsigns.preview_hunk_inline, { desc = "Toggle Deleted" })
 
   -- Text object

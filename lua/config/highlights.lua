@@ -1,4 +1,4 @@
-local color = require("utils.coloring")
+local color = require("config.coloring")
 
 vim.api.nvim_create_autocmd("VimEnter", {
   pattern = "*",
@@ -27,6 +27,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
     })
 
     -- Matching UI
+    color.set("CursorLine", {
+      bg = "None",
+    })
     color.set("Substitute", {
       bg = color.highlight("String", "fg"),
       fg = color.highlight("Normal", "bg"),

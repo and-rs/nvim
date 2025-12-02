@@ -1,9 +1,8 @@
-require("utils.highlights")
-require("utils.statuscolumn")
-require("utils.settings")
-require("utils.keymaps")
-require("utils.tailwind")
-require("utils.profile")
+require("config.highlights")
+require("config.statuscolumn")
+require("config.settings")
+require("config.keymaps")
+require("config.profile")
 
 -- install mini.deps
 local path_package = vim.fn.stdpath("data") .. "/site/"

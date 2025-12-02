@@ -1,5 +1,12 @@
 vim.loader.enable()
 vim.opt.mouse = ""
+vim.g.mapleader = " "
+
+-- always centered
+vim.opt.scrolloff = 999
+
+-- no folds in diff
+vim.o.diffopt = "context:9999"
 
 -- no mode on the cmd line, only shown on lualine
 vim.opt.showmode = false
@@ -51,6 +58,7 @@ vim.opt.breakindent = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
+-- keep darkmode
 vim.opt.background = "dark"
 
 -- indent symbols
@@ -58,31 +66,16 @@ vim.opt.background = "dark"
 vim.opt.list = true
 vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
 
--- center the last lines of the buffer like in helix
-vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
-  group = vim.api.nvim_create_augroup("ScrollOffEOF", { clear = true }),
-  callback = function()
-    vim.wo.scrolloff = 0
-
-    local win_h = vim.api.nvim_win_get_height(0)
-    local cur_line = vim.fn.line(".")
-    local half_height = math.floor(win_h / 2)
-    local desired_topline = math.max(1, cur_line - half_height)
-
-    vim.fn.winrestview({ topline = desired_topline })
-  end,
-})
-
 -- share neovim's clipboard between instances
-local group = vim.api.nvim_create_augroup("shared_registers", { clear = true })
+local yes = vim.api.nvim_create_augroup("shared_registers", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
-  group = group,
+  group = yes,
   callback = function()
     vim.cmd("wshada")
   end,
 })
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
-  group = group,
+  group = yes,
   callback = function()
     vim.cmd("rshada")
   end,

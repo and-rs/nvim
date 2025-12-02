@@ -1,6 +1,6 @@
 MiniDeps.later(function()
   MiniDeps.add({ source = "shellRaining/hlchunk.nvim" })
-  local coloring = require("utils.coloring")
+  local coloring = require("config.coloring")
   require("hlchunk").setup({
     chunk = {
       enable = true,

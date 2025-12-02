@@ -7,23 +7,11 @@ local function map(mode, keys, action, desc, opts)
   vim.keymap.set(mode, keys, action, merged)
 end
 
-vim.g.mapleader = " "
-
-map("n", "<leader>mw", function()
-  if vim.o.wrap == false then
-    vim.o.wrap = true
-    vim.notify("Word wrap enabled")
-  else
-    vim.o.wrap = false
-    vim.notify("Word wrap disabled")
-  end
-end, "Set line wrap")
+-- repeat last macro
+map("n", "Q", "@@", "Repeat last macro")
 
 -- search visual selection (very nice)
 map("v", "//", [[y:let@/='\V'.escape(@",'/\\')<CR>]], "Search visual selection", { silent = true })
-
--- repeat last macro
-map("n", "Q", "@@", "Repeat last macro")
 
 -- quickfix navigation
 map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
@@ -118,3 +106,13 @@ map("v", "<leader>ms", function()
   wrap_with_markdown(content)
   vim.notify("Selection copied with MD formatting")
 end, "Yank selection and wrap in markdown")
+
+map("n", "<leader>mw", function()
+  if vim.o.wrap == false then
+    vim.o.wrap = true
+    vim.notify("Word wrap enabled")
+  else
+    vim.o.wrap = false
+    vim.notify("Word wrap disabled")
+  end
+end, "Set line wrap")

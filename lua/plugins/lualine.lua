@@ -37,7 +37,7 @@ MiniDeps.now(function()
     end
   end
 
-  local coloring = require("utils.coloring")
+  local coloring = require("config.coloring")
   local colors = {
     white = coloring.highlight("Normal", "fg"),
     background = coloring.highlight("NormalFloat", "bg"),
@@ -112,10 +112,7 @@ MiniDeps.now(function()
     },
 
     extensions = {
-      "nvim-tree",
-      "neo-tree",
       "mason",
-      "lazy",
       "fzf",
     },
   })
