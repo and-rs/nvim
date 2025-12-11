@@ -87,7 +87,7 @@ MiniDeps.later(function()
     "zls",
     "gopls",
     "yamlls",
-    "qmlls",
+    -- "qmlls",
     "nil_ls",
     "bashls",
     "lua_ls",

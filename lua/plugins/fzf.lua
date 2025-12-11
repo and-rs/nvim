@@ -134,7 +134,7 @@ MiniDeps.now(function()
 
   map("<leader>sf", function()
     fzf_dynamic.files(extend(picker_opts, {
-      cmd = "rg --files --hidden --ignore --glob='!.git' --sortr=modified",
+      cmd = "rg --files --hidden --ignore --glob='!.obsidian' --glob='!.git' --sortr=modified",
       fzf_opts = { ["--scheme"] = "path", ["--tiebreak"] = "index" },
     }))
   end, "Files")
