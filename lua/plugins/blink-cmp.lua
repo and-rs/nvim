@@ -93,7 +93,7 @@ MiniDeps.later(function()
               text = function(ctx)
                 return ctx.source_name
               end,
-              highlight = "NvimWhite",
+              highlight = "None",
             },
           },
           columns = {
@@ -101,7 +101,7 @@ MiniDeps.later(function()
           },
         },
         border = "rounded",
-        winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,CursorLine:BlinkCmpMenuSelection,Search:None,BlinkCmpKind:NvimWhite",
+        winhighlight = "Normal:BlinkCmpDoc,FloatBorder:FloatBorder,CursorLine:BlinkCmpMenuSelection,Search:None,BlinkCmpKind:None",
       },
     },
 

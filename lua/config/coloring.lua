@@ -107,11 +107,29 @@ function M.darken_hex(hex, factor)
   if not hex then
     error("No hex passed, verify source")
   end
+
   factor = factor or 0.15
   if factor < 0 or factor > 1 then
     factor = 0.15
   end
-  return M.adjust_hex(hex, factor)
+
+  return M.adjust_hex(hex, 1 - factor)
+end
+
+---@param hex string | nil
+---@param factor number | nil
+---@return string
+function M.lighten_hex(hex, factor)
+  if not hex then
+    error("No hex passed, verify source")
+  end
+
+  factor = factor or 0.15
+  if factor < 0 or factor > 1 then
+    factor = 0.15
+  end
+
+  return M.adjust_hex(hex, 1 + factor)
 end
 
 return M

@@ -8,6 +8,9 @@ MiniDeps.now(function()
     hls = {
       title = "FloatBorder",
       border = "FloatBorder",
+      buf_nr = "NvimBlue",
+      live_sym = "NvimPink",
+      live_prompt = "NvimPink",
       preview_border = "FloatBorder",
       preview_normal = "FloatBorder",
       preview_title = "FloatBorder",

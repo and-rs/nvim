@@ -2,6 +2,9 @@ vim.loader.enable()
 vim.opt.mouse = ""
 vim.g.mapleader = " "
 
+-- keep darkmode
+vim.opt.background = "dark"
+
 -- always centered
 vim.opt.scrolloff = 999
 
@@ -57,9 +60,6 @@ vim.opt.breakindent = true
 -- Split direction
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-
--- keep darkmode
-vim.opt.background = "dark"
 
 -- indent symbols
 -- tab cannot be less than 2
