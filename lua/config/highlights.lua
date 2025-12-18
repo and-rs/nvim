@@ -4,7 +4,7 @@ local function setup_light_mode()
   color.set("NvimPink", { fg = "#470045" })
   color.set("NvimBlue", { fg = "#004c73" })
   color.set("NvimGrey", { fg = "#4f5258" })
-  color.set("NvimWhite", { fg = color.darken_hex("#a2a5ac", 0.3) })
+  color.set("NvimWhite", { fg = color.darken_hex("#a2a5ac", 0.5) })
 end
 
 local function setup_dark_mode()
@@ -68,24 +68,26 @@ local function setup_common()
   if hint_color then
     color.set("DiagnosticVirtualTextHint", {
       fg = hint_color,
-      bg = is_dark and color.darken_hex(hint_color) or color.lighten_hex(hint_color, 0.6),
+      bg = is_dark and color.darken_hex(hint_color, 0.8) or color.lighten_hex(hint_color, 0.6),
     })
   end
   if warn_color then
     color.set("DiagnosticVirtualTextWarn", {
       fg = warn_color,
-      bg = is_dark and color.darken_hex(warn_color) or color.lighten_hex(warn_color, 0.6),
+      bg = is_dark and color.darken_hex(warn_color, 0.8) or color.lighten_hex(warn_color, 0.6),
     })
   end
   if error_color then
     color.set("DiagnosticVirtualTextError", {
+      bg = is_dark and color.darken_hex(error_color, 0.8) or color.lighten_hex(error_color, 0.6),
       fg = error_color,
-      bg = is_dark and color.darken_hex(error_color) or color.lighten_hex(error_color, 0.6),
     })
   end
 
   color.set("VisualNonText", {
-    fg = color.highlight("Conceal", "fg"),
+    fg = is_dark and color.darken_hex(color.highlight("NvimGrey", "fg"), 0.5)
+      or color.lighten_hex(color.highlight("NvimGrey", "fg"), 0.5),
+
     bg = color.highlight("Visual", "bg"),
   })
 
