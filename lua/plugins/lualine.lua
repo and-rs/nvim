@@ -14,7 +14,7 @@ MiniDeps.now(function()
   local function location()
     local line = vim.fn.line(".")
     local col = vim.fn.charcol(".")
-    if vim.o.columns > 67 then
+    if vim.o.columns > 75 then
       return line .. ":" .. col
     else
       return ""
@@ -24,7 +24,7 @@ MiniDeps.now(function()
   local function progress()
     local cur = vim.fn.line(".")
     local total = vim.fn.line("$")
-    if vim.o.columns > 67 then
+    if vim.o.columns > 75 then
       if cur == 1 then
         return "Top"
       elseif cur == total then

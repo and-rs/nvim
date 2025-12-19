@@ -97,6 +97,10 @@ MiniDeps.later(function()
   vim.lsp.enable(enabled_lsps)
   vim.lsp.config("tailwindcss", require("lsp.tailwind"))
 
+  vim.lsp.config.nil_ls = {
+    settings = { ["nil"] = { nix = { flake = { autoArchive = true } } } },
+  }
+
   vim.lsp.config.zls = {
     settings = {
       semantic_tokens = "none",
