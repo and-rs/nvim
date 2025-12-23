@@ -80,9 +80,12 @@ MiniDeps.later(function()
     "jsonls",
     "eslint",
     "tailwindcss",
+
     -- py
+    "ty",
     "ruff",
-    "basedpyright",
+    -- "basedpyright",
+
     -- random
     "zls",
     "gopls",

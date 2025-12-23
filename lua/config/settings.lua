@@ -67,15 +67,15 @@ vim.opt.list = true
 vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
 
 -- share neovim's clipboard between instances
-local yes = vim.api.nvim_create_augroup("shared_registers", { clear = true })
+local shared_registers = vim.api.nvim_create_augroup("shared_registers", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
-  group = yes,
+  group = shared_registers,
   callback = function()
     vim.cmd("wshada")
   end,
 })
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
-  group = yes,
+  group = shared_registers,
   callback = function()
     vim.cmd("rshada")
   end,
