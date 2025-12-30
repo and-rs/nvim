@@ -71,12 +71,12 @@ local shared_registers = vim.api.nvim_create_augroup("shared_registers", { clear
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = shared_registers,
   callback = function()
-    vim.cmd("wshada")
+    vim.cmd("wshada!")
   end,
 })
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter" }, {
+vim.api.nvim_create_autocmd("FocusGained", {
   group = shared_registers,
   callback = function()
-    vim.cmd("rshada")
+    vim.cmd("rshada!")
   end,
 })
