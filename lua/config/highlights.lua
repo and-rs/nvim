@@ -40,7 +40,7 @@ local function setup_common()
   local grey_fg = color.highlight("NvimGrey", "fg")
   local is_dark = vim.o.background == "dark"
   color.set("Visual", {
-    bg = is_dark and color.darken_hex(grey_fg, 0.7) or color.lighten_hex(grey_fg, 0.7),
+    bg = is_dark and color.darken_hex(grey_fg, 0.7) or color.lighten_hex(grey_fg, 0.75),
   })
 
   color.set("IncSearch", {
