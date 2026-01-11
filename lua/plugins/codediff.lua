@@ -1,7 +1,7 @@
-MiniDeps.later(function()
+MiniDeps.now(function()
   MiniDeps.add({
     checkout = "next",
-    source = "esmuellert/vscode-diff.nvim",
+    source = "esmuellert/codediff.nvim",
     dependencies = "MunifTanjim/nui.nvim",
   })
   MiniDeps.add({ source = "MunifTanjim/nui.nvim" })
