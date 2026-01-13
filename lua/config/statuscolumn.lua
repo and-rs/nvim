@@ -1,33 +1,5 @@
 local color = require("config.coloring")
 
-local function gradient_two_steps(start_hex, end_hex)
-  color.validate_hex(start_hex)
-  color.validate_hex(end_hex)
-
-  local start_r, start_g, start_b = color.hex_to_rgb(start_hex)
-  local end_r, end_g, end_b = color.hex_to_rgb(end_hex)
-
-  local factor1 = 0.6
-  local factor2 = 0.8
-
-  local color1 = color.rgb_to_hex(
-    math.floor(start_r + (end_r - start_r) * factor1),
-    math.floor(start_g + (end_g - start_g) * factor1),
-    math.floor(start_b + (end_b - start_b) * factor1)
-  )
-
-  local color2 = color.rgb_to_hex(
-    math.floor(start_r + (end_r - start_r) * factor2),
-    math.floor(start_g + (end_g - start_g) * factor2),
-    math.floor(start_b + (end_b - start_b) * factor2)
-  )
-
-  return {
-    dark = color1,
-    light = color2,
-  }
-end
-
 vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   group = color.augroup,
   pattern = "*",
@@ -35,95 +7,74 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
     local primary = color.highlight("NvimBlue", "fg")
     local secondary = color.highlight("NvimGrey", "fg")
     local background = color.highlight("StatusLine", "bg")
-    local column_background = color.highlight("NormalFloat", "bg")
+    local col_bg = color.highlight("NormalFloat", "bg")
 
-    local numbers = gradient_two_steps(primary, secondary)
+    color.set("ColumnBase0", { fg = secondary, bg = col_bg })
+    color.set("ColumnBase1", { fg = background, bg = col_bg })
+    color.set("Column0", { fg = primary, bg = col_bg, bold = true })
+    color.set("Column1", { fg = color.adjust_hex(secondary, 1.3), bg = col_bg })
+    color.set("SignColumn", { fg = color.adjust_hex(secondary, 0.3), bg = col_bg })
 
-    color.set("ColumnBackground", {
-      fg = color.adjust_hex(secondary, 0.3),
-      bg = column_background,
-    })
-    color.set("ColumnBase0", { fg = secondary, bg = column_background })
-    color.set("ColumnBase1", { fg = background, bg = column_background })
-    color.set("Column0", { fg = primary, bg = column_background, bold = true })
-    color.set("Column1", { fg = numbers.dark, bg = column_background })
-    color.set("Column2", { fg = numbers.light, bg = column_background })
-    color.set("SignColumn", { bg = column_background })
+    for _, type in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do
+      color.set("DiagnosticSign" .. type, {
+        fg = color.highlight("Diagnostic" .. type, "fg"),
+        bg = col_bg,
+      })
+    end
 
-    color.set("DiagnosticSignOk", {
-      fg = color.highlight("DiagnosticOk", "fg"),
-      bg = column_background,
-    })
-    color.set("DiagnosticSignHint", {
-      fg = color.highlight("DiagnosticHint", "fg"),
-      bg = column_background,
-    })
-    color.set("DiagnosticSignWarn", {
-      fg = color.highlight("DiagnosticWarn", "fg"),
-      bg = column_background,
-    })
-    color.set("DiagnosticSignInfo", {
-      fg = color.highlight("DiagnosticInfo", "fg"),
-      bg = column_background,
-    })
-    color.set("DiagnosticSignError", {
-      fg = color.highlight("DiagnosticError", "fg"),
-      bg = column_background,
-    })
-
-    color.set("GitSignsAdd", {
-      fg = color.highlight("Added", "fg"),
-      bg = column_background,
-    })
-    color.set("GitSignsUntracked", {
-      fg = color.highlight("Added", "fg"),
-      bg = column_background,
-    })
-    color.set("GitSignsChange", {
-      fg = color.highlight("Changed", "fg"),
-      bg = column_background,
-    })
-    color.set("GitSignsDelete", {
-      fg = color.highlight("Removed", "fg"),
-      bg = column_background,
-    })
+    local git_map = {
+      Add = "Added",
+      Change = "Changed",
+      Delete = "Removed",
+      Untracked = "Added",
+    }
+    for sign, hl in pairs(git_map) do
+      color.set("GitSigns" .. sign, {
+        fg = color.highlight(hl, "fg"),
+        bg = col_bg,
+      })
+    end
   end,
 })
 
-local function number()
+--- Render the line number component
+--- @param width integer The width of the number column (padding)
+--- @return string
+local function component_linenr(width)
   local gap = "%#ColumnBase0#%="
-  local linenumber = string.format("%4d", vim.v.lnum)
-
   if vim.v.virtnum ~= 0 then
-    return "%#ColumnBase0#    "
+    return "%#ColumnBase0#" .. string.rep(" ", width)
   end
-
-  if vim.v.relnum == 2 then
-    return gap .. "%#Column2#" .. linenumber
-  end
+  local lnum = string.format("%" .. width .. "d", vim.v.lnum)
   if vim.v.relnum == 1 then
-    return gap .. "%#Column1#" .. linenumber
+    return gap .. "%#Column1#" .. lnum
   end
   if vim.v.relnum == 0 then
-    return gap .. "%#Column0#" .. linenumber
+    return gap .. "%#Column0#" .. lnum
   end
-  return gap .. "%#ColumnBase0#" .. linenumber
+  return gap .. "%#ColumnBase0#" .. lnum
 end
 
-local function border()
-  local character = "🮇"
-
+--- Render the right-side border component
+--- @return string
+local function component_border()
+  local char = "▕"
   if vim.v.relnum == 0 then
-    return "%#Column0#" .. character .. "%#None# "
+    return "%#Column0#" .. char .. "%#None# "
   end
-
-  return "%#ColumnBackground#" .. character .. "%#None# "
+  return "%#SignColumn#" .. char .. "%#None# "
 end
 
 local function bootstrap()
-  local result = ""
-  result = number() .. border()
-  return "%s" .. result
+  local is_float = vim.api.nvim_win_get_config(0).relative ~= ""
+
+  -- Configuration based on window type
+  -- Float: 6 chars wide, no sign column
+  -- Normal: 4 chars wide, includes sign column (%s)
+  local width = is_float and 6 or 4
+  local signs = is_float and "" or "%s"
+
+  return signs .. component_linenr(width) .. component_border()
 end
 
 local group = vim.api.nvim_create_augroup("StatusColumn", { clear = true })
@@ -131,15 +82,17 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   group = group,
   callback = function(ev)
     local bufnr = ev.buf
-    if vim.bo[bufnr].buftype == "" and vim.bo[bufnr].filetype ~= "" then
-      vim.opt.relativenumber = true
-      vim.opt.statuscolumn = "%!v:lua.require('config.statuscolumn').bootstrap()"
-      vim.opt.signcolumn = "yes:1"
+    local is_eligible = vim.bo[bufnr].buftype == "" and vim.bo[bufnr].filetype ~= ""
+
+    if is_eligible then
+      vim.opt_local.relativenumber = true
+      vim.opt_local.statuscolumn = "%!v:lua.require('config.statuscolumn').bootstrap()"
+      vim.opt_local.signcolumn = "yes:1"
     else
-      vim.opt.relativenumber = false
-      vim.opt.numberwidth = 1
-      vim.opt.signcolumn = "no"
-      vim.opt.statuscolumn = "%s"
+      vim.opt_local.relativenumber = false
+      vim.opt_local.numberwidth = 1
+      vim.opt_local.signcolumn = "no"
+      vim.opt_local.statuscolumn = "%s"
     end
   end,
 })

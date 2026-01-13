@@ -40,14 +40,14 @@ MiniDeps.later(function()
       enabled = true,
       prefix = function(diagnostic)
         if diagnostic.severity == vim.diagnostic.severity.ERROR then
-          return "🭰× "
+          return "▏× "
         elseif diagnostic.severity == vim.diagnostic.severity.WARN then
-          return "🭰▲ "
+          return "▏▲ "
         else
-          return "🭰• "
+          return "▏• "
         end
       end,
-      suffix = "🭵",
+      suffix = "▕",
     },
     underline = true,
     signs = {

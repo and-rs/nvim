@@ -34,12 +34,12 @@ local function setup_common()
   color.set("CursorLine", { bg = "None" })
   color.set("TabKeySel", {
     fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
-    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.75),
+    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.7),
     bold = true,
   })
   color.set("TabLineSel", {
     fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
-    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.75),
+    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.7),
   })
   color.set("TabLine", {
     bg = color.highlight("NormalFloat", "bg"),

@@ -17,12 +17,14 @@ MiniDeps.now(function()
     },
     keymap = {
       fzf = {
-        ["ctrl-y"] = "toggle+down",
         ["ctrl-i"] = "up+toggle",
-        ["ctrl-f"] = "page-down",
+        ["ctrl-y"] = "toggle+down",
         ["ctrl-b"] = "page-up",
-        ["ctrl-d"] = "half-page-down",
+        ["ctrl-f"] = "page-down",
         ["ctrl-u"] = "half-page-up",
+        ["ctrl-d"] = "half-page-down",
+        -- I have crazy keybind setup
+        ["ctrl-alt-h"] = "unix-line-discard",
       },
     },
     actions = {
