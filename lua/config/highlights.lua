@@ -45,6 +45,7 @@ local function setup_common()
     bg = color.highlight("NormalFloat", "bg"),
   })
   color.set("TabKey", {
+    bg = color.highlight("NormalFloat", "bg"),
     fg = color.highlight("NvimBlue", "fg"),
     bold = true,
   })
