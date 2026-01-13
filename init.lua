@@ -1,4 +1,5 @@
 require("config.highlights")
+require("config.tabline")
 require("config.statuscolumn")
 require("config.settings")
 require("config.keymaps")

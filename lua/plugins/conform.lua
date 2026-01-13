@@ -7,10 +7,6 @@ MiniDeps.later(function()
     append_args = { "-w 2" },
   }
 
-  conform.formatters.black = {
-    append_args = { "--line-length=80" },
-  }
-
   conform.formatters.sleek = {
     append_args = { "--indent-spaces=2" },
   }
@@ -38,7 +34,7 @@ MiniDeps.later(function()
 
       htmldjango = { "djlint", "rustywind" },
       jinja = { "djlint", "rustywind" },
-      python = { "black" },
+      python = { "ruff_format", "ruff_organize_imports" },
 
       qml = { "qmlformat" },
       markdown = { "deno_fmt" },

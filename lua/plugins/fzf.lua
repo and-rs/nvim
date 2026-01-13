@@ -15,9 +15,6 @@ MiniDeps.now(function()
       preview_normal = "FloatBorder",
       preview_title = "FloatBorder",
     },
-    oldfiles = {
-      cwd_only = true,
-    },
     keymap = {
       fzf = {
         ["ctrl-y"] = "toggle+down",
@@ -30,7 +27,7 @@ MiniDeps.now(function()
     },
     actions = {
       files = {
-        ["ctrl-v"] = fzf.actions.file_vsplit,
+        -- ["ctrl-v"] = fzf.actions.file_vsplit,
         ["ctrl-t"] = fzf.actions.file_tabedit,
         ["alt-q"] = fzf.actions.file_sel_to_qf,
         ["alt-Q"] = fzf.actions.file_sel_to_ll,
@@ -143,7 +140,7 @@ MiniDeps.now(function()
   end, "Files")
 
   map("<leader>sr", function()
-    fzf_dynamic.oldfiles(extend(picker_opts, { include_current_session = true }))
+    fzf_dynamic.oldfiles(extend(picker_opts, { cwd_only = true }))
   end, "Recent files")
 
   map("gd", function()
@@ -157,6 +154,24 @@ MiniDeps.now(function()
     }))
   end, "LSP References")
 
+  map("<leader>sG", function()
+    fzf_dynamic.live_grep_native(extend(picker_opts, {
+      resume = false,
+      rg_glob = false,
+      grep_opts = "--binary-files=without-match --line-number --recursive --color=auto --perl-regexp -e",
+      rg_opts = "--column --line-number --no-heading --color=always --max-columns=4096 -e",
+    }))
+  end, "Grep Word")
+
+  map("<leader>sg", function()
+    fzf_dynamic.live_grep_native(extend(picker_opts, {
+      resume = true,
+      rg_glob = false,
+      grep_opts = "--binary-files=without-match --line-number --recursive --color=auto --perl-regexp -e",
+      rg_opts = "--column --line-number --no-heading --color=always --max-columns=4096 -e",
+    }))
+  end, "Grep Word")
+
   map("<C-e>", function()
     require("fzf-lua.win").toggle_fullscreen()
     require("fzf-lua.win").toggle_preview()
@@ -164,9 +179,6 @@ MiniDeps.now(function()
 
   map("<leader>sh", "help_tags", "Help")
   map("<leader>sb", "buffers", "Buffers")
-  map("<leader>sv", "grep_visual", "Grep Visual")
-  map("<leader>sc", "grep_cword", "Current Word")
-  map("<leader>sg", "live_grep_native", "Grep Word")
   map("<leader>sd", "diagnostics_document", "Diagnostics")
   map("<leader>lc", "lsp_code_actions", "LSP Code Actions")
   map("<leader>lt", "lsp_typedefs", "LSP Type Definitions")

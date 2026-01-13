@@ -11,7 +11,13 @@ end
 map("n", "Q", "@@", "Repeat last macro")
 
 -- search visual selection (very nice)
-map("v", "//", [[y:let@/='\V'.escape(@",'/\\')<CR>]], "Search visual selection", { silent = true })
+map(
+  "v",
+  "<leader>/",
+  [[y:let@/='\V'.escape(@",'/\\')<CR>]],
+  "Search visual selection",
+  { silent = true }
+)
 
 -- quickfix navigation
 map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
@@ -65,8 +71,8 @@ map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
 
 -- window management
 map("n", "<leader>wn", "<C-w>w", "Select next window")
-map("n", "<leader>wv", "<C-w>v", "Split window vertically")
-map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
+-- map("n", "<leader>wv", "<C-w>v", "Split window vertically")
+-- map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
 map("n", "<leader>we", "<C-w>=", "Make splits equal size")
 map("n", "<leader>wr", "<C-w>r", "Rotate splits")
 map("n", "<leader>wh", "<C-w>H", "Send split to the right")
@@ -79,9 +85,11 @@ map("n", "<leader>wo", "<cmd>on | diffoff<CR>", "Close all other windows")
 -- tab management
 map("n", "<leader>to", "<cmd>tabnew<CR>", "Open new tab")
 map("n", "<leader>tx", "<cmd>tabclose<CR>", "Close current tab")
-map("n", "<leader>tn", "<cmd>tabn<CR>", "Go to next tab")
-map("n", "<leader>tp", "<cmd>tabp<CR>", "Go to previous tab")
 map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
+local keys = { "a", "s", "d", "f" }
+for i, key in ipairs(keys) do
+  map("n", "m" .. key, i .. "gt", "Goto tab #" .. i)
+end
 
 local wrap_with_markdown = function(content)
   local path = vim.fn.expand("%:.")

@@ -32,6 +32,25 @@ local function setup_common()
   })
 
   color.set("CursorLine", { bg = "None" })
+  color.set("TabKeySel", {
+    fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
+    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.75),
+    bold = true,
+  })
+  color.set("TabLineSel", {
+    fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
+    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.75),
+  })
+  color.set("TabLine", {
+    bg = color.highlight("NormalFloat", "bg"),
+  })
+  color.set("TabKey", {
+    fg = color.highlight("NvimBlue", "fg"),
+    bold = true,
+  })
+  color.set("TabLineFill", {
+    bg = color.highlight("Normal", "bg"),
+  })
   color.set("Substitute", {
     bg = color.highlight("String", "fg"),
     fg = color.highlight("Normal", "bg"),
