@@ -61,6 +61,7 @@ MiniDeps.later(function()
       "vimdoc",
 
       "luadoc",
+      "proto",
       "nix",
       "lua",
       "zig",

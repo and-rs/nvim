@@ -1,8 +1,18 @@
 MiniDeps.now(function()
-  MiniDeps.add({ source = "ibhagwan/fzf-lua" })
+  MiniDeps.add({
+    source = "ibhagwan/fzf-lua",
+  })
 
   local fzf = require("fzf-lua")
   fzf.register_ui_select()
+
+  local function get_opts(opts)
+    opts = opts or {}
+    opts.winopts = opts.winopts or {}
+    opts.winopts.width = math.min(76, vim.o.columns - 4)
+    opts.winopts.backdrop = 100
+    return opts
+  end
 
   fzf.setup({
     hls = {
@@ -11,6 +21,10 @@ MiniDeps.now(function()
       buf_nr = "NvimBlue",
       live_sym = "NvimPink",
       live_prompt = "NvimPink",
+      path_colnr = "NvimBlue",
+      tab_marker = "NvimBlue",
+      path_linenr = "NvimBlue",
+      header_bind = "NvimBlue",
       preview_border = "FloatBorder",
       preview_normal = "FloatBorder",
       preview_title = "FloatBorder",
@@ -23,13 +37,11 @@ MiniDeps.now(function()
         ["ctrl-f"] = "page-down",
         ["ctrl-u"] = "half-page-up",
         ["ctrl-d"] = "half-page-down",
-        -- I have crazy keybind setup
         ["ctrl-alt-h"] = "unix-line-discard",
       },
     },
     actions = {
       files = {
-        -- ["ctrl-v"] = fzf.actions.file_vsplit,
         ["ctrl-t"] = fzf.actions.file_tabedit,
         ["alt-q"] = fzf.actions.file_sel_to_qf,
         ["alt-Q"] = fzf.actions.file_sel_to_ll,
@@ -42,21 +54,16 @@ MiniDeps.now(function()
     fzf_colors = {
       ["bg"] = { "bg", "FloatBorder" },
       ["bg+"] = { "bg", "Normal" },
-
       ["border"] = { "fg", "FloatBorder" },
       ["separator"] = { "fg", "Normal" },
       ["scrollbar"] = { "fg", "Normal" },
-
       ["fg"] = { "fg", "Comment" },
       ["fg+"] = { "fg", "PreProc" },
-
-      ["hl"] = { "fg", "Constant" },
-      ["hl+"] = { "fg", "Constant" },
-
+      ["hl"] = { "fg", "Special", "reverse" },
+      ["hl+"] = { "fg", "Special", "reverse" },
       ["spinner"] = { "fg", "Label" },
       ["marker"] = { "fg", "PreProc" },
       ["pointer"] = { "fg", "PreProc" },
-
       ["prompt"] = { "fg", "Special" },
       ["info"] = { "fg", "Special" },
     },
@@ -66,123 +73,66 @@ MiniDeps.now(function()
       width = 76,
       row = 0.2,
       col = 0.5,
-      preview = {
-        hidden = true,
-      },
+      preview = { hidden = true, winopts = { number = false } },
     },
   })
 
-  local builtin_opts = {
-    winopts = {
-      border = "rounded",
-      preview = {
-        border = "rounded",
-      },
-      height = 10,
-      width = 50,
-      row = 0.4,
-      col = 0.48,
-    },
-  }
+  local map = vim.keymap.set
 
-  local picker_opts = {
-    header = false,
-    file_icons = false,
-    git_icons = false,
-    color_icons = false,
-  }
-
-  local function dynamic_width()
-    return math.min(76, vim.o.columns - 4)
-  end
-
-  local function extend(t1, t2)
-    return vim.tbl_extend("force", t1, t2)
-  end
-
-  local fzf_dynamic = setmetatable({}, {
-    __index = function(_, k)
-      local orig = fzf[k]
-      if type(orig) ~= "function" then
-        return orig
-      end
-      return function(opts)
-        opts = opts or {}
-        if k ~= "builtin" then
-          opts.winopts = extend(opts.winopts or {}, { width = dynamic_width() })
-        end
-        return orig(opts)
-      end
-    end,
-  })
-
-  local function map(keys, picker, desc, mode)
-    local command
-    if type(picker) == "string" then
-      command = function()
-        fzf_dynamic[picker](picker_opts)
-      end
-    elseif type(picker) == "function" then
-      command = picker
-    else
-      error("Invalid picker type: must be a string or function")
-    end
-    vim.keymap.set(mode or "n", keys, command, { desc = desc })
-  end
-
-  map("<leader>sa", function()
-    fzf_dynamic.builtin(extend(builtin_opts, picker_opts))
-  end, "FZF")
-
-  map("<leader>sf", function()
-    fzf_dynamic.files(extend(picker_opts, {
-      cmd = "rg --files --hidden --ignore --glob='!.obsidian' --glob='!.git' --sortr=modified",
-      fzf_opts = { ["--scheme"] = "path", ["--tiebreak"] = "index" },
+  map("n", "<leader>sr", function()
+    fzf.files(get_opts({
+      cmd = "rg --files --hidden --ignore --glob='!.git' --glob='!.obsidian'",
+      fzf_opts = { ["--scheme"] = "path" },
+      cwd_prompt = false,
     }))
-  end, "Files")
+  end, { desc = "Files" })
 
-  map("<leader>sr", function()
-    fzf_dynamic.oldfiles(extend(picker_opts, { cwd_only = true }))
-  end, "Recent files")
-
-  map("gd", function()
-    fzf_dynamic.lsp_definitions(extend(picker_opts, { jump1 = true }))
-  end, "LSP Definitions")
-
-  map("<leader>lr", function()
-    fzf_dynamic.lsp_references(extend(picker_opts, {
-      includeDeclaration = false,
-      ignore_current_line = true,
-    }))
-  end, "LSP References")
-
-  map("<leader>sG", function()
-    fzf_dynamic.live_grep_native(extend(picker_opts, {
-      resume = false,
+  map("n", "<leader>sg", function()
+    fzf.live_grep_native(get_opts({
+      no_header = true,
+      no_header_i = true,
       rg_glob = false,
-      grep_opts = "--binary-files=without-match --line-number --recursive --color=auto --perl-regexp -e",
-      rg_opts = "--column --line-number --no-heading --color=always --max-columns=4096 -e",
+      rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
     }))
-  end, "Grep Word")
+  end, { desc = "Grep Word" })
 
-  map("<leader>sg", function()
-    fzf_dynamic.live_grep_native(extend(picker_opts, {
-      resume = true,
-      rg_glob = false,
-      grep_opts = "--binary-files=without-match --line-number --recursive --color=auto --perl-regexp -e",
-      rg_opts = "--column --line-number --no-heading --color=always --max-columns=4096 -e",
-    }))
-  end, "Grep Word")
+  map("v", "<leader>sv", function()
+    fzf.grep_visual(get_opts())
+  end, { desc = "Grep visual" })
 
-  map("<C-e>", function()
+  map("t", "<C-e>", function()
     require("fzf-lua.win").toggle_fullscreen()
     require("fzf-lua.win").toggle_preview()
-  end, "Toggle FZF fullscreen", "t")
+  end, { desc = "Toggle FZF Preview", noremap = true })
 
-  map("<leader>sh", "help_tags", "Help")
-  map("<leader>sb", "buffers", "Buffers")
-  map("<leader>sd", "diagnostics_document", "Diagnostics")
-  map("<leader>lc", "lsp_code_actions", "LSP Code Actions")
-  map("<leader>lt", "lsp_typedefs", "LSP Type Definitions")
-  map("<leader>lI", "lsp_implementations", "LSP Implementations")
+  map("n", "<leader>sa", function()
+    fzf.builtin(get_opts())
+  end, { desc = "FZF Builtin" })
+  map("n", "<leader>sh", function()
+    fzf.help_tags(get_opts())
+  end, { desc = "Help" })
+  map("n", "<leader>sb", function()
+    fzf.buffers(get_opts({
+      no_header = true,
+      no_header_i = true,
+    }))
+  end, { desc = "Buffers" })
+  map("n", "<leader>sd", function()
+    fzf.diagnostics_document(get_opts())
+  end, { desc = "Diagnostics" })
+  map("n", "gd", function()
+    fzf.lsp_definitions(get_opts({ jump1 = true }))
+  end, { desc = "LSP Def" })
+  map("n", "<leader>lr", function()
+    fzf.lsp_references(get_opts({ includeDeclaration = false, ignore_current_line = true }))
+  end, { desc = "LSP Ref" })
+  map("n", "<leader>lc", function()
+    fzf.lsp_code_actions(get_opts())
+  end, { desc = "LSP Actions" })
+  map("n", "<leader>lt", function()
+    fzf.lsp_typedefs(get_opts())
+  end, { desc = "LSP Type Def" })
+  map("n", "<leader>lI", function()
+    fzf.lsp_implementations(get_opts())
+  end, { desc = "LSP Imp" })
 end)

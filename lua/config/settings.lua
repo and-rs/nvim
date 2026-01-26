@@ -1,9 +1,7 @@
 vim.loader.enable()
 vim.opt.mouse = ""
 vim.g.mapleader = " "
-
--- keep darkmode
-vim.opt.background = "dark"
+vim.opt.background = "light"
 
 -- always centered
 vim.opt.scrolloff = 999

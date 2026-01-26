@@ -1,10 +1,13 @@
 local color = require("config.coloring")
 
+local LIGHT_ADJUST = { yank = 1.7, visual = 1.74, diag = 1.8 }
+local DARK_ADJUST = { yank = 0.3, visual = 0.3, diag = 0.8 }
+
 local function setup_light_mode()
   color.set("NvimPink", { fg = "#470045" })
   color.set("NvimBlue", { fg = "#004c73" })
   color.set("NvimGrey", { fg = "#4f5258" })
-  color.set("NvimWhite", { fg = color.darken_hex("#a2a5ac", 0.5) })
+  color.set("NvimWhite", { fg = color.adjust_hex("#a2a5ac", 0.5) })
 end
 
 local function setup_dark_mode()
@@ -15,6 +18,9 @@ local function setup_dark_mode()
 end
 
 local function setup_common()
+  local is_light = vim.o.background == "light"
+  local adjust = is_light and LIGHT_ADJUST or DARK_ADJUST
+
   color.set("Type", { link = "NvimPink" })
   color.set("Boolean", { link = "NvimPink" })
   color.set("Special", { link = "NvimPink" })
@@ -26,41 +32,44 @@ local function setup_common()
   color.set("Operator", { link = "NvimGrey" })
   color.set("Delimiter", { link = "NvimGrey" })
   color.set("Identifier", { link = "NvimWhite" })
-  color.set("Function", {
-    fg = color.highlight("Function", "fg"),
-    italic = true,
-  })
+  color.set("Function", { fg = color.highlight("Function", "fg"), italic = true })
 
   color.set("CursorLine", { bg = "None" })
   color.set("TabKeySel", {
-    fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
-    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.7),
+    fg = color.highlight("Normal", "bg"),
+    bg = color.highlight("NvimBlue", "fg"),
+    underline = true,
     bold = true,
   })
   color.set("TabLineSel", {
-    fg = color.lighten_hex(color.highlight("NvimBlue", "fg"), 0.5),
-    bg = color.darken_hex(color.highlight("NvimBlue", "fg"), 0.7),
+    fg = color.highlight("Normal", "bg"),
+    bg = color.highlight("NvimBlue", "fg"),
+    bold = true,
   })
-  color.set("TabLine", {
-    bg = color.highlight("NormalFloat", "bg"),
-  })
+  color.set("TabLine", { bg = color.highlight("NormalFloat", "bg") })
   color.set("TabKey", {
     bg = color.highlight("NormalFloat", "bg"),
     fg = color.highlight("NvimBlue", "fg"),
     bold = true,
   })
-  color.set("TabLineFill", {
-    bg = color.highlight("Normal", "bg"),
-  })
+  color.set("TabLineFill", { bg = color.highlight("Normal", "bg") })
   color.set("Substitute", {
     bg = color.highlight("String", "fg"),
     fg = color.highlight("Normal", "bg"),
   })
 
-  local grey_fg = color.highlight("NvimGrey", "fg")
-  local is_dark = vim.o.background == "dark"
+  color.set("Select", {
+    bg = color.highlight("Normal", "bg"),
+  })
+  color.set("YankHighlight", {
+    bg = color.adjust_hex(color.highlight("NvimBlue", "fg"), adjust.yank),
+  })
   color.set("Visual", {
-    bg = is_dark and color.darken_hex(grey_fg, 0.7) or color.lighten_hex(grey_fg, 0.75),
+    bg = color.adjust_hex(color.highlight("NvimGrey", "fg"), adjust.visual),
+  })
+  color.set("VisualNonText", {
+    fg = color.adjust_hex(color.highlight("Normal", "fg"), adjust.yank),
+    bg = color.highlight("Visual", "bg"),
   })
 
   color.set("IncSearch", {
@@ -80,74 +89,48 @@ local function setup_common()
     underline = true,
   })
 
-  local hint_color = color.highlight("DiagnosticHint", "fg")
-  local warn_color = color.highlight("DiagnosticWarn", "fg")
-  local error_color = color.highlight("DiagnosticError", "fg")
+  color.set("DiffAdd", { bg = "#c0e9da", fg = color.highlight("Normal", "fg") })
+  color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
+
+  for name, diag_type in pairs({
+    Hint = "DiagnosticHint",
+    Warn = "DiagnosticWarn",
+    Error = "DiagnosticError",
+  }) do
+    local diag_color = color.highlight(diag_type, "fg")
+    if diag_color then
+      color.set("DiagnosticVirtualText" .. name, {
+        fg = diag_color,
+        bg = color.adjust_hex(diag_color, adjust.diag),
+      })
+    end
+  end
   color.set("DiagnosticUnnecessary", { underline = true })
 
-  if hint_color then
-    color.set("DiagnosticVirtualTextHint", {
-      fg = hint_color,
-      bg = is_dark and color.darken_hex(hint_color, 0.8) or color.lighten_hex(hint_color, 0.6),
-    })
-  end
-  if warn_color then
-    color.set("DiagnosticVirtualTextWarn", {
-      fg = warn_color,
-      bg = is_dark and color.darken_hex(warn_color, 0.8) or color.lighten_hex(warn_color, 0.6),
-    })
-  end
-  if error_color then
-    color.set("DiagnosticVirtualTextError", {
-      bg = is_dark and color.darken_hex(error_color, 0.8) or color.lighten_hex(error_color, 0.6),
-      fg = error_color,
-    })
-  end
-
-  color.set("VisualNonText", {
-    fg = is_dark and color.darken_hex(color.highlight("NvimGrey", "fg"), 0.5)
-      or color.lighten_hex(color.highlight("NvimGrey", "fg"), 0.5),
-
-    bg = color.highlight("Visual", "bg"),
-  })
-
-  color.set("FzfLuaBackdrop", { link = "NormalSB" })
-  color.set("MasonBackdrop", { link = "NormalSB" })
   color.set("YaziFloatBorder", { link = "NormalFloat" })
   color.set("YaziFloat", { bg = color.highlight("NormalFloat", "bg") })
   color.set("WhichKeyTitle", { bg = color.highlight("NormalFloat", "bg") })
 end
 
-vim.api.nvim_create_autocmd("VimEnter", {
-  pattern = "*",
-  group = color.augroup,
-  callback = function()
-    if vim.o.background == "dark" then
-      setup_dark_mode()
-    else
-      setup_light_mode()
-    end
-    setup_common()
-  end,
-})
+local function apply_theme()
+  if vim.o.background == "dark" then
+    setup_dark_mode()
+  else
+    setup_light_mode()
+  end
+  setup_common()
+end
 
-vim.api.nvim_create_autocmd("OptionSet", {
-  pattern = "background",
+vim.api.nvim_create_autocmd({ "VimEnter", "OptionSet" }, {
+  pattern = vim.o.background == "OptionSet" and "background" or "*",
   group = color.augroup,
-  callback = function()
-    if vim.o.background == "dark" then
-      setup_dark_mode()
-    else
-      setup_light_mode()
-    end
-    setup_common()
-  end,
+  callback = apply_theme,
 })
 
 vim.api.nvim_create_autocmd("TextYankPost", {
   pattern = "*",
   group = color.augroup,
   callback = function()
-    vim.highlight.on_yank({ higroup = "Substitute" })
+    vim.highlight.on_yank({ higroup = "YankHighlight" })
   end,
 })

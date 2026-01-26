@@ -12,7 +12,11 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
     color.set("ColumnBase0", { fg = secondary, bg = col_bg })
     color.set("ColumnBase1", { fg = background, bg = col_bg })
     color.set("Column0", { fg = primary, bg = col_bg, bold = true })
-    color.set("Column1", { fg = color.adjust_hex(secondary, 1.3), bg = col_bg })
+
+    color.set(
+      "Column1",
+      { fg = color.adjust_hex(secondary, vim.o.background == "light" and 0.7 or 2), bg = col_bg }
+    )
     color.set("SignColumn", { fg = color.adjust_hex(secondary, 0.3), bg = col_bg })
 
     for _, type in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do

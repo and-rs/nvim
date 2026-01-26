@@ -68,7 +68,7 @@ MiniDeps.later(function()
       },
       documentation = {
         auto_show = true,
-        auto_show_delay_ms = 200,
+        auto_show_delay_ms = 100,
         window = {
           border = "rounded",
           max_height = 10,

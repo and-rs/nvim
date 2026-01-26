@@ -71,8 +71,8 @@ map({ "n", "v", "x" }, "<leader>p", '"+p', "Paste from clipboard")
 
 -- window management
 map("n", "<leader>wn", "<C-w>w", "Select next window")
--- map("n", "<leader>wv", "<C-w>v", "Split window vertically")
--- map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
+map("n", "<leader>wv", "<C-w>v", "Split window vertically")
+map("n", "<leader>wh", "<C-w>s", "Split window horizontally")
 map("n", "<leader>we", "<C-w>=", "Make splits equal size")
 map("n", "<leader>wr", "<C-w>r", "Rotate splits")
 map("n", "<leader>wh", "<C-w>H", "Send split to the right")
@@ -83,7 +83,8 @@ map("n", "<leader>wx", "<cmd>close<CR>", "Close current split")
 map("n", "<leader>wo", "<cmd>on | diffoff<CR>", "Close all other windows")
 
 -- tab management
-map("n", "<leader>to", "<cmd>tabnew<CR>", "Open new tab")
+-- don't open tab manually open via fzf
+-- map("n", "<leader>to", "<cmd>tabnew<CR>", "Open new tab")
 map("n", "<leader>tx", "<cmd>tabclose<CR>", "Close current tab")
 map("n", "<leader>tf", "<cmd>tabnew %<CR>", "Open current buffer in new tab")
 local keys = { "a", "s", "d", "f" }

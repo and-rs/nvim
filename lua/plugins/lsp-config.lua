@@ -16,8 +16,12 @@ MiniDeps.later(function()
       end
 
       map("K", function()
-        vim.lsp.buf.hover({ border = "rounded" })
+        vim.lsp.buf.hover({
+          border = "rounded",
+          max_width = math.floor(vim.o.columns / 2) + 8,
+        })
       end, "Hover LSP info")
+
       map("<leader>rn", vim.lsp.buf.rename, "Smart rename")
 
       -- Diagnostics
@@ -89,6 +93,7 @@ MiniDeps.later(function()
     -- random
     "zls",
     "gopls",
+    "buf_ls",
     "yamlls",
     -- "qmlls",
     "nil_ls",
