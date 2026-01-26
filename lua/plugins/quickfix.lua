@@ -16,5 +16,6 @@ MiniDeps.later(function()
   })
 
   vim.api.nvim_set_hl(0, "QuickFixHeaderHard", { link = "Conceal" })
-  vim.api.nvim_set_hl(0, "QuickFixLineNr", { link = "@variable" })
+  vim.api.nvim_set_hl(0, "QuickFixLineNr", { link = "Special" })
+  vim.api.nvim_set_hl(0, "QuickFixLine", { link = "Visual" })
 end)
