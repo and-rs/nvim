@@ -82,14 +82,20 @@ MiniDeps.later(function()
         draw = {
           components = {
             label = {
-              width = { max = 30 },
+              width = { max = 22 },
               text = function(ctx)
                 return ctx.label
               end,
-              highlight = "@variable",
+              highlight = "Special",
+            },
+            kind = {
+              text = function(ctx)
+                return ctx.kind .. " :"
+              end,
+              highlight = "None",
             },
             source_name = {
-              width = { max = 30 },
+              width = { max = 3 },
               text = function(ctx)
                 return ctx.source_name
               end,
@@ -97,7 +103,9 @@ MiniDeps.later(function()
             },
           },
           columns = {
-            { "kind_icon", "label", gap = 2, "source_name" },
+            { "source_name", gap = 1 },
+            { "kind" },
+            { "label" },
           },
         },
         border = "rounded",
@@ -107,35 +115,6 @@ MiniDeps.later(function()
 
     appearance = {
       use_nvim_cmp_as_default = false,
-      nerd_font_variant = "normal",
-
-      kind_icons = {
-        Text = "󰦨",
-        Method = "󰊕",
-        Function = "󰊕",
-        Constructor = "󰒓",
-        Field = "󰜢",
-        Variable = "󰆦",
-        Property = "",
-        Class = "󱡠",
-        Interface = "󱡠",
-        Struct = "󱡠",
-        Module = "󰅩",
-        Unit = "󰪚",
-        Value = "",
-        Enum = "",
-        EnumMember = "",
-        Keyword = "󰌋",
-        Constant = "󰏿",
-        Snippet = "󰅪",
-        Color = "󰏘",
-        File = "󰈔",
-        Reference = "󰬲",
-        Folder = "󰉋",
-        Event = "󱐋",
-        Operator = "󰪚",
-        TypeParameter = "",
-      },
     },
   })
 end)

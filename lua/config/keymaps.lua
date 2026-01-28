@@ -45,7 +45,7 @@ map("v", "K", ":m '<-2<CR>gv=gv", "Move line up", { silent = true })
 map("v", "<", "<gv<C-o>'<", "Inner indent")
 map("v", ">", ">gv<C-o>'<", "Outer indent")
 
---idk what this is
+-- idk what this is
 map({ "n", "v", "i" }, "<C-l>", "<nop>")
 
 -- terminal 'unbinds'

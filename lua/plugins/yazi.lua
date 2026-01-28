@@ -24,6 +24,9 @@ MiniDeps.now(function()
     },
     highlight_hovered_buffers_in_same_directory = false,
     hooks = {
+      yazi_closed_successfully = function()
+        require("fff").scan_files()
+      end,
       before_opening_window = function(window_options)
         window_options.row = 2
         window_options.width = dynamic_width()

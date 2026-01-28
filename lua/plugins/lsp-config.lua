@@ -83,6 +83,7 @@ MiniDeps.later(function()
     "cssls",
     "jsonls",
     "eslint",
+    "unocss",
     "tailwindcss",
 
     -- py
@@ -104,6 +105,10 @@ MiniDeps.later(function()
 
   vim.lsp.enable(enabled_lsps)
   vim.lsp.config("tailwindcss", require("lsp.tailwind"))
+
+  vim.lsp.config("unocss", {
+    cmd = { "bunx", "--bun", "-p", "unocss-language-server", "unocss-language-server", "--stdio" },
+  })
 
   vim.lsp.config.nil_ls = {
     settings = { ["nil"] = { nix = { flake = { autoArchive = true } } } },

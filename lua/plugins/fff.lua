@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 MiniDeps.now(function()
   MiniDeps.add({
     source = "dmtrKovalenko/fff.nvim",
@@ -9,14 +10,14 @@ MiniDeps.now(function()
   })
 
   vim.o.winborder = "rounded"
+  local fff = require("fff")
 
-  require("fff").setup({
+  fff.setup({
     prompt = "> ",
     title = "Files",
     layout = {
       row = 0.08,
       height = 0.5,
-      width = 0.58,
       prompt_position = "top",
       show_scrollbar = true, -- Show scrollbar for pagination
     },
@@ -60,7 +61,16 @@ MiniDeps.now(function()
     },
   })
 
+  local function get_dynamic_width()
+    local cols = vim.o.columns
+    return math.min(76, cols - 4) / cols
+  end
+
   vim.keymap.set("n", "<leader>sf", function()
-    require("fff").find_files()
+    fff.find_files({
+      layout = {
+        width = get_dynamic_width(),
+      },
+    })
   end, { desc = "Recent Files" })
 end)

@@ -64,17 +64,8 @@ vim.opt.splitbelow = true
 vim.opt.list = true
 vim.opt.listchars = { tab = "  ", trail = "·", nbsp = "␣" }
 
--- share neovim's clipboard between instances
-local shared_registers = vim.api.nvim_create_augroup("shared_registers", { clear = true })
-vim.api.nvim_create_autocmd("TextYankPost", {
-  group = shared_registers,
-  callback = function()
-    vim.cmd("wshada!")
-  end,
-})
-vim.api.nvim_create_autocmd("FocusGained", {
-  group = shared_registers,
-  callback = function()
-    vim.cmd("rshada!")
-  end,
-})
+-- per project shada
+local shada_dir = vim.fn.stdpath("state") .. "/shada/"
+vim.fn.mkdir(shada_dir, "p")
+local project_id = vim.fn.sha256(vim.fn.getcwd()):sub(1, 8)
+vim.opt.shadafile = shada_dir .. project_id .. ".shada"
