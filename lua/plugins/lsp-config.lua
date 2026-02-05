@@ -83,7 +83,7 @@ MiniDeps.later(function()
     "cssls",
     "jsonls",
     "eslint",
-    "unocss",
+    -- "unocss",
     "tailwindcss",
 
     -- py
@@ -104,8 +104,15 @@ MiniDeps.later(function()
   }
 
   vim.lsp.enable(enabled_lsps)
-  vim.lsp.config("tailwindcss", require("lsp.tailwind"))
 
+  vim.lsp.config.biome = {
+    cmd = function(dispatchers)
+      local cmd = "biome"
+      return vim.lsp.rpc.start({ cmd, "lsp-proxy" }, dispatchers)
+    end,
+  }
+
+  vim.lsp.config("tailwindcss", require("lsp.tailwind"))
   vim.lsp.config("unocss", {
     cmd = { "bunx", "--bun", "-p", "unocss-language-server", "unocss-language-server", "--stdio" },
   })

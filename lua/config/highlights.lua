@@ -1,11 +1,19 @@
 local color = require("config.coloring")
 
 local LIGHT_ADJUST = { yank = 1.7, visual = 1.74, diag = 1.8 }
-local DARK_ADJUST = { yank = 0.3, visual = 0.3, diag = 0.8 }
+local DARK_ADJUST = { yank = 0.3, visual = 0.3, diag = 0.2 }
 
 local function setup_light_mode()
-  color.set("NvimPink", { fg = "#470045" })
+  color.set("NvimRed", { fg = "#590008" })
+  color.set("NvimGreen", { fg = "#005523" })
+  color.set("NvimYellow", { fg = "#6b5300" })
   color.set("NvimBlue", { fg = "#004c73" })
+  color.set("NvimPink", { fg = "#470045" })
+  color.set("NvimCyan", { fg = "#007373" })
+  color.set("NvimTeal", { fg = "#005e5e" })
+  color.set("NvimLime", { fg = "#3b5500" })
+  color.set("NvimViolet", { fg = "#2b0059" })
+  color.set("NvimFuchsia", { fg = "#59002b" })
   color.set("NvimGrey", { fg = "#4f5258" })
   color.set("NvimWhite", { fg = color.adjust_hex("#a2a5ac", 0.5) })
 end
@@ -15,6 +23,14 @@ local function setup_dark_mode()
   color.set("NvimBlue", { fg = "#a6dbff" })
   color.set("NvimGrey", { fg = "#79839c" })
   color.set("NvimWhite", { fg = "#e0e2ea" })
+  color.set("NvimRed", { fg = "#ffc0b9" })
+  color.set("NvimGreen", { fg = "#b3f6c0" })
+  color.set("NvimYellow", { fg = "#fce094" })
+  color.set("NvimCyan", { fg = "#8cf8f7" })
+  color.set("NvimTeal", { fg = "#8cf8d2" })
+  color.set("NvimLime", { fg = "#d9f6b3" })
+  color.set("NvimViolet", { fg = "#d2b3f6" })
+  color.set("NvimFuchsia", { fg = "#f6b3e0" })
 end
 
 local function setup_common()
@@ -93,6 +109,7 @@ local function setup_common()
   color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
 
   for name, diag_type in pairs({
+    Info = "DiagnosticInfo",
     Hint = "DiagnosticHint",
     Warn = "DiagnosticWarn",
     Error = "DiagnosticError",
@@ -107,9 +124,34 @@ local function setup_common()
   end
   color.set("DiagnosticUnnecessary", { underline = true })
 
+  -- Plugins --
   color.set("YaziFloatBorder", { link = "NormalFloat" })
   color.set("YaziFloat", { bg = color.highlight("NormalFloat", "bg") })
   color.set("WhichKeyTitle", { bg = color.highlight("NormalFloat", "bg") })
+  color.set("TreesitterContext", {
+    bg = color.adjust_hex(color.highlight("Visual", "bg"), 0.8),
+  })
+
+  local function set_flash(name, base_hl)
+    local fg_color = color.highlight(base_hl, "fg")
+    color.set(name, {
+      fg = fg_color,
+      bg = color.adjust_hex(fg_color, 0.2),
+      bold = true,
+      underline = true,
+    })
+  end
+
+  set_flash("FlashColorred500", "NvimRed")
+  set_flash("FlashColorlime500", "NvimLime")
+  set_flash("FlashColorteal500", "NvimTeal")
+  set_flash("FlashColorcyan500", "NvimCyan")
+  set_flash("FlashColorblue500", "NvimBlue")
+  set_flash("FlashColorrose500", "NvimPink")
+  set_flash("FlashColoramber500", "NvimYellow")
+  set_flash("FlashColorgreen500", "NvimGreen")
+  set_flash("FlashColorviolet500", "NvimViolet")
+  set_flash("FlashColorfuchsia500", "NvimFuchsia")
 end
 
 local function apply_theme()

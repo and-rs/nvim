@@ -3,27 +3,33 @@ MiniDeps.later(function()
 
   local conform = require("conform")
 
-  conform.formatters.qmlformat = {
-    append_args = { "-w 2" },
-  }
-
-  conform.formatters.sleek = {
-    append_args = { "--indent-spaces=2" },
-  }
-
-  conform.formatters.deno_fmt = {
-    append_args = { "--prose-wrap=never" },
+  conform.formatters = {
+    ["biome-organize-imports"] = {
+      command = "biome",
+    },
+    biome = {
+      command = "biome",
+    },
+    qmlformat = {
+      append_args = { "-w 2" },
+    },
+    sleek = {
+      append_args = { "--indent-spaces=2" },
+    },
+    deno_fmt = {
+      append_args = { "--prose-wrap=never" },
+    },
   }
 
   conform.setup({
     formatters_by_ft = {
-      javascript = { "biome", "rustywind" },
-      typescript = { "biome", "rustywind" },
-      javascriptreact = { "biome", "rustywind" },
-      typescriptreact = { "biome", "rustywind" },
-      svelte = { "biome", "rustywind" },
-      css = { "biome" },
-      graphql = { "biome" },
+      javascript = { "biome", "biome-organize-imports", "rustywind" },
+      typescript = { "biome", "biome-organize-imports", "rustywind" },
+      javascriptreact = { "biome", "biome-organize-imports", "rustywind" },
+      typescriptreact = { "biome", "biome-organize-imports", "rustywind" },
+      svelte = { "biome", "biome-organize-imports", "rustywind" },
+      css = { "biome", "biome-organize-imports" },
+      graphql = { "biome", "biome-organize-imports" },
 
       html = { "deno_fmt", "rustywind" },
       json = { "deno_fmt" },

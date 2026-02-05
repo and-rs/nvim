@@ -1,7 +1,14 @@
+local color = require("config.coloring")
+
 MiniDeps.now(function()
   MiniDeps.add({ source = "folke/flash.nvim" })
 
   require("flash").setup({
+    label = {
+      rainbow = {
+        enabled = true,
+      },
+    },
     highlight = {
       backdrop = true,
       matches = true,

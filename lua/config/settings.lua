@@ -1,20 +1,16 @@
 vim.loader.enable()
 vim.opt.mouse = ""
 vim.g.mapleader = " "
-vim.opt.background = "light"
+vim.opt.background = "dark"
 
 -- always centered
 vim.opt.scrolloff = 999
 
 -- no folds in diff
-vim.o.diffopt = "context:9999"
+-- vim.o.diffopt = "context:9999"
 
 -- no mode on the cmd line, only shown on lualine
 vim.opt.showmode = false
-
--- folds
-vim.opt.foldenable = false
-vim.opt.foldmethod = "manual"
 
 -- wrap
 vim.opt.wrap = false

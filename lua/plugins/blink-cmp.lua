@@ -44,7 +44,8 @@ MiniDeps.later(function()
           name = "LSP",
         },
         snippets = {
-          name = "LSP",
+          name = "SNP",
+          score_offset = -20,
         },
       },
     },

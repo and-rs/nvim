@@ -15,7 +15,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
 
     color.set(
       "Column1",
-      { fg = color.adjust_hex(secondary, vim.o.background == "light" and 0.7 or 2), bg = col_bg }
+      { fg = color.adjust_hex(secondary, vim.o.background == "light" and 0.7 or 1.3), bg = col_bg }
     )
     color.set("SignColumn", { fg = color.adjust_hex(secondary, 0.3), bg = col_bg })
 
@@ -71,10 +71,6 @@ end
 
 local function bootstrap()
   local is_float = vim.api.nvim_win_get_config(0).relative ~= ""
-
-  -- Configuration based on window type
-  -- Float: 6 chars wide, no sign column
-  -- Normal: 4 chars wide, includes sign column (%s)
   local width = is_float and 6 or 4
   local signs = is_float and "" or "%s"
 
