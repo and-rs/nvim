@@ -45,4 +45,8 @@ MiniDeps.now(function()
     "<cmd>Yazi<cr>",
     { desc = "Open yazi at the current file" }
   )
+
+  local color = require("config.coloring")
+  color.set("YaziFloatBorder", { link = "NormalFloat" })
+  color.set("YaziFloat", { bg = color.highlight("NormalFloat", "bg") })
 end)

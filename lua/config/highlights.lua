@@ -108,6 +108,7 @@ local function setup_common()
   color.set("DiffAdd", { bg = "#c0e9da", fg = color.highlight("Normal", "fg") })
   color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
 
+  color.set("DiagnosticUnnecessary", { underline = true })
   for name, diag_type in pairs({
     Info = "DiagnosticInfo",
     Hint = "DiagnosticHint",
@@ -122,36 +123,6 @@ local function setup_common()
       })
     end
   end
-  color.set("DiagnosticUnnecessary", { underline = true })
-
-  -- Plugins --
-  color.set("YaziFloatBorder", { link = "NormalFloat" })
-  color.set("YaziFloat", { bg = color.highlight("NormalFloat", "bg") })
-  color.set("WhichKeyTitle", { bg = color.highlight("NormalFloat", "bg") })
-  color.set("TreesitterContext", {
-    bg = color.adjust_hex(color.highlight("Visual", "bg"), 0.8),
-  })
-
-  local function set_flash(name, base_hl)
-    local fg_color = color.highlight(base_hl, "fg")
-    color.set(name, {
-      fg = fg_color,
-      bg = color.adjust_hex(fg_color, 0.2),
-      bold = true,
-      underline = true,
-    })
-  end
-
-  set_flash("FlashColorred500", "NvimRed")
-  set_flash("FlashColorlime500", "NvimLime")
-  set_flash("FlashColorteal500", "NvimTeal")
-  set_flash("FlashColorcyan500", "NvimCyan")
-  set_flash("FlashColorblue500", "NvimBlue")
-  set_flash("FlashColorrose500", "NvimPink")
-  set_flash("FlashColoramber500", "NvimYellow")
-  set_flash("FlashColorgreen500", "NvimGreen")
-  set_flash("FlashColorviolet500", "NvimViolet")
-  set_flash("FlashColorfuchsia500", "NvimFuchsia")
 end
 
 local function apply_theme()

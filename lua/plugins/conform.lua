@@ -23,27 +23,28 @@ MiniDeps.later(function()
 
   conform.setup({
     formatters_by_ft = {
-      javascript = { "biome", "biome-organize-imports", "rustywind" },
-      typescript = { "biome", "biome-organize-imports", "rustywind" },
-      javascriptreact = { "biome", "biome-organize-imports", "rustywind" },
-      typescriptreact = { "biome", "biome-organize-imports", "rustywind" },
-      svelte = { "biome", "biome-organize-imports", "rustywind" },
-      css = { "biome", "biome-organize-imports" },
-      graphql = { "biome", "biome-organize-imports" },
+      javascriptreact = { "biome", "rustywind" },
+      typescriptreact = { "biome", "rustywind" },
+      javascript = { "biome", "rustywind" },
+      typescript = { "biome", "rustywind" },
+      svelte = { "biome", "rustywind" },
+
+      graphql = { "biome" },
+      css = { "biome" },
 
       html = { "deno_fmt", "rustywind" },
-      json = { "deno_fmt" },
       jsonc = { "deno_fmt" },
+      json = { "deno_fmt" },
 
       zsh = { "beautysh" },
       sh = { "beautysh" },
 
+      python = { "ruff_format", "ruff_organize_imports" },
       htmldjango = { "djlint", "rustywind" },
       jinja = { "djlint", "rustywind" },
-      python = { "ruff_format", "ruff_organize_imports" },
 
-      qml = { "qmlformat" },
       markdown = { "deno_fmt" },
+      qml = { "qmlformat" },
       lua = { "stylua" },
       nix = { "nixfmt" },
       sql = { "sleek" },

@@ -46,3 +46,8 @@ MiniDeps.now(function()
     { "<leader>g", group = "Git Diff" },
   })
 end)
+
+MiniDeps.later(function()
+  local color = require("config.coloring")
+  color.set("WhichKeyTitle", { bg = color.highlight("NormalFloat", "bg") })
+end)
