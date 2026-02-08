@@ -1,4 +1,4 @@
-MiniDeps.later(function()
+MiniDeps.now(function()
   MiniDeps.add({
     source = "neovim/nvim-lspconfig",
     dependencies = {
@@ -100,12 +100,14 @@ MiniDeps.later(function()
     "nil_ls",
     "bashls",
     "lua_ls",
+    "ast_grep",
     "glsl_analyzer",
   }
 
   vim.lsp.enable(enabled_lsps)
 
   vim.lsp.config.biome = {
+    capabilities = { general = { positionEncodings = { "utf-8" } } },
     cmd = function(dispatchers)
       local cmd = "biome"
       return vim.lsp.rpc.start({ cmd, "lsp-proxy" }, dispatchers)
@@ -172,3 +174,33 @@ MiniDeps.later(function()
     },
   }
 end)
+
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile", "FileType" }, {
+  group = vim.api.nvim_create_augroup("ast_grep_attach", { clear = true }),
+  callback = function(ev)
+    local buf = ev.buf
+    if vim.bo[buf].buftype ~= "" then
+      return
+    end
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name == "" then
+      return
+    end
+    local client = vim.lsp.get_clients({ name = "ast_grep" })[1]
+    if not client then
+      return
+    end
+    if client.attached_buffers[buf] then
+      return
+    end
+    local util = require("lspconfig.util")
+    local root = util.root_pattern("sgconfig.yaml", "sgconfig.yml")(name)
+    if not root then
+      return
+    end
+    if client.root_dir ~= root then
+      return
+    end
+    vim.lsp.buf_attach_client(buf, client.id)
+  end,
+})

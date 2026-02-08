@@ -45,6 +45,8 @@ MiniDeps.later(function()
 
       markdown = { "deno_fmt" },
       qml = { "qmlformat" },
+      yaml = { "yamlfmt" },
+      kdl = { "kdlfmt" },
       lua = { "stylua" },
       nix = { "nixfmt" },
       sql = { "sleek" },

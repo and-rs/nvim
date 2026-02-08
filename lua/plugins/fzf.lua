@@ -9,7 +9,9 @@ MiniDeps.now(function()
   local function get_opts(opts)
     opts = opts or {}
     opts.winopts = opts.winopts or {}
-    opts.winopts.width = math.min(76, vim.o.columns - 4)
+    opts.winopts.row = 0.25
+    opts.winopts.height = math.floor(vim.o.lines / 2)
+    opts.winopts.width = math.min(74, vim.o.columns - 4)
     opts.winopts.backdrop = 100
     return opts
   end

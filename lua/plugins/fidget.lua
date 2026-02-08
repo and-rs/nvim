@@ -17,7 +17,9 @@ MiniDeps.later(function()
       window = {
         x_padding = 0,
         y_padding = 0,
-        normal_hl = "Comment",
+        normal_hl = "NormalFloat",
+        winblend = 0,
+        border = "rounded",
       },
     },
   })

@@ -19,7 +19,6 @@ MiniDeps.later(function()
   })
 end)
 
--- The ultimate import handling
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("VtslsOnSave", { clear = false }),
   callback = function(args)
@@ -29,33 +28,41 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     vim.api.nvim_create_autocmd("BufWritePre", {
-      buffer = args.buf,
-      callback = function(opts)
+      pattern = "*.tsx,*.jsx,*.ts,*.js",
+      callback = function()
+        -- Ensure the client is actually idle before sending commands
         if not vim.tbl_isempty(client.progress.pending) then
           return
         end
-        local prefix = (
-          vim.bo[opts.buf].filetype:find("javascript") and "javascript" or "typescript"
-        ) .. "."
-        local fname = vim.api.nvim_buf_get_name(opts.buf)
-        for _, action in ipairs({ "removeUnusedImports", "sortImports" }) do
-          local view = vim.fn.winsaveview()
-          local lines = vim.api.nvim_buf_get_lines(opts.buf, 0, -1, false)
-          local tick = vim.api.nvim_buf_get_changedtick(opts.buf)
 
-          vim.lsp.buf_request_sync(opts.buf, "workspace/executeCommand", {
-            command = prefix .. action,
-            arguments = { fname },
+        local bnr = vim.api.nvim_get_current_buf()
+        local filename = vim.api.nvim_buf_get_name(bnr)
+        local ft = vim.bo[bnr].filetype
+        local prefix = ft:find("javascript") and "javascript" or "typescript"
+
+        local function execute_cleanly(command)
+          local view = vim.fn.winsaveview()
+          local tick = vim.api.nvim_buf_get_changedtick(bnr)
+          local lines_before = vim.api.nvim_buf_get_lines(bnr, 0, -1, false)
+
+          vim.lsp.buf_request_sync(bnr, "workspace/executeCommand", {
+            command = command,
+            arguments = { filename },
           }, 2000)
 
+          local lines_after = vim.api.nvim_buf_get_lines(bnr, 0, -1, false)
           if
-            tick ~= vim.api.nvim_buf_get_changedtick(opts.buf)
-            and vim.deep_equal(lines, vim.api.nvim_buf_get_lines(opts.buf, 0, -1, false))
+            tick ~= vim.api.nvim_buf_get_changedtick(bnr)
+            and vim.deep_equal(lines_before, lines_after)
           then
             vim.cmd("silent! undo")
           end
           vim.fn.winrestview(view)
         end
+
+        execute_cleanly(prefix .. ".removeUnusedImports")
+        execute_cleanly(prefix .. ".sortImports")
+        require("conform").format({ async = false })
       end,
     })
   end,
