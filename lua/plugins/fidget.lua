@@ -8,7 +8,7 @@ MiniDeps.later(function()
     progress = {
       display = {
         done_ttl = 5,
-        done_icon = " ",
+        done_icon = "✓✓",
       },
     },
 

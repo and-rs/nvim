@@ -26,44 +26,19 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if not (client and client.name == "vtsls") then
       return
     end
+    if not vim.tbl_isempty(client.progress.pending) then
+      return
+    end
 
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      pattern = "*.tsx,*.jsx,*.ts,*.js",
-      callback = function()
-        -- Ensure the client is actually idle before sending commands
-        if not vim.tbl_isempty(client.progress.pending) then
-          return
-        end
+    local map = function(keys, func, desc)
+      vim.keymap.set("n", keys, func, { buffer = args.buf, desc = desc })
+    end
 
-        local bnr = vim.api.nvim_get_current_buf()
-        local filename = vim.api.nvim_buf_get_name(bnr)
-        local ft = vim.bo[bnr].filetype
-        local prefix = ft:find("javascript") and "javascript" or "typescript"
-
-        local function execute_cleanly(command)
-          local view = vim.fn.winsaveview()
-          local tick = vim.api.nvim_buf_get_changedtick(bnr)
-          local lines_before = vim.api.nvim_buf_get_lines(bnr, 0, -1, false)
-
-          vim.lsp.buf_request_sync(bnr, "workspace/executeCommand", {
-            command = command,
-            arguments = { filename },
-          }, 2000)
-
-          local lines_after = vim.api.nvim_buf_get_lines(bnr, 0, -1, false)
-          if
-            tick ~= vim.api.nvim_buf_get_changedtick(bnr)
-            and vim.deep_equal(lines_before, lines_after)
-          then
-            vim.cmd("silent! undo")
-          end
-          vim.fn.winrestview(view)
-        end
-
-        execute_cleanly(prefix .. ".removeUnusedImports")
-        execute_cleanly(prefix .. ".sortImports")
-        require("conform").format({ async = false })
-      end,
-    })
+    map("<leader>lu", function()
+      vim.cmd("VtsExec remove_unused_imports")
+    end, "TS Remove Unused Imports")
+    map("<leader>lo", function()
+      vim.cmd("VtsExec organize_imports")
+    end, "TS Organize Imports")
   end,
 })
