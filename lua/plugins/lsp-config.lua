@@ -91,14 +91,16 @@ MiniDeps.now(function()
     "ruff",
     -- "basedpyright",
 
-    -- random
+    -- shells
+    "fish_lsp",
+    "nushell",
+    "bashls",
+
     "zls",
     "gopls",
     "buf_ls",
     "yamlls",
-    -- "qmlls",
     "nil_ls",
-    "bashls",
     "lua_ls",
     "ast_grep",
     "glsl_analyzer",

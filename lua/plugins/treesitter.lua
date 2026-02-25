@@ -9,6 +9,8 @@ MiniDeps.later(function()
   })
 
   local treesitter = require("nvim-treesitter.configs")
+  vim.treesitter.language.register("bash", "env")
+
   vim.filetype.add({
     extension = {
       jinja = "jinja",
@@ -21,8 +23,6 @@ MiniDeps.later(function()
       ["%.env%.[%w_.-]+"] = "env",
     },
   })
-
-  vim.treesitter.language.register("bash", "env")
 
   treesitter.setup({
     highlight = {
@@ -54,6 +54,7 @@ MiniDeps.later(function()
       "nu",
       "bash",
 
+      "sql",
       "jinja",
       "python",
 

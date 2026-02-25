@@ -14,10 +14,10 @@ MiniDeps.later(function()
       append_args = { "-w 2" },
     },
     sleek = {
-      append_args = { "--indent-spaces=2" },
+      append_args = { "--indent-spaces=2", "--lines-between-queries=1" },
     },
     deno_fmt = {
-      append_args = { "--prose-wrap=never" },
+      append_args = { "--prose-wrap=always" },
     },
   }
 
@@ -36,8 +36,9 @@ MiniDeps.later(function()
       jsonc = { "deno_fmt" },
       json = { "deno_fmt" },
 
-      zsh = { "beautysh" },
+      -- nu = { "nufmt" },
       sh = { "beautysh" },
+      fish = { "fish_indent" },
 
       python = { "ruff_format", "ruff_organize_imports" },
       htmldjango = { "djlint", "rustywind" },

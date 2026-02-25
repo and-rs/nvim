@@ -7,7 +7,7 @@ MiniDeps.now(function()
   vim.g.loaded_netrwPlugin = 1
 
   local function dynamic_width()
-    return math.min(90, vim.o.columns - 6)
+    return math.min(100, vim.o.columns - 6)
   end
 
   require("yazi").setup({

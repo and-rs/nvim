@@ -16,6 +16,8 @@ local function setup_light_mode()
   color.set("NvimFuchsia", { fg = "#59002b" })
   color.set("NvimGrey", { fg = "#4f5258" })
   color.set("NvimWhite", { fg = color.adjust_hex("#a2a5ac", 0.5) })
+  color.set("DiffAdd", { bg = "#c0e9da", fg = color.highlight("Normal", "fg") })
+  color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
 end
 
 local function setup_dark_mode()
@@ -104,9 +106,6 @@ local function setup_common()
     bold = true,
     underline = true,
   })
-
-  color.set("DiffAdd", { bg = "#c0e9da", fg = color.highlight("Normal", "fg") })
-  color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
 
   color.set("DiagnosticUnnecessary", { underline = true })
   for name, diag_type in pairs({
