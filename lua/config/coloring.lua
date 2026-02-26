@@ -12,7 +12,7 @@ end
 ---@param name string
 ---@param option "fg" | "bg"
 ---@return string | nil
-function M.highlight(name, option)
+function M.get(name, option)
   if type(name) ~= "string" or (option ~= "fg" and option ~= "bg") then
     error("Invalid arguments. Usage: highlight(name: string, option: 'fg' | 'bg')")
   end

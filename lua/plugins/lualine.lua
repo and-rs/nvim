@@ -39,8 +39,8 @@ MiniDeps.now(function()
 
   local coloring = require("config.coloring")
   local colors = {
-    white = coloring.highlight("Normal", "fg"),
-    background = coloring.highlight("NormalFloat", "bg"),
+    white = coloring.get("Normal", "fg"),
+    background = coloring.get("NormalFloat", "bg"),
   }
 
   require("lualine").setup({

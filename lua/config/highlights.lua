@@ -16,8 +16,8 @@ local function setup_light_mode()
   color.set("NvimFuchsia", { fg = "#59002b" })
   color.set("NvimGrey", { fg = "#4f5258" })
   color.set("NvimWhite", { fg = color.adjust_hex("#a2a5ac", 0.5) })
-  color.set("DiffAdd", { bg = "#c0e9da", fg = color.highlight("Normal", "fg") })
-  color.set("DiffDelete", { bg = "#ff9999", fg = color.highlight("Normal", "fg") })
+  color.set("DiffAdd", { bg = "#c0e9da", fg = color.get("Normal", "fg") })
+  color.set("DiffDelete", { bg = "#ff9999", fg = color.get("Normal", "fg") })
 end
 
 local function setup_dark_mode()
@@ -50,59 +50,59 @@ local function setup_common()
   color.set("Operator", { link = "NvimGrey" })
   color.set("Delimiter", { link = "NvimGrey" })
   color.set("Identifier", { link = "NvimWhite" })
-  color.set("Function", { fg = color.highlight("Function", "fg"), italic = true })
+  color.set("Function", { fg = color.get("Function", "fg"), italic = true })
 
   color.set("CursorLine", { bg = "None" })
   color.set("TabKeySel", {
-    fg = color.highlight("Normal", "bg"),
-    bg = color.highlight("NvimBlue", "fg"),
+    fg = color.get("Normal", "bg"),
+    bg = color.get("NvimBlue", "fg"),
     underline = true,
     bold = true,
   })
   color.set("TabLineSel", {
-    fg = color.highlight("Normal", "bg"),
-    bg = color.highlight("NvimBlue", "fg"),
+    fg = color.get("Normal", "bg"),
+    bg = color.get("NvimBlue", "fg"),
     bold = true,
   })
-  color.set("TabLine", { bg = color.highlight("NormalFloat", "bg") })
+  color.set("TabLine", { bg = color.get("NormalFloat", "bg") })
   color.set("TabKey", {
-    bg = color.highlight("NormalFloat", "bg"),
-    fg = color.highlight("NvimBlue", "fg"),
+    bg = color.get("NormalFloat", "bg"),
+    fg = color.get("NvimBlue", "fg"),
     bold = true,
   })
-  color.set("TabLineFill", { bg = color.highlight("Normal", "bg") })
+  color.set("TabLineFill", { bg = color.get("Normal", "bg") })
   color.set("Substitute", {
-    bg = color.highlight("String", "fg"),
-    fg = color.highlight("Normal", "bg"),
+    bg = color.get("String", "fg"),
+    fg = color.get("Normal", "bg"),
   })
 
   color.set("Select", {
-    bg = color.highlight("Normal", "bg"),
+    bg = color.get("Normal", "bg"),
   })
   color.set("YankHighlight", {
-    bg = color.adjust_hex(color.highlight("NvimBlue", "fg"), adjust.yank),
+    bg = color.adjust_hex(color.get("NvimBlue", "fg"), adjust.yank),
   })
   color.set("Visual", {
-    bg = color.adjust_hex(color.highlight("NvimGrey", "fg"), adjust.visual),
+    bg = color.adjust_hex(color.get("NvimGrey", "fg"), adjust.visual),
   })
   color.set("VisualNonText", {
-    fg = color.adjust_hex(color.highlight("Normal", "fg"), adjust.yank),
-    bg = color.highlight("Visual", "bg"),
+    fg = color.adjust_hex(color.get("Normal", "fg"), adjust.yank),
+    bg = color.get("Visual", "bg"),
   })
 
   color.set("IncSearch", {
-    bg = color.highlight("Visual", "bg"),
-    fg = color.highlight("String", "fg"),
+    bg = color.get("Visual", "bg"),
+    fg = color.get("String", "fg"),
     underline = true,
   })
   color.set("Search", {
-    bg = color.highlight("Normal", "bg"),
-    fg = color.highlight("Normal", "fg"),
+    bg = color.get("Normal", "bg"),
+    fg = color.get("Normal", "fg"),
     underline = true,
   })
   color.set("MatchParen", {
-    bg = color.highlight("Visual", "bg"),
-    fg = color.highlight("String", "fg"),
+    bg = color.get("Visual", "bg"),
+    fg = color.get("String", "fg"),
     bold = true,
     underline = true,
   })
@@ -114,7 +114,7 @@ local function setup_common()
     Warn = "DiagnosticWarn",
     Error = "DiagnosticError",
   }) do
-    local diag_color = color.highlight(diag_type, "fg")
+    local diag_color = color.get(diag_type, "fg")
     if diag_color then
       color.set("DiagnosticVirtualText" .. name, {
         fg = diag_color,

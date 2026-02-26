@@ -11,7 +11,7 @@ MiniDeps.later(function()
         left_bottom = "└",
         right_arrow = "─",
       },
-      style = coloring.highlight("NvimGrey", "fg"),
+      style = coloring.get("NvimGrey", "fg"),
       duration = 0,
       delay = 0,
     },

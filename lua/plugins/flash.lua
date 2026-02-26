@@ -3,7 +3,7 @@ MiniDeps.later(function()
 
   local color = require("config.coloring")
   local function set_flash(name, base_hl)
-    local fg_color = color.highlight(base_hl, "fg")
+    local fg_color = color.get(base_hl, "fg")
     if not fg_color then
       return
     end

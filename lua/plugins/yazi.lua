@@ -48,5 +48,5 @@ MiniDeps.now(function()
 
   local color = require("config.coloring")
   color.set("YaziFloatBorder", { link = "NormalFloat" })
-  color.set("YaziFloat", { bg = color.highlight("NormalFloat", "bg") })
+  color.set("YaziFloat", { bg = color.get("NormalFloat", "bg") })
 end)

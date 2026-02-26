@@ -74,6 +74,6 @@ end)
 MiniDeps.later(function()
   local color = require("config.coloring")
   color.set("TreesitterContext", {
-    bg = color.adjust_hex(color.highlight("Visual", "bg"), 0.8),
+    bg = color.adjust_hex(color.get("Visual", "bg"), 0.8),
   })
 end)

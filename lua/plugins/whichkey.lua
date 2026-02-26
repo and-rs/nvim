@@ -49,5 +49,5 @@ end)
 
 MiniDeps.later(function()
   local color = require("config.coloring")
-  color.set("WhichKeyTitle", { bg = color.highlight("NormalFloat", "bg") })
+  color.set("WhichKeyTitle", { bg = color.get("NormalFloat", "bg") })
 end)

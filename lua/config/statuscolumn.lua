@@ -4,10 +4,10 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   group = color.augroup,
   pattern = "*",
   callback = function()
-    local primary = color.highlight("NvimBlue", "fg")
-    local secondary = color.highlight("NvimGrey", "fg")
-    local background = color.highlight("StatusLine", "bg")
-    local col_bg = color.highlight("NormalFloat", "bg")
+    local primary = color.get("NvimBlue", "fg")
+    local secondary = color.get("NvimGrey", "fg")
+    local background = color.get("StatusLine", "bg")
+    local col_bg = color.get("NormalFloat", "bg")
 
     color.set("ColumnBase0", { fg = secondary, bg = col_bg })
     color.set("ColumnBase1", { fg = background, bg = col_bg })
@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
 
     for _, type in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do
       color.set("DiagnosticSign" .. type, {
-        fg = color.highlight("Diagnostic" .. type, "fg"),
+        fg = color.get("Diagnostic" .. type, "fg"),
         bg = col_bg,
       })
     end
@@ -34,7 +34,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
     }
     for sign, hl in pairs(git_map) do
       color.set("GitSigns" .. sign, {
-        fg = color.highlight(hl, "fg"),
+        fg = color.get(hl, "fg"),
         bg = col_bg,
       })
     end

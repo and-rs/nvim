@@ -1,8 +1,10 @@
----@diagnostic disable: undefined-field
 MiniDeps.now(function()
   MiniDeps.add({
     source = "dmtrKovalenko/fff.nvim",
     hooks = {
+      post_checkout = function()
+        require("fff.download").download_or_build_binary()
+      end,
       post_install = function()
         require("fff.download").download_or_build_binary()
       end,
@@ -19,38 +21,56 @@ MiniDeps.now(function()
       row = 0.08,
       height = 0.5,
       prompt_position = "top",
-      show_scrollbar = true, -- Show scrollbar for pagination
+      -- Show scrollbar for pagination
+      show_scrollbar = true,
     },
     preview = {
       enabled = false,
-    },
-    history = {
-      min_combo_count = 100,
     },
     keymaps = {
       select_split = "<C-h>",
       select_vsplit = "<C-v>",
       select_tab = "<C-t>",
-      -- multi-select keymaps for quickfix
+      -- Multi-select keymaps for quickfix
       toggle_select = "<C-y>",
       send_to_quickfix = "<C-q>",
     },
     hl = {
       border = "FloatBorder",
       normal = "FloatBorder",
-      cursor = "CursorLine",
+      cursor = "Visual",
       matched = "Substitute",
       title = "FloatBorder",
       prompt = "Special",
       active_file = "Select",
       frecency = "Number",
       combo_header = "Number",
+
+      git_modified = "NvimYellow",
+      git_sign_modified = "NvimYellow",
+      git_sign_modified_selected = "NvimYellow",
+
+      git_staged = "NvimCyan",
+      git_sign_staged = "NvimCyan",
+      git_sign_staged_selected = "NvimCyan",
+
+      git_deleted = "FFFGitDeleted",
+      git_sign_deleted = "FFFGitSignDeleted",
+      git_sign_deleted_selected = "FFFGitSignDeletedSelected",
+
+      git_renamed = "NvimPink",
+      git_sign_renamed = "NvimPink",
+      git_sign_renamed_selected = "NvimPink",
+
+      git_untracked = "NvimGreen",
+      git_sign_untracked = "NvimGreen",
+      git_sign_untracked_selected = "NvimGreen",
+
+      git_ignored = "NvimGrey",
+      git_sign_ignored = "NvimGrey",
+      git_sign_ignored_selected = "NvimGrey",
     },
 
-    -- Git integration
-    git = {
-      status_text_color = false, -- Apply git status colors to filename text (default: false, only sign column)
-    },
     debug = {
       enabled = false,
       show_scores = false,
