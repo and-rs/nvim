@@ -3,6 +3,7 @@ vim.opt.mouse = ""
 vim.g.mapleader = " "
 vim.opt.background = "dark"
 
+-- this is a test
 -- always centered
 vim.opt.scrolloff = 999
 

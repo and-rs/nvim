@@ -2,6 +2,7 @@ MiniDeps.later(function()
   MiniDeps.add({ source = "stevearc/conform.nvim" })
 
   local conform = require("conform")
+  local prose_wrap = true
 
   conform.formatters = {
     ["biome-organize-imports"] = {
@@ -18,6 +19,12 @@ MiniDeps.later(function()
     },
     deno_fmt = {
       append_args = { "--prose-wrap=always" },
+    },
+    deno_fmt_md = {
+      inherit = "deno_fmt",
+      append_args = function()
+        return { "--prose-wrap=" .. (prose_wrap and "always" or "never") }
+      end,
     },
   }
 
@@ -44,7 +51,7 @@ MiniDeps.later(function()
       htmldjango = { "djlint", "rustywind" },
       jinja = { "djlint", "rustywind" },
 
-      markdown = { "deno_fmt" },
+      markdown = { "deno_fmt_md" },
       qml = { "qmlformat" },
       yaml = { "yamlfmt" },
       kdl = { "kdlfmt" },
@@ -60,10 +67,11 @@ MiniDeps.later(function()
   })
 
   vim.keymap.set("n", "<leader>mp", function()
-    conform.format({
-      lsp_fallback = true,
-      async = false,
-      timeout_ms = 2000,
-    })
+    conform.format({ lsp_fallback = true, async = false, timeout_ms = 2000 })
   end, { desc = "Make Pretty" })
+
+  vim.keymap.set("n", "<leader>mw", function()
+    prose_wrap = not prose_wrap
+    vim.notify("Prose wrap: " .. (prose_wrap and "always" or "never"))
+  end, { desc = "Toggle markdown prose wrap" })
 end)
