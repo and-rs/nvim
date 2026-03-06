@@ -35,8 +35,8 @@ vim.g.smart_splits_multiplexer_integration = "tmux"
 
 --neovide
 if vim.g.neovide then
-  vim.opt.linespace = 14
-  vim.g.terminal_color_0 = "#07080d"
+  vim.opt.linespace = 12
+  vim.g.terminal_color_0 = "#1b1e25"
   vim.g.terminal_color_8 = "#79839c"
   vim.g.terminal_color_1 = "#ffc0b9"
   vim.g.terminal_color_9 = "#ffc0b9"
@@ -50,7 +50,7 @@ if vim.g.neovide then
   vim.g.terminal_color_13 = "#ffcaff"
   vim.g.terminal_color_6 = "#8cf8f7"
   vim.g.terminal_color_14 = "#8cf8f7"
-  vim.g.terminal_color_7 = "#1b1e25"
+  vim.g.terminal_color_7 = "#eef1f8"
   vim.g.terminal_color_15 = "#eef1f8"
 
   vim.g.neovide_input_use_logo = true

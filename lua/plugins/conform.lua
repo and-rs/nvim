@@ -51,6 +51,8 @@ MiniDeps.later(function()
       htmldjango = { "djlint", "rustywind" },
       jinja = { "djlint", "rustywind" },
 
+      ocaml = { "ocamlformat" },
+
       markdown = { "deno_fmt_md" },
       qml = { "qmlformat" },
       yaml = { "yamlfmt" },

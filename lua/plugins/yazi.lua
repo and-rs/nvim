@@ -14,10 +14,18 @@ MiniDeps.now(function()
     open_for_directories = true,
     keymaps = {
       show_help = "<f1>",
-      cycle_open_buffers = "<tab>",
       open_file_in_tab = "<c-t>",
-      open_file_in_vertical_split = "<nop>",
-      open_file_in_horizontal_split = "<nop>",
+      send_to_quickfix_list = "<c-q>",
+      open_file_in_vertical_split = "<c-v>",
+      open_file_in_horizontal_split = "<c-h>",
+
+      grep_in_directory = "<nop>",
+      cycle_open_buffers = "<nop>",
+      open_and_pick_window = "<nop>",
+      replace_in_directory = "<nop>",
+      copy_relative_path_to_selected_files = "<nop>",
+
+      change_working_directory = "<c-p>",
     },
     highlight_groups = {
       hovered_buffer = { link = "Normal" },
@@ -25,7 +33,9 @@ MiniDeps.now(function()
     highlight_hovered_buffers_in_same_directory = false,
     hooks = {
       yazi_closed_successfully = function()
-        require("fff").scan_files()
+        if vim.fn.getcwd() == vim.env.HOME then
+          require("fff").scan_files()
+        end
       end,
       before_opening_window = function(window_options)
         window_options.row = 2
@@ -34,7 +44,7 @@ MiniDeps.now(function()
       end,
     },
     floating_window_scaling_factor = {
-      height = 18,
+      height = 20,
       width = dynamic_width(),
     },
   })

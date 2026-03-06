@@ -102,6 +102,7 @@ MiniDeps.now(function()
     "yamlls",
     "nil_ls",
     "lua_ls",
+    "ocamllsp",
     "ast_grep",
     "glsl_analyzer",
   }
