@@ -112,7 +112,7 @@ map("v", "<leader>ms", function()
   vim.notify("Selection copied with MD formatting")
 end, "Yank selection and wrap in markdown")
 
-map("n", "<leader>mw", function()
+map("n", "<leader>mr", function()
   if vim.o.wrap == false then
     vim.o.wrap = true
     vim.notify("Word wrap enabled")

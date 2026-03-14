@@ -3,7 +3,9 @@ require("config.tabline")
 require("config.statuscolumn")
 require("config.settings")
 require("config.keymaps")
-require("config.profile")
+require("config.profiling")
+
+require("ai.smartcat")
 
 -- install mini.deps
 local path_package = vim.fn.stdpath("data") .. "/site/"
@@ -35,7 +37,7 @@ vim.g.smart_splits_multiplexer_integration = "tmux"
 
 --neovide
 if vim.g.neovide then
-  vim.opt.linespace = 12
+  vim.opt.linespace = 11
   vim.g.terminal_color_0 = "#1b1e25"
   vim.g.terminal_color_8 = "#79839c"
   vim.g.terminal_color_1 = "#ffc0b9"
@@ -54,8 +56,8 @@ if vim.g.neovide then
   vim.g.terminal_color_15 = "#eef1f8"
 
   vim.g.neovide_input_use_logo = true
-  vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
-  vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
+  -- vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
+  -- vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
 end
 
 require_plugins()
