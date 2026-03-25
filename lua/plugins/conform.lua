@@ -43,7 +43,7 @@ MiniDeps.later(function()
       jsonc = { "deno_fmt" },
       json = { "deno_fmt" },
 
-      -- nu = { "nufmt" },
+      nu = { "nufmt" },
       sh = { "beautysh" },
       fish = { "fish_indent" },
 
