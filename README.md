@@ -1,5 +1,6 @@
 # Neovim Configuration
 
+<img width="2520" height="1507" alt="image" src="https://github.com/user-attachments/assets/f12718fe-b4c9-43de-b969-3550cdd9496e" />
 This is my baller neovim config. There is barely no plugin left under defaults.
 
 ## Features
