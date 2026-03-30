@@ -1,23 +1,21 @@
-MiniDeps.later(function()
-  MiniDeps.add({ source = "yioneko/nvim-vtsls" })
-  require("lspconfig.configs").vtsls = require("vtsls").lspconfig
+vim.pack.add({ "https://github.com/yioneko/nvim-vtsls" })
+require("lspconfig.configs").vtsls = require("vtsls").lspconfig
 
-  require("lspconfig").vtsls.setup({
-    settings = {
-      vtsls = {
-        typescript = {
-          format = {
-            convertTabsToSpaces = true,
-            baseIndentSize = 2,
-            indentSize = 2,
-            -- 0: None, 1: Block, 2: Smart
-            indentStyle = 0,
-          },
+require("lspconfig").vtsls.setup({
+  settings = {
+    vtsls = {
+      typescript = {
+        format = {
+          convertTabsToSpaces = true,
+          baseIndentSize = 2,
+          indentSize = 2,
+          -- 0: None, 1: Block, 2: Smart
+          indentStyle = 0,
         },
       },
     },
-  })
-end)
+  },
+})
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("VtslsOnSave", { clear = false }),

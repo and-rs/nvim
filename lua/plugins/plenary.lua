@@ -1,3 +1,1 @@
-MiniDeps.now(function()
-  MiniDeps.add({ source = "nvim-lua/plenary.nvim" })
-end)
+vim.pack.add({ "https://github.com/nvim-lua/plenary.nvim" })

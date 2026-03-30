@@ -1,12 +1,13 @@
-MiniDeps.later(function()
-  MiniDeps.add({ source = "chrisgrieser/nvim-scissors", dependencies = { "ibhagwan/fzf-lua" } })
+vim.pack.add({
+  { src = "https://github.com/chrisgrieser/nvim-scissors" },
+  "https://github.com/ibhagwan/fzf-lua",
+})
 
-  require("scissors").setup({
-    snippetDir = "$HOME/.config/nvim/snippets/",
-    editSnippetPopup = {
-      height = 0.4,
-      width = 0.5,
-      border = "rounded",
-    },
-  })
-end)
+require("scissors").setup({
+  snippetDir = "$HOME/.config/nvim/snippets/",
+  editSnippetPopup = {
+    height = 0.4,
+    width = 0.5,
+    border = "rounded",
+  },
+})

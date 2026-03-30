@@ -1,3 +1,1 @@
-MiniDeps.later(function()
-  MiniDeps.add({ source = "mrcjkb/rustaceanvim" })
-end)
+vim.pack.add({ "https://github.com/mrcjkb/rustaceanvim" })

@@ -2,6 +2,7 @@ vim.loader.enable()
 vim.opt.mouse = ""
 vim.g.mapleader = " "
 vim.opt.background = "dark"
+vim.opt.winborder = "rounded"
 
 -- this is a test
 -- always centered

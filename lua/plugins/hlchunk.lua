@@ -1,6 +1,7 @@
-MiniDeps.later(function()
-  MiniDeps.add({ source = "shellRaining/hlchunk.nvim" })
-  local colors = require("config.coloring")
+vim.pack.add({ "https://github.com/shellRaining/hlchunk.nvim" })
+local colors = require("config.coloring")
+
+vim.schedule(function()
   require("hlchunk").setup({
     chunk = {
       enable = true,

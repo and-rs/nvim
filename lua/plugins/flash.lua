@@ -1,6 +1,6 @@
-MiniDeps.later(function()
-  MiniDeps.add({ source = "and-rs/flash.nvim" })
+vim.pack.add({ "https://github.com/and-rs/flash.nvim" })
 
+vim.schedule(function()
   local color = require("config.coloring")
   local function set_flash(name, base_hl)
     local fg_color = color.get(base_hl, "fg")

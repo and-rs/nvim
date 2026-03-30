@@ -1,33 +1,31 @@
-MiniDeps.now(function()
-  MiniDeps.add({ source = "aserowy/tmux.nvim" })
+vim.pack.add({ "https://github.com/aserowy/tmux.nvim" })
 
-  require("tmux").setup({
-    copy_sync = {
-      enable = false,
-    },
-    navigation = {
-      enable_default_keybindings = false,
-      cycle_navigation = false,
-      persist_zoom = true,
-    },
-    resize = {
-      enable_default_keybindings = false,
-      resize_step_x = 1,
-      resize_step_y = 1,
-    },
-    swap = {
-      cycle_navigation = false,
-      enable_default_keybindings = false,
-    },
-  })
+require("tmux").setup({
+  copy_sync = {
+    enable = false,
+  },
+  navigation = {
+    enable_default_keybindings = false,
+    cycle_navigation = false,
+    persist_zoom = true,
+  },
+  resize = {
+    enable_default_keybindings = false,
+    resize_step_x = 1,
+    resize_step_y = 1,
+  },
+  swap = {
+    cycle_navigation = false,
+    enable_default_keybindings = false,
+  },
+})
 
-  vim.keymap.set("n", "<A-h>", require("tmux").resize_left)
-  vim.keymap.set("n", "<A-j>", require("tmux").resize_bottom)
-  vim.keymap.set("n", "<A-k>", require("tmux").resize_top)
-  vim.keymap.set("n", "<A-l>", require("tmux").resize_right)
+vim.keymap.set("n", "<A-h>", require("tmux").resize_left)
+vim.keymap.set("n", "<A-j>", require("tmux").resize_bottom)
+vim.keymap.set("n", "<A-k>", require("tmux").resize_top)
+vim.keymap.set("n", "<A-l>", require("tmux").resize_right)
 
-  vim.keymap.set("n", "<C-h>", require("tmux").move_left)
-  vim.keymap.set("n", "<C-j>", require("tmux").move_bottom)
-  vim.keymap.set("n", "<C-k>", require("tmux").move_top)
-  vim.keymap.set("n", "<C-l>", require("tmux").move_right)
-end)
+vim.keymap.set("n", "<C-h>", require("tmux").move_left)
+vim.keymap.set("n", "<C-j>", require("tmux").move_bottom)
+vim.keymap.set("n", "<C-k>", require("tmux").move_top)
+vim.keymap.set("n", "<C-l>", require("tmux").move_right)

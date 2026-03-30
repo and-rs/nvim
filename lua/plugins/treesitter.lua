@@ -1,79 +1,62 @@
-MiniDeps.later(function()
-  MiniDeps.add({
-    source = "nvim-treesitter/nvim-treesitter",
-    hooks = {
-      post_checkout = function()
-        vim.cmd("TSUpdate")
-      end,
-    },
-  })
+vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
+vim.treesitter.language.register("bash", "env")
+vim.filetype.add({
+  extension = {
+    jinja = "jinja",
+    env = "env",
+  },
+  filename = {
+    [".env"] = "env",
+  },
+  pattern = {
+    ["%.env%.[%w_.-]+"] = "env",
+  },
+})
 
-  local treesitter = require("nvim-treesitter.configs")
-  vim.treesitter.language.register("bash", "env")
+require("nvim-treesitter").setup({
+  install_dir = vim.fn.stdpath("data") .. "/site",
+})
 
-  vim.filetype.add({
-    extension = {
-      jinja = "jinja",
-      env = "env",
-    },
-    filename = {
-      [".env"] = "env",
-    },
-    pattern = {
-      ["%.env%.[%w_.-]+"] = "env",
-    },
-  })
+local languages = {
+  "ocaml",
+  "json",
+  "javascript",
+  "typescript",
+  "tsx",
+  "html",
+  "css",
+  "svelte",
+  "gitignore",
+  "query",
+  "hurl",
+  "markdown",
+  "markdown_inline",
+  "dockerfile",
+  "yaml",
+  "toml",
+  "kdl",
+  "nu",
+  "bash",
+  "sql",
+  "jinja",
+  "python",
+  "vim",
+  "vimdoc",
+  "luadoc",
+  "proto",
+  "nix",
+  "lua",
+  "zig",
+  "go",
+}
 
-  treesitter.setup({
-    highlight = {
-      enable = true,
-    },
-    indent = { enable = true },
-    ensure_installed = {
-      "jsonc",
-      "json",
-      "javascript",
-      "typescript",
-      "tsx",
-      "html",
-      "css",
-      "svelte",
-
-      "gitignore",
-      "query",
-      "hurl",
-
-      "markdown",
-      "markdown_inline",
-
-      "dockerfile",
-      "yaml",
-      "toml",
-      "kdl",
-
-      "nu",
-      "bash",
-
-      "sql",
-      "jinja",
-      "python",
-
-      "vim",
-      "vimdoc",
-
-      "luadoc",
-      "proto",
-      "nix",
-      "lua",
-      "zig",
-      "go",
-    },
+vim.schedule(function()
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = languages,
+    callback = function()
+      vim.treesitter.start()
+    end,
   })
 end)
 
-MiniDeps.later(function()
-  local color = require("config.coloring")
-  color.set("TreesitterContext", {
-    bg = color.adjust_hex(color.get("Visual", "bg"), 0.8),
-  })
-end)
+require("nvim-treesitter").install(languages)

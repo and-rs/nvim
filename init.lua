@@ -4,25 +4,7 @@ require("config.statuscolumn")
 require("config.settings")
 require("config.keymaps")
 require("config.profiling")
-
 require("ai.main")
-
--- install mini.deps
-local path_package = vim.fn.stdpath("data") .. "/site/"
-local mini_path = path_package .. "pack/deps/start/mini.deps"
----@diagnostic disable-next-line: undefined-field
-if not vim.loop.fs_stat(mini_path) then
-  vim.cmd('echo "Installing `mini.deps`" | redraw')
-  local clone_cmd =
-    { "git", "clone", "--filter=blob:none", "https://github.com/nvim-mini/mini.deps", mini_path }
-  vim.fn.system(clone_cmd)
-  vim.cmd("packadd mini.deps | helptags ALL")
-  vim.cmd('echo "Installed `mini.deps`" | redraw')
-end
-
--- setup mini.deps
-require("mini.deps").setup({ path = { package = path_package } })
-MiniDeps = require("mini.deps")
 
 -- require all plugin files
 local function require_plugins()
@@ -57,8 +39,8 @@ if vim.g.neovide then
   vim.g.terminal_color_15 = "#eef1f8"
 
   vim.g.neovide_input_use_logo = true
-  -- vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
-  -- vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
+  vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
+  vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
 end
 
 require_plugins()
