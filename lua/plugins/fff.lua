@@ -12,7 +12,7 @@ fff.setup({
   lazy_sync = true,
   layout = {
     row = 0.098,
-    height = 0.5,
+    height = 0.55,
     show_scrollbar = true,
     prompt_position = "top",
   },
