@@ -19,6 +19,7 @@ require("nvim-treesitter").setup({
 })
 
 local languages = {
+  "rust",
   "ocaml",
   "json",
   "javascript",
