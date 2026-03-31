@@ -1,7 +1,5 @@
-((words) @injection.content
- (#set! injection.language "html")
- (#set! injection.combined))
+; extends
 
-((ERROR) @injection.content
+((content) @injection.content
  (#set! injection.language "html")
  (#set! injection.combined))

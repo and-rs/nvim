@@ -36,6 +36,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+vim.lsp.document_color.enable(true, nil, {
+  style = "◆ ",
+})
+
 vim.diagnostic.config({
   virtual_text = {
     enabled = true,
