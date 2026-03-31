@@ -1,7 +1,7 @@
-vim.pack.add({ "https://github.com/shellRaining/hlchunk.nvim" })
-local colors = require("config.coloring")
-
 vim.schedule(function()
+  vim.pack.add({ "https://github.com/shellRaining/hlchunk.nvim" })
+
+  local colors = require("config.coloring")
   require("hlchunk").setup({
     chunk = {
       enable = true,

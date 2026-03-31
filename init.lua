@@ -6,6 +6,7 @@ require("config.keymaps")
 require("config.profiling")
 require("ai.main")
 
+Deferred_group = vim.api.nvim_create_augroup("Deferred", { clear = true })
 -- require all plugin files
 local function require_plugins()
   local dir = vim.fn.stdpath("config") .. "/lua/plugins"
@@ -16,6 +17,7 @@ local function require_plugins()
   end
 end
 
+require("vim._core.ui2").enable({ enable = true })
 vim.g.smart_splits_multiplexer_integration = "tmux"
 
 --neovide

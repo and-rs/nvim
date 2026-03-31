@@ -14,7 +14,8 @@
     },
     "blink.cmp": {
       "rev": "327fff91fe6af358e990be7be1ec8b78037d2138",
-      "src": "https://github.com/saghen/blink.cmp"
+      "src": "https://github.com/saghen/blink.cmp",
+      "version": "'v1.7.0'"
     },
     "codediff.nvim": {
       "rev": "96845f95bc5539c8e2a0ab88223c5033f302fcd9",

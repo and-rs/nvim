@@ -1,6 +1,6 @@
-vim.pack.add({ "https://github.com/and-rs/flash.nvim" })
-
 vim.schedule(function()
+  vim.pack.add({ "https://github.com/and-rs/flash.nvim" })
+
   local color = require("config.coloring")
   local function set_flash(name, base_hl)
     local fg_color = color.get(base_hl, "fg")

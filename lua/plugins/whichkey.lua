@@ -32,6 +32,7 @@ require("which-key").setup({
 
 require("which-key").add({
   { "S", mode = "v", desc = "Add surround visual" },
+  { "<leader>a", group = "AI Integrations" },
   { "<leader>c", group = "Column" },
   { "<leader>l", group = "LSP" },
   { "<leader>n", group = "Notifications" },

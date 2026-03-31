@@ -4,9 +4,10 @@ vim.pack.add({
   { src = "https://github.com/neovim/nvim-lspconfig" },
 })
 
+vim.pack.add({ "https://github.com/mrcjkb/rustaceanvim" })
+
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("lsp", { clear = true }),
-
   callback = function(event)
     local map = function(keys, func, desc)
       vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
@@ -37,7 +38,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 vim.lsp.document_color.enable(true, nil, {
-  style = "◆ ",
+  style = " ◆ ",
 })
 
 vim.diagnostic.config({
