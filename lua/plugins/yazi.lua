@@ -54,7 +54,3 @@ vim.keymap.set(
   "<cmd>Yazi<cr>",
   { desc = "Open yazi at the current file" }
 )
-
-local color = require("config.coloring")
-color.set("YaziFloatBorder", { link = "NormalFloat" })
-color.set("YaziFloat", { bg = color.get("NormalFloat", "bg") })

@@ -45,6 +45,3 @@ require("which-key").add({
   { "<leader>w", group = "Wins" },
   { "<leader>g", group = "Git Diff" },
 })
-
-local color = require("config.coloring")
-color.set("WhichKeyTitle", { bg = color.get("NormalFloat", "bg") })

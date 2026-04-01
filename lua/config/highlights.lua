@@ -3,6 +3,10 @@ local color = require("config.coloring")
 local LIGHT_ADJUST = { yank = 1.7, visual = 1.74, diag = 1.8 }
 local DARK_ADJUST = { yank = 0.3, visual = 0.3, diag = 0.2 }
 
+color.set("WhichKeyTitle", { bg = color.get("NormalFloat", "bg") })
+color.set("YaziFloatBorder", { link = "NormalFloat" })
+color.set("YaziFloat", { bg = color.get("NormalFloat", "bg") })
+
 local function setup_light_mode()
   color.set("NvimRed", { fg = "#590008" })
   color.set("NvimGreen", { fg = "#005523" })

@@ -1,102 +1,148 @@
 local color = require("config.coloring")
 
+local COLOR_PRIMARY = "NvimBlue"
+local COLOR_SECONDARY = "NvimGrey"
+local COLOR_BACKGROUND = "NormalFloat"
+
+local COMPONENT_SIGN_NORMAL = "%s"
+local COMPONENT_SIGN_FLOAT = ""
+local COMPONENT_ALIGNMENT = "%#LineNr#%="
+local HIGHLIGHT_CURRENT_LINE = "%#CursorLineNr#"
+local HIGHLIGHT_LINE_NUMBER = "%#LineNr#"
+local COMPONENT_BORDER_CURRENT = "%#CursorLineNr#▕%#Normal# "
+local COMPONENT_BORDER_NORMAL = "%#SignColumn#▕%#Normal# "
+
 vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   group = color.augroup,
   pattern = "*",
   callback = function()
-    local primary = color.get("NvimBlue", "fg")
-    local secondary = color.get("NvimGrey", "fg")
-    local background = color.get("StatusLine", "bg")
-    local col_bg = color.get("NormalFloat", "bg")
+    color.set("LineNr", {
+      fg = color.get(COLOR_SECONDARY, "fg"),
+      bg = color.get(COLOR_BACKGROUND, "bg"),
+    })
+    color.set("CursorLineNr", {
+      fg = color.get(COLOR_PRIMARY, "fg"),
+      bg = color.get(COLOR_BACKGROUND, "bg"),
+      bold = true,
+    })
+    color.set("SignColumn", {
+      fg = color.adjust_hex(color.get(COLOR_SECONDARY, "fg"), 0.3),
+      bg = color.get(COLOR_BACKGROUND, "bg"),
+    })
 
-    color.set("ColumnBase0", { fg = secondary, bg = col_bg })
-    color.set("ColumnBase1", { fg = background, bg = col_bg })
-    color.set("Column0", { fg = primary, bg = col_bg, bold = true })
-
-    color.set(
-      "Column1",
-      { fg = color.adjust_hex(secondary, vim.o.background == "light" and 0.7 or 1.3), bg = col_bg }
-    )
-    color.set("SignColumn", { fg = color.adjust_hex(secondary, 0.3), bg = col_bg })
-
-    for _, type in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do
-      color.set("DiagnosticSign" .. type, {
-        fg = color.get("Diagnostic" .. type, "fg"),
-        bg = col_bg,
+    for _, severity in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do
+      color.set("DiagnosticSign" .. severity, {
+        fg = color.get("Diagnostic" .. severity, "fg"),
+        bg = color.get(COLOR_BACKGROUND, "bg"),
       })
     end
 
-    local git_map = {
+    local git_status_map = {
       Add = "Added",
       Change = "Changed",
       Delete = "Removed",
       Untracked = "Added",
     }
-    for sign, hl in pairs(git_map) do
-      color.set("GitSigns" .. sign, {
-        fg = color.get(hl, "fg"),
-        bg = col_bg,
+
+    for git_status, highlight_group in pairs(git_status_map) do
+      color.set("GitSigns" .. git_status, {
+        fg = color.get(highlight_group, "fg"),
+        bg = color.get(COLOR_BACKGROUND, "bg"),
       })
     end
   end,
 })
 
---- Render the line number component
---- @param width integer The width of the number column (padding)
---- @return string
-local function component_linenr(width)
-  local gap = "%#ColumnBase0#%="
+--- Renders the statuscolumn layout optimized for standard Neovim windows
+--- @return string Statuscolumn formatted string
+local function render_normal_statuscolumn()
+  local relative_number = vim.v.relnum
+
   if vim.v.virtnum ~= 0 then
-    return "%#ColumnBase0#" .. string.rep(" ", width)
+    return COMPONENT_SIGN_NORMAL
+      .. COMPONENT_ALIGNMENT
+      .. "    "
+      .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
   end
-  local lnum = string.format("%" .. width .. "d", vim.v.lnum)
-  if vim.v.relnum == 1 then
-    return gap .. "%#Column1#" .. lnum
+
+  local line_number_string = string.format("%4d", vim.v.lnum)
+
+  if relative_number == 0 then
+    return COMPONENT_SIGN_NORMAL
+      .. COMPONENT_ALIGNMENT
+      .. HIGHLIGHT_CURRENT_LINE
+      .. line_number_string
+      .. COMPONENT_BORDER_CURRENT
   end
-  if vim.v.relnum == 0 then
-    return gap .. "%#Column0#" .. lnum
-  end
-  return gap .. "%#ColumnBase0#" .. lnum
+
+  return COMPONENT_SIGN_NORMAL
+    .. COMPONENT_ALIGNMENT
+    .. HIGHLIGHT_LINE_NUMBER
+    .. line_number_string
+    .. COMPONENT_BORDER_NORMAL
 end
 
---- Render the right-side border component
---- @return string
-local function component_border()
-  local char = "▕"
-  if vim.v.relnum == 0 then
-    return "%#Column0#" .. char .. "%#None# "
+--- Renders the statuscolumn layout optimized for floating windows
+--- @return string Statuscolumn formatted string
+local function render_float_statuscolumn()
+  local relative_number = vim.v.relnum
+
+  if vim.v.virtnum ~= 0 then
+    return COMPONENT_SIGN_FLOAT
+      .. COMPONENT_ALIGNMENT
+      .. "      "
+      .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
   end
-  return "%#SignColumn#" .. char .. "%#None# "
+
+  local line_number_string = string.format("%6d", vim.v.lnum)
+
+  if relative_number == 0 then
+    return COMPONENT_SIGN_FLOAT
+      .. COMPONENT_ALIGNMENT
+      .. HIGHLIGHT_CURRENT_LINE
+      .. line_number_string
+      .. COMPONENT_BORDER_CURRENT
+  end
+
+  return COMPONENT_SIGN_FLOAT
+    .. COMPONENT_ALIGNMENT
+    .. HIGHLIGHT_LINE_NUMBER
+    .. line_number_string
+    .. COMPONENT_BORDER_NORMAL
 end
 
-local function bootstrap()
-  local is_float = vim.api.nvim_win_get_config(0).relative ~= ""
-  local width = is_float and 6 or 4
-  local signs = is_float and "" or "%s"
-
-  return signs .. component_linenr(width) .. component_border()
-end
-
-local group = vim.api.nvim_create_augroup("StatusColumn", { clear = true })
+local statuscolumn_group = vim.api.nvim_create_augroup("StatusColumn", { clear = true })
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-  group = group,
-  callback = function(ev)
-    local bufnr = ev.buf
-    local is_eligible = vim.bo[bufnr].buftype == "" and vim.bo[bufnr].filetype ~= ""
+  group = statuscolumn_group,
+  callback = function(event)
+    local buffer_number = event.buf
+    local is_valid_buffer = vim.bo[buffer_number].buftype == ""
+      and vim.bo[buffer_number].filetype ~= ""
 
-    if is_eligible then
-      vim.opt_local.relativenumber = true
-      vim.opt_local.statuscolumn = "%!v:lua.require('config.statuscolumn').bootstrap()"
-      vim.opt_local.signcolumn = "yes:1"
-    else
+    if not is_valid_buffer then
       vim.opt_local.relativenumber = false
       vim.opt_local.numberwidth = 1
       vim.opt_local.signcolumn = "no"
       vim.opt_local.statuscolumn = "%s"
+      return
+    end
+
+    local is_floating_window = vim.api.nvim_win_get_config(0).relative ~= ""
+
+    vim.opt_local.relativenumber = true
+    vim.opt_local.signcolumn = "yes:1"
+
+    if is_floating_window then
+      vim.opt_local.statuscolumn =
+        "%!v:lua.require('config.statuscolumn').render_float_statuscolumn()"
+    else
+      vim.opt_local.statuscolumn =
+        "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()"
     end
   end,
 })
 
 return {
-  bootstrap = bootstrap,
+  render_normal_statuscolumn = render_normal_statuscolumn,
+  render_float_statuscolumn = render_float_statuscolumn,
 }
