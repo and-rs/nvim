@@ -53,7 +53,7 @@ local languages = {
 }
 
 vim.schedule(function()
-  vim.api.nvim_create_autocmd("FileType", {
+  vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
     pattern = languages,
     callback = function()
       vim.treesitter.start()

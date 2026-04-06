@@ -1,8 +1,13 @@
-require("config.highlights")
-require("config.tabline")
-require("config.statuscolumn")
+-- 1st
 require("config.settings")
 require("config.keymaps")
+
+-- 2nd
+require("config.highlights")
+require("config.statuscolumn")
+require("config.tabline")
+
+-- 3rd
 require("config.profiling")
 require("ai.main")
 
@@ -20,7 +25,7 @@ end
 require("vim._core.ui2").enable({ enable = true })
 vim.g.smart_splits_multiplexer_integration = "tmux"
 
---neovide
+-- neovide
 if vim.g.neovide then
   vim.opt.linespace = 11
   vim.g.terminal_color_0 = "#1b1e25"

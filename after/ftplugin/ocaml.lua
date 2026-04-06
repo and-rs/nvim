@@ -1,7 +1,6 @@
-local colors = require("config.coloring")
+local color = require("config.coloring")
 
-vim.api.nvim_set_hl(
-  0,
+color.set(
   "@variable.parameter.ocaml",
-  { underline = true, sp = colors.darken_hex(colors.get("NvimBlue", "fg"), 0.6) }
+  { undercurl = true, sp = color.darken_hex(color.get("NvimBlue", "fg"), 0.6) }
 )
