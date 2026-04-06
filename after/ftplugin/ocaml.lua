@@ -2,5 +2,5 @@ local color = require("config.coloring")
 
 color.set(
   "@variable.parameter.ocaml",
-  { underline = true, sp = colors.darken_hex(colors.get("NvimBlue", "fg"), 0.6) }
+  { underline = true, sp = color.darken_hex(color.get("NvimBlue", "fg"), 0.6) }
 )

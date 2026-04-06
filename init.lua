@@ -2,6 +2,12 @@
 require("config.settings")
 require("config.keymaps")
 
+-- Force Neovim to use undercurls and underline colors in tmux
+vim.cmd([[
+  let &t_Cs = "\e[4:3m"
+  let &t_Ce = "\e[4:0m"
+]])
+
 -- 2nd
 require("config.highlights")
 require("config.statuscolumn")
