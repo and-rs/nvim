@@ -19,7 +19,7 @@ vim.schedule(function()
     blank = {
       enable = true,
       style = colors.darken_hex(colors.get("NvimGrey", "fg"), 0.7),
-      chars = { "│", "" },
+      chars = { "│", "", "", "", "", "", "", "", "" },
     },
   })
 end)

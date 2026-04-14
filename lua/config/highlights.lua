@@ -44,7 +44,6 @@ local links = {
   Type = "NvimPink",
   Boolean = "NvimPink",
   Special = "NvimPink",
-  Keyword = "NvimBlue",
   Statement = "NvimBlue",
   Comment = "NvimGrey",
   NonText = "NvimGrey",
@@ -92,6 +91,10 @@ local function apply()
   end
 
   color.set("Function", { italic = true })
+  color.set("Keyword", {
+    bg = color.darken_hex(color.get("NvimBlue", "fg"), 0.85),
+    fg = color.get("NvimBlue", "fg"),
+  })
   color.set("CursorLine", { bg = "None" })
   color.set("DiagnosticUnnecessary", { underline = true })
 
