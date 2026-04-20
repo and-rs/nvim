@@ -97,6 +97,10 @@ local function apply()
   })
   color.set("CursorLine", { bg = "None" })
   color.set("DiagnosticUnnecessary", { underline = true })
+  color.set("DiagnosticUnderlineError", {
+    underline = false,
+    undercurl = true,
+  })
 
   color.set("TabKeySel", {
     fg = normal_bg,
