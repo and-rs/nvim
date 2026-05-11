@@ -1,7 +1,7 @@
 local color = require("config.coloring")
 
-local COLOR_PRIMARY = "NvimBlue"
-local COLOR_SECONDARY = "NvimGrey"
+local COLOR_PRIMARY = "Constant"
+local COLOR_SECONDARY = "Comment"
 local COLOR_BACKGROUND = "NormalFloat"
 
 local COMPONENT_SIGN_NORMAL = "%s"
@@ -60,26 +60,26 @@ local function render_normal_statuscolumn()
 
   if vim.v.virtnum ~= 0 then
     return COMPONENT_SIGN_NORMAL
-      .. COMPONENT_ALIGNMENT
-      .. "    "
-      .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
+        .. COMPONENT_ALIGNMENT
+        .. "    "
+        .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
   end
 
   local line_number_string = string.format("%4d", vim.v.lnum)
 
   if relative_number == 0 then
     return COMPONENT_SIGN_NORMAL
-      .. COMPONENT_ALIGNMENT
-      .. HIGHLIGHT_CURRENT_LINE
-      .. line_number_string
-      .. COMPONENT_BORDER_CURRENT
+        .. COMPONENT_ALIGNMENT
+        .. HIGHLIGHT_CURRENT_LINE
+        .. line_number_string
+        .. COMPONENT_BORDER_CURRENT
   end
 
   return COMPONENT_SIGN_NORMAL
-    .. COMPONENT_ALIGNMENT
-    .. HIGHLIGHT_LINE_NUMBER
-    .. line_number_string
-    .. COMPONENT_BORDER_NORMAL
+      .. COMPONENT_ALIGNMENT
+      .. HIGHLIGHT_LINE_NUMBER
+      .. line_number_string
+      .. COMPONENT_BORDER_NORMAL
 end
 
 --- Renders the statuscolumn layout optimized for floating windows
@@ -89,26 +89,26 @@ local function render_float_statuscolumn()
 
   if vim.v.virtnum ~= 0 then
     return COMPONENT_SIGN_FLOAT
-      .. COMPONENT_ALIGNMENT
-      .. "      "
-      .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
+        .. COMPONENT_ALIGNMENT
+        .. "      "
+        .. (relative_number == 0 and COMPONENT_BORDER_CURRENT or COMPONENT_BORDER_NORMAL)
   end
 
   local line_number_string = string.format("%6d", vim.v.lnum)
 
   if relative_number == 0 then
     return COMPONENT_SIGN_FLOAT
-      .. COMPONENT_ALIGNMENT
-      .. HIGHLIGHT_CURRENT_LINE
-      .. line_number_string
-      .. COMPONENT_BORDER_CURRENT
+        .. COMPONENT_ALIGNMENT
+        .. HIGHLIGHT_CURRENT_LINE
+        .. line_number_string
+        .. COMPONENT_BORDER_CURRENT
   end
 
   return COMPONENT_SIGN_FLOAT
-    .. COMPONENT_ALIGNMENT
-    .. HIGHLIGHT_LINE_NUMBER
-    .. line_number_string
-    .. COMPONENT_BORDER_NORMAL
+      .. COMPONENT_ALIGNMENT
+      .. HIGHLIGHT_LINE_NUMBER
+      .. line_number_string
+      .. COMPONENT_BORDER_NORMAL
 end
 
 local statuscolumn_group = vim.api.nvim_create_augroup("StatusColumn", { clear = true })
@@ -117,7 +117,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   callback = function(event)
     local buffer_number = event.buf
     local is_valid_buffer = vim.bo[buffer_number].buftype == ""
-      and vim.bo[buffer_number].filetype ~= ""
+        and vim.bo[buffer_number].filetype ~= ""
 
     if not is_valid_buffer then
       vim.opt_local.relativenumber = false
@@ -134,10 +134,10 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 
     if is_floating_window then
       vim.opt_local.statuscolumn =
-        "%!v:lua.require('config.statuscolumn').render_float_statuscolumn()"
+      "%!v:lua.require('config.statuscolumn').render_float_statuscolumn()"
     else
       vim.opt_local.statuscolumn =
-        "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()"
+      "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()"
     end
   end,
 })

@@ -1,7 +1,11 @@
 local function load()
   vim.pack.add({
     "https://github.com/MunifTanjim/nui.nvim",
-    { src = "https://github.com/esmuellert/codediff.nvim", version = "next" },
+    { src = "https://github.com/esmuellert/codediff.nvim", version = "v2.43.15" },
+  })
+
+  require("codediff").setup({
+    cmd = "CodeDiff"
   })
 
   if vim.o.background == "light" then
@@ -19,8 +23,5 @@ local function load()
 end
 
 vim.schedule(function()
-  vim.api.nvim_create_autocmd("BufEnter", {
-    group = Deferred_group,
-    callback = load,
-  })
+  load()
 end)

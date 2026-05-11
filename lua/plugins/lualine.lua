@@ -36,25 +36,13 @@ local function progress()
   end
 end
 
-local coloring = require("config.coloring")
-local colors = {
-  white = coloring.get("Normal", "fg"),
-  background = coloring.get("NormalFloat", "bg"),
-}
-
 require("lualine").setup({
   options = {
     icons_enabled = true,
     globalstatus = true,
     component_separators = { left = " ╱ ", right = " ╲ " },
     section_separators = "",
-    theme = {
-      normal = {
-        a = { bg = colors.background, fg = colors.white },
-        b = { bg = colors.background, fg = colors.white },
-        c = { bg = colors.background, fg = colors.white },
-      },
-    },
+    theme = "tokyonight",
   },
 
   inactive_sections = {
@@ -73,6 +61,7 @@ require("lualine").setup({
         "filename",
         path = 4,
         new_file_status = true,
+        padding = { right = 2 },
         symbols = {
           modified = "*",
           readonly = "×",
@@ -86,11 +75,11 @@ require("lualine").setup({
     lualine_x = {},
     lualine_y = {},
     lualine_z = {
-      location,
+      { location, padding = { left = 2 } },
       progress,
       {
         "diff",
-        colored = true,
+        colored = false,
         diff_color = {
           added = "GitSignsAdd",
           modified = "GitSignsChange",
@@ -111,7 +100,6 @@ require("lualine").setup({
   },
 
   extensions = {
-    "mason",
     "fzf",
   },
 })

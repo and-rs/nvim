@@ -52,7 +52,7 @@ fzf.setup({
   },
   fzf_colors = {
     ["bg"] = { "bg", "FloatBorder" },
-    ["bg+"] = { "bg", "Normal" },
+    ["bg+"] = { "bg", "Folded" },
     ["border"] = { "fg", "FloatBorder" },
     ["separator"] = { "fg", "Normal" },
     ["scrollbar"] = { "fg", "Normal" },

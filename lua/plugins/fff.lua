@@ -5,12 +5,12 @@ local fff_utils = require("fff.utils")
 
 local original_resolve_config_value = fff_utils.resolve_config_value
 fff_utils.resolve_config_value = function(
-  value,
-  terminal_width,
-  terminal_height,
-  validator,
-  default,
-  key
+    value,
+    terminal_width,
+    terminal_height,
+    validator,
+    default,
+    key
 )
   if key == "layout.height" and type(value) == "number" and value > 1 then
     return math.min(value, terminal_height) / terminal_height
@@ -53,37 +53,37 @@ fff.setup({
   hl = {
     border = "FloatBorder",
     normal = "FloatBorder",
-    cursor = "Visual",
-    matched = "Substitute",
+    cursor = "FinderSel",
+    matched = "FinderMatch",
     title = "FloatBorder",
     prompt = "Special",
     active_file = "Select",
     frecency = "Number",
     combo_header = "Number",
 
-    git_modified = "NvimYellow",
-    git_sign_modified = "NvimYellow",
-    git_sign_modified_selected = "NvimYellow",
-
-    git_staged = "NvimCyan",
-    git_sign_staged = "NvimCyan",
-    git_sign_staged_selected = "NvimCyan",
-
-    git_deleted = "FFFGitDeleted",
-    git_sign_deleted = "FFFGitSignDeleted",
-    git_sign_deleted_selected = "FFFGitSignDeletedSelected",
-
-    git_renamed = "NvimPink",
-    git_sign_renamed = "NvimPink",
-    git_sign_renamed_selected = "NvimPink",
-
-    git_untracked = "NvimGreen",
-    git_sign_untracked = "NvimGreen",
-    git_sign_untracked_selected = "NvimGreen",
-
-    git_ignored = "NvimGrey",
-    git_sign_ignored = "NvimGrey",
-    git_sign_ignored_selected = "NvimGrey",
+    -- git_modified = "NvimYellow",
+    -- git_sign_modified = "NvimYellow",
+    -- git_sign_modified_selected = "NvimYellow",
+    --
+    -- git_staged = "NvimCyan",
+    -- git_sign_staged = "NvimCyan",
+    -- git_sign_staged_selected = "NvimCyan",
+    --
+    -- git_deleted = "FFFGitDeleted",
+    -- git_sign_deleted = "FFFGitSignDeleted",
+    -- git_sign_deleted_selected = "FFFGitSignDeletedSelected",
+    --
+    -- git_renamed = "NvimPink",
+    -- git_sign_renamed = "NvimPink",
+    -- git_sign_renamed_selected = "NvimPink",
+    --
+    -- git_untracked = "NvimGreen",
+    -- git_sign_untracked = "NvimGreen",
+    -- git_sign_untracked_selected = "NvimGreen",
+    --
+    -- git_ignored = "NvimGrey",
+    -- git_sign_ignored = "NvimGrey",
+    -- git_sign_ignored_selected = "NvimGrey",
   },
 
   debug = {
