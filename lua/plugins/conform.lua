@@ -48,6 +48,7 @@ conform.setup({
 
     nu = { "topiary_nu" },
     sh = { "beautysh" },
+    -- bash = { "shfmt" },
     fish = { "fish_indent" },
 
     python = { "ruff_format", "ruff_organize_imports" },

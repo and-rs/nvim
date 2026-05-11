@@ -4,6 +4,8 @@ vim.treesitter.language.register("bash", "env")
 vim.filetype.add({
   extension = {
     jinja = "jinja",
+    j2 = "jinja",
+    azcli = "bash",
     env = "env",
   },
   filename = {
