@@ -61,29 +61,29 @@ fff.setup({
     frecency = "Number",
     combo_header = "Number",
 
-    -- git_modified = "NvimYellow",
-    -- git_sign_modified = "NvimYellow",
-    -- git_sign_modified_selected = "NvimYellow",
-    --
-    -- git_staged = "NvimCyan",
-    -- git_sign_staged = "NvimCyan",
-    -- git_sign_staged_selected = "NvimCyan",
-    --
-    -- git_deleted = "FFFGitDeleted",
-    -- git_sign_deleted = "FFFGitSignDeleted",
-    -- git_sign_deleted_selected = "FFFGitSignDeletedSelected",
-    --
-    -- git_renamed = "NvimPink",
-    -- git_sign_renamed = "NvimPink",
-    -- git_sign_renamed_selected = "NvimPink",
-    --
-    -- git_untracked = "NvimGreen",
-    -- git_sign_untracked = "NvimGreen",
-    -- git_sign_untracked_selected = "NvimGreen",
-    --
-    -- git_ignored = "NvimGrey",
-    -- git_sign_ignored = "NvimGrey",
-    -- git_sign_ignored_selected = "NvimGrey",
+    git_modified = "RainbowDelimiterYellow",
+    git_sign_modified = "RainbowDelimiterYellow",
+    git_sign_modified_selected = "RainbowDelimiterYellow",
+
+    git_staged = "RainbowDelimiterCyan",
+    git_sign_staged = "RainbowDelimiterCyan",
+    git_sign_staged_selected = "RainbowDelimiterCyan",
+
+    git_deleted = "FFFGitDeleted",
+    git_sign_deleted = "FFFGitSignDeleted",
+    git_sign_deleted_selected = "FFFGitSignDeletedSelected",
+
+    git_renamed = "RainbowDelimiterViolet",
+    git_sign_renamed = "RainbowDelimiterViolet",
+    git_sign_renamed_selected = "RainbowDelimiterViolet",
+
+    git_untracked = "RainbowDelimiterGreen",
+    git_sign_untracked = "RainbowDelimiterGreen",
+    git_sign_untracked_selected = "RainbowDelimiterGreen",
+
+    git_ignored = "NvimGrey",
+    git_sign_ignored = "NvimGrey",
+    git_sign_ignored_selected = "NvimGrey",
   },
 
   debug = {

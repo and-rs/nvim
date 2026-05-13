@@ -31,7 +31,7 @@ local function apply()
   color.set("TabKey", { fg = blue, bold = true })
 
   color.set("FinderSel", { bg = color.get("Folded", "bg"), fg = normal_fg, bold = true })
-  color.set("FinderMatch", { bg = color.get("Special", "fg"), fg = color.get("Folded", "bg"), bold = true })
+  color.set("FinderMatch", { bg = color.get("Normal", "fg"), fg = color.get("Folded", "bg"), bold = true })
 
   color.set("YaziFloatBorder", { link = "Normal" })
 

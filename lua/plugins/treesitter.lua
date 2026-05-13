@@ -3,6 +3,7 @@ vim.treesitter.language.register("bash", "env")
 
 vim.filetype.add({
   extension = {
+    qml = "qmljs",
     jinja = "jinja",
     j2 = "jinja",
     azcli = "bash",
@@ -24,6 +25,7 @@ local languages = {
   "bicep",
   "rust",
   "ocaml",
+  "qmljs",
   "json",
   "javascript",
   "typescript",
