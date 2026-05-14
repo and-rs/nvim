@@ -2,13 +2,19 @@ const std = @import("std");
 const vaxis = @import("vaxis");
 
 const matcher = @import("matcher.zig");
+const files = @import("files.zig");
 const picker = @import("picker.zig");
+const actions = @import("actions.zig");
+const key_decoder = @import("key_decoder.zig");
+const picker_reducer = @import("picker_reducer.zig");
+const picker_state = @import("picker_state.zig");
 
 pub const panic = vaxis.panic_handler;
 
 const Mode = enum {
     pick,
     files,
+    help,
 };
 
 const Config = struct {
@@ -35,6 +41,7 @@ pub fn main(init: std.process.Init) anyerror!void {
     switch (config.mode) {
         .pick => try runPick(init, allocator, config),
         .files => try runFiles(init, allocator, config),
+        .help => try runHelp(init, allocator, config),
     }
 }
 
@@ -45,10 +52,31 @@ fn runPick(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
 }
 
 fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
-    const io = init.io;
     const cwd = config.cwd orelse ".";
-    const lines = try collectGitFiles(allocator, io, cwd);
+    const lines = try files.collectProjectFiles(allocator, init.io, cwd);
     try runPicker(init, allocator, config, lines, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
+}
+
+fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
+    var stdout_file: std.Io.File = .stdout();
+    var stdout_buf: [1024]u8 = undefined;
+    var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
+    const stdout = &stdout_writer.interface;
+    defer stdout.flush() catch unreachable;
+
+    if (config.filter) |query| {
+        const needles = try matcher.splitQuery(allocator, query);
+        const ranked = try matcher.rankAndSort(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
+        if (ranked.len == 0) std.process.exit(1);
+        for (ranked) |line| {
+            try stdout.print("{s}\n", .{line.text});
+        }
+        return;
+    }
+
+    for (actions.help_lines) |line| {
+        try stdout.print("{s}\n", .{line});
+    }
 }
 
 fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, rank_options: matcher.RankOptions) !void {
@@ -75,19 +103,8 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
     if (config.output_file) |path| {
         try std.Io.Dir.writeFile(.cwd(), init.io, .{ .sub_path = path, .data = result });
     } else {
-        try stdout.print("{s}\n", .{result});
+        try stdout.writeAll(result);
     }
-}
-
-fn collectGitFiles(allocator: std.mem.Allocator, io: std.Io, cwd: []const u8) ![]const []const u8 {
-    const result = try std.process.run(allocator, io, .{
-        .argv = &.{ "git", "ls-files", "--cached", "--others", "--exclude-standard" },
-        .cwd = .{ .path = cwd },
-    });
-    defer allocator.free(result.stdout);
-    defer allocator.free(result.stderr);
-
-    return collectLinesDuped(allocator, result.stdout);
 }
 
 fn relativeCurrentFile(cwd: []const u8, current_file: ?[]const u8) ?[]const u8 {
@@ -140,6 +157,8 @@ fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
             config.mode = .pick;
         } else if (std.mem.eql(u8, args[index], "files")) {
             config.mode = .files;
+        } else if (std.mem.eql(u8, args[index], "help")) {
+            config.mode = .help;
         } else {
             usage(stderr, 2);
         }
@@ -176,7 +195,7 @@ fn nextArg(args: []const []const u8, index: *usize, stderr: *std.Io.Writer) []co
 
 fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
     stderr.writeAll(
-        \\Usage: zt [pick|files] [options]
+        \\Usage: zt [pick|files|help] [options]
         \\
         \\Options:
         \\  -f, --filter QUERY       Filter without interactive TUI.
@@ -192,5 +211,11 @@ fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
 }
 
 test {
+    _ = actions;
+    _ = files;
+    _ = key_decoder;
     _ = matcher;
+    _ = picker;
+    _ = picker_reducer;
+    _ = picker_state;
 }

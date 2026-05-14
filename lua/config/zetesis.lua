@@ -20,6 +20,73 @@ local function path_join(left, right)
   return left .. "/" .. right
 end
 
+local commands = {
+  edit = "edit",
+  vsplit = "vsplit",
+  tabedit = "tabedit",
+}
+
+local function parse_output(lines)
+  local entries = {}
+
+  for _, line in ipairs(lines) do
+    if line ~= "" then
+      local tab = line:find("\t", 1, true)
+      if tab then
+        table.insert(entries, {
+          action = line:sub(1, tab - 1),
+          path = line:sub(tab + 1),
+        })
+      else
+        table.insert(entries, {
+          action = "edit",
+          path = line,
+        })
+      end
+    end
+  end
+
+  return entries
+end
+
+local function open_quickfix(cwd, entries)
+  local items = {}
+
+  for _, entry in ipairs(entries) do
+    table.insert(items, {
+      filename = path_join(cwd, entry.path),
+      text = entry.path,
+    })
+  end
+
+  vim.fn.setqflist({}, " ", {
+    title = "Zetesis",
+    items = items,
+  })
+  vim.cmd.copen()
+end
+
+local function execute_entries(cwd, entries)
+  if #entries == 0 then
+    return
+  end
+
+  if entries[1].action == "quickfix" then
+    open_quickfix(cwd, entries)
+    return
+  end
+
+  for _, entry in ipairs(entries) do
+    local command = commands[entry.action]
+    if not command then
+      vim.notify("unknown zetesis action: " .. entry.action, vim.log.levels.ERROR)
+      return
+    end
+
+    vim.cmd[command](vim.fn.fnameescape(path_join(cwd, entry.path)))
+  end
+end
+
 local function open_window()
   local width = math.floor(vim.o.columns * 0.60)
   local height = math.floor(vim.o.lines * 0.55)
@@ -81,12 +148,7 @@ function M.files()
 
         local lines = vim.fn.readfile(output_file)
         vim.fn.delete(output_file)
-        local selection = lines[1]
-        if not selection or selection == "" then
-          return
-        end
-
-        vim.cmd.edit(vim.fn.fnameescape(path_join(cwd, selection)))
+        execute_entries(cwd, parse_output(lines))
       end)
     end,
   })
@@ -96,5 +158,7 @@ function M.files()
 end
 
 vim.api.nvim_create_user_command("ZetesisFiles", M.files, {})
+
+M._parse_output = parse_output
 
 return M
