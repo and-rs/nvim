@@ -79,11 +79,12 @@ dashboard.config = {
 
 dashboard.section.header.opts = {
   position = "left",
-  hl = "Statement",
+  hl = "Special",
 }
 
 dashboard.section.footer.opts = {
   position = "center",
+  hl = "Comment",
 }
 
 alpha.setup(dashboard.config)

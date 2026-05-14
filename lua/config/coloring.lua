@@ -10,18 +10,22 @@ function M.set(highlight, options)
 end
 
 ---@param name string
----@param option "fg" | "bg"
----@return string | nil
-function M.get(name, option)
-  if type(name) ~= "string" or (option ~= "fg" and option ~= "bg") then
-    error("Invalid arguments. Usage: highlight(name: string, option: 'fg' | 'bg')")
+---@return { fg: string | nil, bg: string | nil }
+function M.get(name)
+  if type(name) ~= "string" then
+    error("Invalid arguments. Usage: highlight(name: string)")
   end
   local hl = vim.api.nvim_get_hl(0, { name = name })
-  local color = hl[option]
-  if not color then
-    return nil
+  local to_hex = function(color)
+    if not color then
+      return nil
+    end
+    return string.format("#%06x", color)
   end
-  return string.format("#%06x", color)
+  return {
+    fg = to_hex(hl.fg),
+    bg = to_hex(hl.bg),
+  }
 end
 
 ---@param hex string?

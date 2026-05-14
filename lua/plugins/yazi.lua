@@ -26,16 +26,8 @@ require("yazi").setup({
 
     change_working_directory = "<c-p>",
   },
-  highlight_groups = {
-    hovered_buffer = { link = "Normal" },
-  },
   highlight_hovered_buffers_in_same_directory = false,
   hooks = {
-    yazi_closed_successfully = function()
-      if vim.fn.getcwd() == vim.env.HOME then
-        require("fff").scan_files()
-      end
-    end,
     before_opening_window = function(window_options)
       window_options.row = 2
       window_options.width = dynamic_width()

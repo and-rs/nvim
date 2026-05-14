@@ -14,20 +14,6 @@ local function get_opts(opts)
 end
 
 fzf.setup({
-  hls = {
-    title = "FloatBorder",
-    border = "FloatBorder",
-    buf_nr = "NvimBlue",
-    live_sym = "NvimPink",
-    live_prompt = "NvimPink",
-    path_colnr = "NvimBlue",
-    tab_marker = "NvimBlue",
-    path_linenr = "NvimBlue",
-    header_bind = "NvimBlue",
-    preview_border = "FloatBorder",
-    preview_normal = "FloatBorder",
-    preview_title = "FloatBorder",
-  },
   keymap = {
     fzf = {
       ["ctrl-i"] = "up+toggle",
@@ -49,22 +35,6 @@ fzf.setup({
       ["alt-f"] = fzf.actions.toggle_follow,
       ["enter"] = fzf.actions.file_edit_or_qf,
     },
-  },
-  fzf_colors = {
-    ["bg"] = { "bg", "FloatBorder" },
-    ["bg+"] = { "bg", "Folded" },
-    ["border"] = { "fg", "FloatBorder" },
-    ["separator"] = { "fg", "Normal" },
-    ["scrollbar"] = { "fg", "Normal" },
-    ["fg"] = { "fg", "Comment" },
-    ["fg+"] = { "fg", "PreProc" },
-    ["hl"] = { "fg", "Special", "reverse" },
-    ["hl+"] = { "fg", "Special", "reverse" },
-    ["spinner"] = { "fg", "Label" },
-    ["marker"] = { "fg", "PreProc" },
-    ["pointer"] = { "fg", "PreProc" },
-    ["prompt"] = { "fg", "Special" },
-    ["info"] = { "fg", "Special" },
   },
   winopts = {
     border = "rounded",

@@ -3,6 +3,7 @@ vim.opt.mouse = ""
 vim.g.mapleader = " "
 vim.opt.background = "dark"
 vim.opt.winborder = "rounded"
+vim.opt.guicursor = vim.opt.guicursor + "t:block-blinkon0"
 
 -- this is a test
 -- always centered

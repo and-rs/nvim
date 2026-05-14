@@ -17,23 +17,23 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   pattern = "*",
   callback = function()
     color.set("LineNr", {
-      fg = color.get(COLOR_SECONDARY, "fg"),
-      bg = color.get(COLOR_BACKGROUND, "bg"),
+      fg = color.get(COLOR_SECONDARY).fg,
+      bg = color.get(COLOR_BACKGROUND).bg,
     })
     color.set("CursorLineNr", {
-      fg = color.get(COLOR_PRIMARY, "fg"),
-      bg = color.get(COLOR_BACKGROUND, "bg"),
+      fg = color.get(COLOR_PRIMARY).fg,
+      bg = color.get(COLOR_BACKGROUND).bg,
       bold = true,
     })
     color.set("SignColumn", {
-      fg = color.adjust_hex(color.get(COLOR_SECONDARY, "fg"), 0.3),
-      bg = color.get(COLOR_BACKGROUND, "bg"),
+      fg = color.adjust_hex(color.get(COLOR_SECONDARY).fg, 0.3),
+      bg = color.get(COLOR_BACKGROUND).bg,
     })
 
     for _, severity in ipairs({ "Ok", "Hint", "Warn", "Info", "Error" }) do
       color.set("DiagnosticSign" .. severity, {
-        fg = color.get("Diagnostic" .. severity, "fg"),
-        bg = color.get(COLOR_BACKGROUND, "bg"),
+        fg = color.get("Diagnostic" .. severity).fg,
+        bg = color.get(COLOR_BACKGROUND).bg,
       })
     end
 
@@ -46,8 +46,8 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
 
     for git_status, highlight_group in pairs(git_status_map) do
       color.set("GitSigns" .. git_status, {
-        fg = color.get(highlight_group, "fg"),
-        bg = color.get(COLOR_BACKGROUND, "bg"),
+        fg = color.get(highlight_group).fg,
+        bg = color.get(COLOR_BACKGROUND).bg,
       })
     end
   end,

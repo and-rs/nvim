@@ -3,7 +3,7 @@ vim.schedule(function()
 
   local color = require("config.coloring")
   local function set_flash_rainbow(name, base_hl)
-    local fg_color = color.get(base_hl, "fg")
+    local fg_color = color.get(base_hl).fg
     if not fg_color then
       return
     end
@@ -18,15 +18,15 @@ vim.schedule(function()
   -- Adding bold & underline to the rainbow
   local groups = {
     rainbow_red = "NvimRed",
-    rainbow_lime = "NvimLime",
-    rainbow_teal = "NvimTeal",
     rainbow_cyan = "NvimCyan",
     rainbow_blue = "NvimBlue",
-    rainbow_rose = "NvimPink",
     rainbow_amber = "NvimYellow",
     rainbow_green = "NvimGreen",
     rainbow_violet = "NvimViolet",
-    rainbow_fuchsia = "NvimFuchsia",
+    rainbow_fuchsia = "NvimPink",
+    rainbow_lime = "NvimGreen",
+    rainbow_teal = "NvimTeal",
+    rainbow_rose = "NvimRed",
   }
 
   for name, base in pairs(groups) do
