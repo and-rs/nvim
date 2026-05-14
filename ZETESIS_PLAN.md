@@ -72,7 +72,7 @@ Modes:
 
 - `zt files`
 - `zt pick`
-
+- `zt help`
 ### `files`
 
 Scans/selects files for current repo.
@@ -93,8 +93,8 @@ Planned later:
 - `--output json|path`.
 Output:
 
-- selected path by default.
-- selected JSON if `--output json`.
+- interactive output uses action lines: `edit\tpath`, `vsplit\tpath`, `tabedit\tpath`, or `quickfix\tpath`.
+- selected JSON if `--output json` later.
 
 ### `pick`
 
@@ -226,10 +226,11 @@ Implementation notes:
 
 Visual markers:
 
+- letter match marker (important).
 - dirty git sign.
 - selected marker.
-- kind icon optional.
-- path dimming optional.
+- kind icon (denied).
+- path dimming (denied).
 
 
 ## Current implementation state
@@ -238,8 +239,8 @@ Project layout:
 
 - `src/main.zig`: CLI parsing, modes, file collection, stdout/output-file handoff.
 - `src/matcher.zig`: zf-like ranking, filename boost, strict path matching, current-file penalty.
-- `src/picker.zig`: vaxis app/model, prompt/list/footer, query refresh, selection result.
-- `src/row.zig`: repo-owned row widget with direct cell styling.
+- `src/picker.zig`: vaxis app/model, prompt/list/footer, query refresh, marking, action output protocol.
+- `src/row.zig`: repo-owned row widget with direct cell styling and marker columns.
 
 Working now:
 
@@ -248,18 +249,60 @@ Working now:
 - `zt files --cwd <path>` lists git files.
 - `zt files --filter <query>` works.
 - Neovim float terminal calls `zt files --cwd --current-file --output-file`.
-- Enter writes selected path; Lua opens it.
+- Enter writes `edit\tpath` when no marks exist; Lua opens it.
+- When marks exist, Enter writes `quickfix\tpath` for each marked item; Lua sends them to quickfix.
+- `<C-v>` writes `vsplit\tpath`; `<C-t>` writes `tabedit\tpath`.
 - Selected row styling works through project-owned `Row` widget.
 - libvaxis `ScrollView.draw_cursor` is disabled because its cursor wrapper interfered with selected-row styling.
 - Cursor marker now rendered by project-owned `Row`, not `ScrollView.draw_cursor`.
-- `<C-y>` toggles row mark state and shows `*` in marker column.
+- `<C-y>` toggles row mark state and shows `:` in marker column.
+- Help mode currently works through a temporary `Ctrl-/` trigger.
+- Help mode rows show action description and keybind; Enter runs selected help action.
 
 Current caveats:
 
-- Marked rows are visual state only; final output still uses current row until multi-output protocol exists.
+- Help trigger is not final. Remove `Ctrl-/` after replacement key is verified.
+- Target help key: `Ctrl-;` if terminal/libvaxis emits it reliably.
+- Remove `<C-g>` quit binding; keep Esc and `<C-c>` only.
+- Help search/input has edge cases when file query already has text.
+- `picker.zig` still owns too many jobs: key decoding, reducer logic, rendering, logging, help execution, marks, and protocol output.
+- Row/list code needs cleaner boundaries before adding git state.
+- Marked rows currently feed quickfix only; no per-mark edit/split/tab multi-action yet.
 - No dirty markers, icons, path dimming, or stable list component abstraction beyond `Row` yet.
 - No non-git fallback yet.
 - No SQLite store yet.
+
+## Clean home gate
+
+No git-status/file-brain work until picker/help/list code is clean.
+
+Required before git work:
+
+- Remove `<C-g>` quit binding from code, help text, and manual checklist.
+- Replace temporary `Ctrl-/` help binding with final help binding.
+- Test whether `Ctrl-;` arrives as usable `vaxis.Key`; if not, choose another non-text key.
+- Remove `?` fallback completely. Done.
+- Remove `/` text-input help hack once final help key is reliable.
+- Keep `ZT_LOG` available while cleaning input behavior.
+- Split pure picker reducer from vaxis shell: key event + current state -> transition/action.
+- Split key decoding from behavior: one function maps `vaxis.Key` to internal commands.
+- Keep `picker_state.zig` pure; expand it only for query/cursor/mode rules.
+- Keep `actions.zig` as action/help registry.
+- Move action execution helpers out of ad-hoc help switch code so help rows and keybinds reuse same path.
+- Make help query handling explicit:
+  - entering help preserves file query and file cursor.
+  - help opens with its own query, initially empty unless previously set.
+  - typing in help filters only help rows.
+  - Esc from help restores file query and cursor.
+  - Enter with no help row does nothing and does not quit.
+  - opening help while file query has content never injects control bytes into either query.
+- Add unit tests for help trigger decoding, mode switching, query preservation, cursor clamping, empty-help-enter no-op, and help action dispatch.
+- Clean row/list boundaries:
+  - `Row` draws one row only.
+  - list state owns cursor/marked/git status.
+  - row marker rendering is small and testable.
+  - row styles/markers stay centralized.
+- After clean home passes tests and manual checklist, proceed to `files.zig` and git status.
 
 ## List component plan
 
@@ -285,7 +328,7 @@ Row data should eventually include:
 Visual columns:
 
 - left col 0: cursor marker, `>` or space.
-- left col 1: multi marker, `*` or space.
+- left col 1: multi marker, `:` or space.
 - middle: label/path text.
 - right last col: git marker, `M`, `A`, `?`, `D`, `R`, or space.
 
@@ -299,7 +342,61 @@ Near-term list cleanup:
 - Replace parallel `rows` / `selected_rows` / `row_boxes` / `selected_row_boxes` with one stable list item array. Done for rows; `row_boxes` remains only as stable `SizedBox` wrappers.
 - Row drawing depends on `index == cursor` and item state.
 - `Row.Styles` owns normal/current/marker/git styles.
-- Add multi-output behavior after action protocol.
+- Next list cleanup: split generic list/action state from file-specific picker state.
+
+## Test suite plan
+
+Core rule: every feature gets a small non-interactive test before TUI polish.
+
+Zig unit tests:
+
+- `matcher.zig`: query splitting, smartcase, strict path matching, filename boost, current-file penalty, stable ranking order.
+- `picker.zig`: action output protocol formatting (`edit`, `vsplit`, `tabedit`, `quickfix`).
+- `actions.zig`: help rows mirror help entries; help entries map to executable actions.
+- `picker_state.zig`: per-mode query/cursor behavior, cursor clamping, entering/exiting help with existing file query.
+- future key decoder/reducer module: `Ctrl-;` decode, no `<C-g>`, no `?`, no text-query control byte leak, empty-help-enter no-op.
+- future list/row module: marker layout, selected-row style, marked-row state, git marker slot.
+- future `files.zig`: git output parsing, non-git fallback walking, git status parsing.
+- future storage module: SQLite schema migration, frecency decay, query/file combo lookup.
+
+CLI smoke tests:
+
+- `zt pick --filter` with fixed stdin fixtures.
+- `zt files --cwd <fixture> --filter` inside git fixture repo.
+- output protocol snapshots for non-interactive modes once action/filter options exist.
+
+Lua bridge tests:
+
+- parse old bare-path output as `edit` fallback.
+- parse action output lines.
+- quickfix entries use `cwd` + relative path.
+- unknown action reports error and does nothing.
+
+Manual TUI checklist until input automation exists:
+
+- cursor marker follows movement.
+- `<C-y>` toggles `:` and moves down.
+- Enter opens current item when no marks exist.
+- Enter with marks populates quickfix.
+- `<C-v>` vsplits current item.
+- `<C-t>` opens current item in tab.
+- Esc and `<C-c>` quit cleanly; `<C-g>` does not quit.
+- suspend/resume does not freeze terminal state.
+- Final help key opens searchable help mode; candidate is `Ctrl-;`.
+- Temporary `Ctrl-/` binding is removed after final key is verified.
+- Help mode search filters action rows.
+- Enter on help action runs action.
+- Enter on empty help result does nothing and does not quit.
+- Esc in help returns to file picker without quitting and restores file query/cursor.
+
+Validation command:
+
+```sh
+cd zetesis
+zig fmt build.zig src/*.zig
+zig build test
+zig build
+```
 ## Neovim integration
 
 Lua does:
@@ -342,24 +439,40 @@ Binary does:
 - keymap opens file picker.
 - selected path opens with `edit`.
 
-### M4: file brain
+### M4: clean home
+
+- Remove `<C-g>` quit binding.
+- Replace temporary `Ctrl-/` help binding with final key after terminal verification.
+- Fix help query edge cases.
+- Split picker reducer/key decoding from vaxis UI shell.
+- Clean row/list boundaries.
+- Add tests for reducer, help query behavior, key decoding, and row/list basics.
+- Keep git/file-brain work blocked until this milestone is complete.
+
+### M5: file collection and git status
+
+- Move file collection into `files.zig`.
+- Add non-git fallback walking.
+- Parse `git status --porcelain=v1 -z`.
+- Populate row git marker.
+- Add dirty-file boost.
+
+### M6: file brain
 
 - Add SQLite store.
 - Record opened path with timestamp and project key.
-- Add current-file penalty.
-- Add git dirty boost.
 - Add frecency boost.
 - Add query combo memory.
 - Add special filename boost.
 
-### M5: generic JSONL picker
+### M7: generic JSONL picker
 
 - `zt pick --source jsonl`.
 - display field.
 - output selected JSON unchanged.
 - Lua buffer picker proof.
 
-### M6: packaging
+### M8: packaging
 
 - repo-local binary lookup.
 - release binary fallback.
