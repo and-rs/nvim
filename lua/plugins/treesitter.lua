@@ -3,6 +3,7 @@ vim.treesitter.language.register("bash", "env")
 
 vim.filetype.add({
   extension = {
+    mdx = "markdown",
     qml = "qmljs",
     jinja = "jinja",
     j2 = "jinja",
