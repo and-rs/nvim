@@ -26,7 +26,6 @@ local function apply()
   local yellow = color.get("NvimYellow").fg
   local green = color.get("NvimGreen").fg
   local visual_bg = color.adjust_hex(grey, a.visual)
-  local folded_bg = color.get("Folded").bg or visual_bg
   local visual_bg_native = color.get("Visual").bg
   local diagnostic_info = color.get("DiagnosticInfo").fg or blue
   local diagnostic_hint = color.get("DiagnosticHint").fg or blue
@@ -54,48 +53,14 @@ local function apply()
       bg = color.adjust_hex(diagnostic_error, a.diag),
     },
 
+    TabKey = { fg = blue, bg = visual_bg, underline = true },
+    TabLine = { fg = blue, bg = visual_bg },
+
     TabKeySel = { fg = visual_bg, bg = blue, underline = true, bold = true },
     TabLineSel = { fg = visual_bg, bg = blue, bold = true },
-    TabKey = { fg = blue, bg = blue, bold = true },
-
-    FinderSel = { bg = folded_bg, fg = normal_fg, bold = true },
-    FinderMatch = { bg = visual_bg, fg = yellow, bold = true },
-    FinderPrompt = { fg = yellow, bg = normal_bg, bold = true },
-    FinderMuted = { fg = grey, bg = normal_bg },
-    FinderAccent = { fg = normal_fg, bg = normal_bg },
-    FinderBorder = { link = "FloatBorder" },
-
-    FzfLuaNormal = { link = "NormalFloat" },
-    FzfLuaPreviewNormal = { link = "NormalFloat" },
-    FzfLuaBorder = { link = "FinderBorder" },
-    FzfLuaPreviewBorder = { link = "FinderBorder" },
-    FzfLuaTitle = { link = "FinderBorder" },
-    FzfLuaPreviewTitle = { link = "FinderBorder" },
-    FzfLuaCursorLine = { link = "FinderSel" },
-    FzfLuaFzfCursorLine = { link = "FinderSel" },
-    FzfLuaFzfMatch = { link = "FinderMatch" },
-    FzfLuaSearch = { link = "FinderMatch" },
-    FzfLuaFzfPrompt = { link = "FinderPrompt" },
-    FzfLuaFzfPointer = { link = "FinderPrompt" },
-    FzfLuaLivePrompt = { link = "FinderPrompt" },
-    FzfLuaFzfMarker = { link = "FinderAccent" },
-    FzfLuaFzfSpinner = { link = "FinderAccent" },
-    FzfLuaLiveSym = { link = "FinderAccent" },
-    FzfLuaTabMarker = { link = "FinderAccent" },
-    FzfLuaBufNr = { link = "FinderMuted" },
-    FzfLuaBufLineNr = { link = "FinderMuted" },
-    FzfLuaDirPart = { link = "FinderMuted" },
-    FzfLuaPathLineNr = { link = "FinderMuted" },
-    FzfLuaPathColNr = { link = "FinderMuted" },
-    FzfLuaHeaderBind = { link = "FinderMuted" },
-    FzfLuaHeaderText = { link = "FinderMuted" },
-    FzfLuaFzfHeader = { link = "FinderMuted" },
-    FzfLuaFzfInfo = { link = "FinderMuted" },
-    FzfLuaFzfScrollbar = { link = "FinderMuted" },
-    FzfLuaFzfSeparator = { link = "FinderMuted" },
 
     YaziFloat = { link = "NormalFloat" },
-    YaziFloatBorder = { link = "FinderBorder" },
+    YaziFloatBorder = { link = "FloatBorder" },
 
     Substitute = { bg = green, fg = normal_bg },
     IncSearch = { bg = visual_bg, fg = green, underline = true },

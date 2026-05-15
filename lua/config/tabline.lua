@@ -19,6 +19,6 @@ _G.Tabliner = function()
     local key = (keys[i] or tostring(i)):upper()
     table.insert(items, string.format("%s %s%s%s %s ", hl, khl, key, hl, name))
   end
-  return table.concat(items) .. "%#TabLineFill#%T"
+  return table.concat(items) .. "%#Normal#%T"
 end
 vim.opt.tabline = "%!v:lua.Tabliner()"
