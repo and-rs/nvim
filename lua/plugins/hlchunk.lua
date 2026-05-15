@@ -12,13 +12,13 @@ vim.schedule(function()
         left_bottom = "└",
         right_arrow = "─",
       },
-      style = colors.get("Function").fg,
+      style = colors.get("NvimOrange").fg,
       duration = 0,
       delay = 0,
     },
     blank = {
       enable = true,
-      style = colors.darken_hex(colors.get("Comment").fg, 0.7),
+      style = colors.get("LineNrBelow").fg,
       chars = { "│", "", "", "", "", "", "", "", "" },
     },
   })

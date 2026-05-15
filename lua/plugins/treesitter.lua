@@ -1,5 +1,7 @@
 vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
+
 vim.treesitter.language.register("bash", "env")
+vim.treesitter.language.register("tsx", { "typescriptreact", "javascriptreact" })
 
 vim.filetype.add({
   extension = {
@@ -20,9 +22,12 @@ vim.filetype.add({
 
 require("nvim-treesitter").setup({
   install_dir = vim.fn.stdpath("data") .. "/site",
+  highlight = {
+    enable = true,
+  },
 })
 
-local languages = {
+local parser_languages = {
   "bicep",
   "rust",
   "ocaml",
@@ -58,13 +63,18 @@ local languages = {
   "go",
 }
 
+local filetypes = vim.list_extend(vim.deepcopy(parser_languages), {
+  "typescriptreact",
+  "javascriptreact",
+})
+
 vim.schedule(function()
   vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
-    pattern = languages,
+    pattern = filetypes,
     callback = function()
       vim.treesitter.start()
     end,
   })
 end)
 
-require("nvim-treesitter").install(languages)
+require("nvim-treesitter").install(parser_languages)

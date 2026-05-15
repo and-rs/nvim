@@ -6,7 +6,6 @@ local adjust = {
   dark = { yank = 0.5, visual = 0.3, diag = 0.2 },
 }
 
-
 ---@param specs table<string, vim.api.keyset.highlight>
 local function apply_specs(specs)
   for group, spec in pairs(specs) do
@@ -38,14 +37,26 @@ local function apply()
   local specs = {
     DiagnosticUnnecessary = { underline = true },
     DiagnosticUnderlineError = { underline = false, undercurl = true },
-    DiagnosticVirtualTextInfo = { fg = diagnostic_info, bg = color.adjust_hex(diagnostic_info, a.diag) },
-    DiagnosticVirtualTextHint = { fg = diagnostic_hint, bg = color.adjust_hex(diagnostic_hint, a.diag) },
-    DiagnosticVirtualTextWarn = { fg = diagnostic_warn, bg = color.adjust_hex(diagnostic_warn, a.diag) },
-    DiagnosticVirtualTextError = { fg = diagnostic_error, bg = color.adjust_hex(diagnostic_error, a.diag) },
+    DiagnosticVirtualTextInfo = {
+      fg = diagnostic_info,
+      bg = color.adjust_hex(diagnostic_info, a.diag),
+    },
+    DiagnosticVirtualTextHint = {
+      fg = diagnostic_hint,
+      bg = color.adjust_hex(diagnostic_hint, a.diag),
+    },
+    DiagnosticVirtualTextWarn = {
+      fg = diagnostic_warn,
+      bg = color.adjust_hex(diagnostic_warn, a.diag),
+    },
+    DiagnosticVirtualTextError = {
+      fg = diagnostic_error,
+      bg = color.adjust_hex(diagnostic_error, a.diag),
+    },
 
     TabKeySel = { fg = visual_bg, bg = blue, underline = true, bold = true },
     TabLineSel = { fg = visual_bg, bg = blue, bold = true },
-    TabKey = { fg = blue, bold = true },
+    TabKey = { fg = blue, bg = blue, bold = true },
 
     FinderSel = { bg = folded_bg, fg = normal_fg, bold = true },
     FinderMatch = { bg = visual_bg, fg = yellow, bold = true },
@@ -83,7 +94,6 @@ local function apply()
     FzfLuaFzfScrollbar = { link = "FinderMuted" },
     FzfLuaFzfSeparator = { link = "FinderMuted" },
 
-
     YaziFloat = { link = "NormalFloat" },
     YaziFloatBorder = { link = "FinderBorder" },
 
@@ -96,7 +106,6 @@ local function apply()
     VisualNonText = { fg = color.adjust_hex(normal_fg, a.yank), bg = visual_bg_native },
     Search = { bg = normal_bg, fg = normal_fg, underline = true },
   }
-
 
   apply_specs(specs)
 end

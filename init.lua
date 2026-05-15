@@ -15,7 +15,6 @@ require("config.tabline")
 
 -- 3rd
 require("config.profiling")
-require("ai.main")
 
 Deferred_group = vim.api.nvim_create_augroup("Deferred", { clear = true })
 -- require all plugin files
