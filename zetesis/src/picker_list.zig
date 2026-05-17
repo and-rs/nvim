@@ -15,6 +15,7 @@ pub const State = struct {
     rows: std.ArrayList(Row) = .empty,
     row_boxes: std.ArrayList(vxfw.SizedBox) = .empty,
     available_width: u16 = 0,
+    show_scores: bool = false,
 
     pub fn deinit(self: *State, allocator: std.mem.Allocator) void {
         self.marked.deinit(allocator);
@@ -68,8 +69,10 @@ pub const State = struct {
         mode: picker_state.Mode,
         cursor: *const u32,
         rank_options: matcher.RankOptions,
+        show_scores: bool,
     ) !void {
         self.clear(arena);
+        self.show_scores = show_scores;
 
         const needles = try matcher.splitQuery(arena, query);
         var options = rank_options;
@@ -85,6 +88,7 @@ pub const State = struct {
                 .index = self.rows.items.len,
                 .cursor = cursor,
                 .marked = self.isMarked(mode, line.text),
+                .score_text = if (show_scores) try std.fmt.allocPrint(arena, "{d:.2}", .{line.score.total()}) else null,
                 .styles = row_styles,
             });
         }
@@ -119,12 +123,12 @@ test "list state restores marks after refresh" {
     defer arena_impl.deinit();
     const arena = arena_impl.allocator();
 
-    try list.refresh(arena, &.{ "a.zig", "b.zig" }, "", .files, &cursor, .{});
+    try list.refresh(arena, &.{ "a.zig", "b.zig" }, "", .files, &cursor, .{}, false);
     try list.toggleMark(std.testing.allocator, .files, 0);
     try std.testing.expect(list.rows.items[0].marked);
 
     _ = arena_impl.reset(.free_all);
-    try list.refresh(arena_impl.allocator(), &.{ "a.zig", "b.zig" }, "", .files, &cursor, .{});
+    try list.refresh(arena_impl.allocator(), &.{ "a.zig", "b.zig" }, "", .files, &cursor, .{}, false);
     try std.testing.expect(list.rows.items[0].marked);
 }
 
@@ -136,7 +140,19 @@ test "help mode never marks rows" {
     var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena_impl.deinit();
 
-    try list.refresh(arena_impl.allocator(), &.{"help row"}, "", .help, &cursor, .{});
+    try list.refresh(arena_impl.allocator(), &.{"help row"}, "", .help, &cursor, .{}, false);
     try list.toggleMark(std.testing.allocator, .help, 0);
     try std.testing.expectEqual(@as(usize, 0), list.marked.items.len);
+}
+
+test "score text appears only when enabled" {
+    var list: State = .{};
+    defer list.deinit(std.testing.allocator);
+
+    var cursor: u32 = 0;
+    var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_impl.deinit();
+
+    try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, "main", .files, &cursor, .{}, true);
+    try std.testing.expect(list.rows.items[0].score_text != null);
 }

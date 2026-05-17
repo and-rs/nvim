@@ -6,9 +6,20 @@ pub const RankOptions = struct {
     current_file: ?[]const u8 = null,
 };
 
+pub const ScoreBreakdown = struct {
+    fuzzy: f64 = 0,
+    filename_boost: f64 = 0,
+    exact_filename_boost: f64 = 0,
+    current_file_penalty: f64 = 0,
+
+    pub fn total(self: ScoreBreakdown) f64 {
+        return self.fuzzy + self.filename_boost + self.exact_filename_boost + self.current_file_penalty;
+    }
+};
+
 pub const RankedLine = struct {
     text: []const u8,
-    score: f64,
+    score: ScoreBreakdown,
 };
 
 pub fn hasUpper(text: []const u8) bool {
@@ -34,20 +45,22 @@ pub fn splitQuery(allocator: std.mem.Allocator, query: []const u8) ![]const []co
     return needles.toOwnedSlice(allocator);
 }
 
-pub fn rank(haystack: []const u8, needles: []const []const u8, opts: RankOptions) ?f64 {
+pub fn rank(haystack: []const u8, needles: []const []const u8, opts: RankOptions) ?ScoreBreakdown {
     if (haystack.len == 0 or needles.len == 0) return null;
 
     const filename = if (opts.plain) null else std.fs.path.basename(haystack);
-    var total: f64 = 0;
+    var total: ScoreBreakdown = .{};
 
     for (needles) |needle| {
         const strict_path = !opts.plain and hasSeparator(needle);
         if (rankNeedle(haystack, filename, needle, opts.case_sensitive, strict_path)) |score| {
-            total += score;
+            total.fuzzy += score.fuzzy;
+            total.filename_boost += score.filename_boost;
+            total.exact_filename_boost += score.exact_filename_boost;
         } else return null;
     }
 
-    return total;
+    return applyContextScore(haystack, total, opts);
 }
 
 pub fn rankNeedle(
@@ -56,21 +69,24 @@ pub fn rankNeedle(
     needle: []const u8,
     case_sensitive: bool,
     strict_path: bool,
-) ?f64 {
+) ?ScoreBreakdown {
     if (haystack.len == 0 or needle.len == 0) return null;
 
     if (strict_path) {
-        return rankStrictPath(haystack, needle, case_sensitive);
+        return .{ .fuzzy = rankStrictPath(haystack, needle, case_sensitive) orelse return null };
     }
 
     if (filename) |name| {
         if (scoreSubsequence(name, needle, case_sensitive)) |score| {
-            const exact_boost: f64 = if (equals(name, needle, case_sensitive)) 4.0 else 1.0;
-            return score * 2.5 * exact_boost;
+            return .{
+                .fuzzy = score,
+                .filename_boost = score * 1.5,
+                .exact_filename_boost = if (equals(name, needle, case_sensitive)) score * 7.5 else 0,
+            };
         }
     }
 
-    return scoreSubsequence(haystack, needle, case_sensitive);
+    return .{ .fuzzy = scoreSubsequence(haystack, needle, case_sensitive) orelse return null };
 }
 
 pub fn rankAndSort(
@@ -82,20 +98,20 @@ pub fn rankAndSort(
     var ranked: std.ArrayList(RankedLine) = .empty;
     for (lines) |line| {
         if (needles.len == 0) {
-            try ranked.append(allocator, .{ .text = line, .score = applyContextScore(line, 0, opts) });
+            try ranked.append(allocator, .{ .text = line, .score = applyContextScore(line, .{}, opts) });
         } else if (rank(line, needles, opts)) |score| {
-            try ranked.append(allocator, .{ .text = line, .score = applyContextScore(line, score, opts) });
+            try ranked.append(allocator, .{ .text = line, .score = score });
         }
     }
     std.mem.sort(RankedLine, ranked.items, {}, compareRankedLine);
     return ranked.toOwnedSlice(allocator);
 }
 
-fn applyContextScore(line: []const u8, score: f64, opts: RankOptions) f64 {
+fn applyContextScore(line: []const u8, score: ScoreBreakdown, opts: RankOptions) ScoreBreakdown {
     var result = score;
     if (opts.current_file) |current_file| {
         if (std.mem.eql(u8, line, current_file)) {
-            result -= 1000.0;
+            result.current_file_penalty -= 1000.0;
         }
     }
     return result;
@@ -192,15 +208,17 @@ fn equals(a: []const u8, b: []const u8, case_sensitive: bool) bool {
 }
 
 fn compareRankedLine(_: void, left: RankedLine, right: RankedLine) bool {
-    if (left.score == right.score) return std.mem.lessThan(u8, left.text, right.text);
-    return left.score > right.score;
+    const left_total = left.score.total();
+    const right_total = right.score.total();
+    if (left_total == right_total) return std.mem.lessThan(u8, left.text, right.text);
+    return left_total > right_total;
 }
 
 test "filename priority" {
     const testing = std.testing;
     const needles = &.{"make"};
-    const direct = rank("GNUmakefile", needles, .{}) orelse 0;
-    const nested = rank("source/blender/makesdna/DNA_genfile.h", needles, .{}) orelse 0;
+    const direct = (rank("GNUmakefile", needles, .{}) orelse ScoreBreakdown{}).total();
+    const nested = (rank("source/blender/makesdna/DNA_genfile.h", needles, .{}) orelse ScoreBreakdown{}).total();
     try testing.expect(direct > nested);
 }
 
@@ -209,4 +227,20 @@ test "strict path" {
     const needles = &.{"a/m/f/b/baz"};
     try testing.expect(rank("app/models/foo/bar/baz.rb", needles, .{}) != null);
     try testing.expect(rank("app/monsters/dungeon/foo/bar/baz.rb", needles, .{}) == null);
+}
+
+test "score breakdown keeps filename and exact boosts visible" {
+    const testing = std.testing;
+    const ranked = rank("src/main.zig", &.{"main.zig"}, .{}) orelse return error.TestUnexpectedResult;
+    try testing.expect(ranked.fuzzy > 0);
+    try testing.expect(ranked.filename_boost > 0);
+    try testing.expect(ranked.exact_filename_boost > 0);
+    try testing.expect(ranked.total() > ranked.fuzzy);
+}
+
+test "current file penalty lowers total only" {
+    const testing = std.testing;
+    const ranked = rank("src/main.zig", &.{"main"}, .{ .current_file = "src/main.zig" }) orelse return error.TestUnexpectedResult;
+    try testing.expect(ranked.fuzzy > 0);
+    try testing.expect(ranked.current_file_penalty < 0);
 }

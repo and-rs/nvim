@@ -24,6 +24,8 @@ const Config = struct {
     current_file: ?[]const u8 = null,
     output_file: ?[]const u8 = null,
     plain: bool = false,
+    show_scores: bool = false,
+    debug_scores: bool = false,
 };
 
 pub fn main(init: std.process.Init) anyerror!void {
@@ -68,9 +70,7 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
         const needles = try matcher.splitQuery(allocator, query);
         const ranked = try matcher.rankAndSort(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
         if (ranked.len == 0) std.process.exit(1);
-        for (ranked) |line| {
-            try stdout.print("{s}\n", .{line.text});
-        }
+        try writeRanked(stdout, ranked, config.debug_scores);
         return;
     }
 
@@ -92,18 +92,36 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
         filter_options.case_sensitive = matcher.hasUpper(query);
         const ranked = try matcher.rankAndSort(allocator, lines, needles, filter_options);
         if (ranked.len == 0) std.process.exit(1);
-        for (ranked) |line| {
-            try stdout.print("{s}\n", .{line.text});
-        }
+        try writeRanked(stdout, ranked, config.debug_scores);
         return;
     }
 
-    const result = try picker.run(init, allocator, lines, rank_options);
+    const result = try picker.run(init, allocator, lines, rank_options, config.show_scores);
     if (result.len == 0) std.process.exit(130);
     if (config.output_file) |path| {
         try std.Io.Dir.writeFile(.cwd(), init.io, .{ .sub_path = path, .data = result });
     } else {
         try stdout.writeAll(result);
+    }
+}
+
+fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, debug_scores: bool) !void {
+    for (ranked) |line| {
+        if (debug_scores) {
+            try stdout.print(
+                "{d:.2}\tfz={d:.2}\tfn={d:.2}\tex={d:.2}\tcf={d:.2}\t{s}\n",
+                .{
+                    line.score.total(),
+                    line.score.fuzzy,
+                    line.score.filename_boost,
+                    line.score.exact_filename_boost,
+                    line.score.current_file_penalty,
+                    line.text,
+                },
+            );
+        } else {
+            try stdout.print("{s}\n", .{line.text});
+        }
     }
 }
 
@@ -177,6 +195,10 @@ fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
             config.output_file = nextArg(args, &index, stderr);
         } else if (std.mem.eql(u8, arg, "--plain") or std.mem.eql(u8, arg, "-p")) {
             config.plain = true;
+        } else if (std.mem.eql(u8, arg, "--show-scores")) {
+            config.show_scores = true;
+        } else if (std.mem.eql(u8, arg, "--debug-scores")) {
+            config.debug_scores = true;
         } else if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
             usage(stderr, 0);
         } else {
@@ -203,6 +225,8 @@ fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
         \\      --current-file PATH  Current editor file path.
         \\      --output-file PATH   Write selected item to file after TUI exits.
         \\  -p, --plain              Disable filepath ranking boosts.
+        \\      --show-scores        Show score column in interactive TUI.
+        \\      --debug-scores       Print score breakdown in filter mode.
         \\  -h, --help               Show help.
         \\
     ) catch unreachable;

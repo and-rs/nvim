@@ -21,9 +21,9 @@ const Model = struct {
     arena: std.heap.ArenaAllocator,
     result: []const u8,
     rank_options: matcher.RankOptions,
+    show_scores: bool,
     state: picker_state.State,
-
-    pub fn init(gpa: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions) !*Model {
+    pub fn init(gpa: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions, show_scores: bool) !*Model {
         const model = try gpa.create(Model);
         errdefer gpa.destroy(model);
 
@@ -32,6 +32,7 @@ const Model = struct {
             .gpa = gpa,
             .lines = lines,
             .rank_options = rank_options,
+            .show_scores = show_scores,
             .scroll_view = .{
                 .draw_cursor = false,
                 .cursor_indicator = .{
@@ -190,8 +191,8 @@ const Model = struct {
 
     fn footerText(self: *const Model) []const u8 {
         return switch (self.state.mode) {
-            .files => "ctrl-; help",
-            .help => "esc files · enter run",
+            .files => if (self.show_scores) "ctrl-; help · scores on" else "ctrl-; help",
+            .help => if (self.show_scores) "esc files · enter run · scores on" else "esc files · enter run",
         };
     }
 
@@ -307,6 +308,7 @@ const Model = struct {
             self.state.mode,
             &self.scroll_view.cursor,
             self.rank_options,
+            self.show_scores,
         );
     }
 };
@@ -322,12 +324,12 @@ pub fn formatActionResult(allocator: std.mem.Allocator, action: Action, paths: [
     return result.toOwnedSlice(allocator);
 }
 
-pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions) ![]const u8 {
+pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions, show_scores: bool) ![]const u8 {
     var buffer: [1024]u8 = undefined;
     var app: vxfw.App = try .init(init.io, allocator, init.environ_map, &buffer);
     defer app.deinit();
 
-    const model = try Model.init(allocator, lines, rank_options);
+    const model = try Model.init(allocator, lines, rank_options, show_scores);
     defer model.deinit(allocator);
 
     try app.run(model.widget(), .{});

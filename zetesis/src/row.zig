@@ -19,6 +19,7 @@ pub const Styles = struct {
     current: vaxis.Style = .{ .bold = true, .fg = .{ .index = 2 }, .bg = .{ .index = 0 } },
     marker: vaxis.Style = .{ .fg = .{ .index = 2 } },
     git: vaxis.Style = .{ .fg = .{ .index = 3 } },
+    score: vaxis.Style = .{ .fg = .{ .index = 8 } },
 };
 
 text: []const u8,
@@ -26,6 +27,7 @@ index: usize,
 cursor: *const u32,
 marked: bool = false,
 git_status: GitStatus = .none,
+score_text: ?[]const u8 = null,
 styles: Styles = .{},
 
 pub fn widget(self: *const Row) vxfw.Widget {
@@ -50,27 +52,25 @@ fn typeErasedDrawFn(ptr: *anyopaque, ctx: vxfw.DrawContext) std.mem.Allocator.Er
     var git_style = self.styles.git;
     git_style.bg = base_style.bg;
 
+    var score_style = self.styles.score;
+    score_style.bg = base_style.bg;
+
     self.writeCell(surface, 0, cursorMarker(self.isCurrent()), marker_style);
     if (max.width > 1) self.writeCell(surface, 1, markMarker(self.marked), marker_style);
     if (max.width > 2) self.writeCell(surface, max.width - 1, gitMarker(self.git_status), git_style);
 
-    const text_start: u16 = if (max.width > 2) 2 else max.width;
-    const text_end: u16 = if (max.width > 3) max.width - 1 else text_start;
-
-    var col = text_start;
-    var iter = ctx.graphemeIterator(self.text);
-    while (iter.next()) |entry| {
-        if (col >= text_end) break;
-        const grapheme = entry.bytes(self.text);
-        const width: u8 = @intCast(ctx.stringWidth(grapheme));
-        if (width == 0 or col + width > text_end) break;
-        surface.writeCell(col, 0, .{
-            .char = .{ .grapheme = grapheme, .width = width },
-            .style = base_style,
-        });
-        col += width;
+    var text_end: u16 = if (max.width > 3) max.width - 1 else if (max.width > 2) 2 else max.width;
+    if (self.score_text) |score_text| {
+        const score_width: u16 = @intCast(ctx.stringWidth(score_text));
+        if (score_width > 0 and score_width + 4 <= text_end) {
+            const score_start = text_end - score_width;
+            self.writeText(ctx, surface, score_start, text_end, score_text, score_style);
+            text_end = score_start - 1;
+        }
     }
 
+    const text_start: u16 = if (max.width > 2) 2 else max.width;
+    self.writeText(ctx, surface, text_start, text_end, self.text, base_style);
     return surface;
 }
 
@@ -83,6 +83,24 @@ fn writeCell(_: Row, surface: vxfw.Surface, col: u16, text: []const u8, style: v
         .char = .{ .grapheme = text, .width = 1 },
         .style = style,
     });
+}
+
+fn writeText(_: Row, ctx: vxfw.DrawContext, surface: vxfw.Surface, start: u16, end: u16, text: []const u8, style: vaxis.Style) void {
+    if (start >= end) return;
+
+    var col = start;
+    var iter = ctx.graphemeIterator(text);
+    while (iter.next()) |entry| {
+        if (col >= end) break;
+        const grapheme = entry.bytes(text);
+        const width: u8 = @intCast(ctx.stringWidth(grapheme));
+        if (width == 0 or col + width > end) break;
+        surface.writeCell(col, 0, .{
+            .char = .{ .grapheme = grapheme, .width = width },
+            .style = style,
+        });
+        col += width;
+    }
 }
 
 fn cursorMarker(current: bool) []const u8 {
