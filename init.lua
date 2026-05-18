@@ -12,25 +12,41 @@ vim.cmd([[
 require("config.highlights")
 require("config.statuscolumn")
 require("config.tabline")
-
 -- 3rd
 require("config.profiling")
-
 Deferred_group = vim.api.nvim_create_augroup("Deferred", { clear = true })
--- require all plugin files
-local function require_plugins()
-  local dir = vim.fn.stdpath("config") .. "/lua/plugins"
-  for name, t in vim.fs.dir(dir) do
-    if t == "file" and name:sub(-4) == ".lua" then
-      require("plugins." .. name:sub(1, -5))
-    end
-  end
-end
+
+-- require("plugins.hlchunk")
+
+require("plugins.alpha")
+require("plugins.autotag")
+require("plugins.blink-cmp")
+require("plugins.comment")
+require("plugins.conform")
+require("plugins.csvview")
+require("plugins.fidget")
+require("plugins.flash")
+require("plugins.fzf")
+require("plugins.git-signs")
+require("plugins.lsp-config")
+require("plugins.lualine")
+require("plugins.quickfix")
+require("plugins.scissors")
+require("plugins.surround")
+require("plugins.tmux")
+require("plugins.tokyonight")
+require("plugins.treesitter")
+require("config.folding")
+require("plugins.typescript")
+require("plugins.visual-whitespace")
+require("plugins.whichkey")
+require("plugins.yazi")
+require("plugins.diff")
 
 require("vim._core.ui2").enable({ enable = true })
 vim.g.smart_splits_multiplexer_integration = "tmux"
 
--- neovide
+-- neovide with default neovim theme
 if vim.g.neovide then
   vim.opt.linespace = 11
   vim.g.terminal_color_0 = "#1b1e25"
@@ -54,5 +70,3 @@ if vim.g.neovide then
   vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
   vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
 end
-
-require_plugins()

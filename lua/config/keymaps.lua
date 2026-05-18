@@ -1,11 +1,4 @@
-local function map(mode, keys, action, desc, opts)
-  local defaults = {
-    desc = desc or "",
-    noremap = true,
-  }
-  local merged = vim.tbl_extend("force", defaults, opts or {})
-  vim.keymap.set(mode, keys, action, merged)
-end
+local map = require("config.map").set
 
 -- repeat last macro
 map("n", "Q", "@@", "Repeat last macro")

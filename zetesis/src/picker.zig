@@ -148,13 +148,16 @@ const Model = struct {
 
         const footer_help: vxfw.Text = .{
             .text = self.footerText(),
-            .style = .{ .fg = .{ .index = 8 } },
+            .style = .{ .fg = .{ .index = 8 }, .bg = .{ .index = 0 } },
         };
         const footer_brand: vxfw.Text = .{
             .text = "Zetesis",
-            .style = .{ .fg = .{ .index = 8 } },
+            .style = .{ .fg = .{ .index = 8 }, .bg = .{ .index = 0 } },
         };
-        const spacer: vxfw.Text = .{ .text = " " };
+        const spacer: vxfw.Text = .{
+            .text = " ",
+            .style = .{ .bg = .{ .index = 0 } },
+        };
         const footer_spacer: vxfw.SizedBox = .{
             .size = .{ .width = 1 },
             .child = spacer.widget(),

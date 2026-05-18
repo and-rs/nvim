@@ -79,7 +79,7 @@ dashboard.config = {
 
 dashboard.section.header.opts = {
   position = "left",
-  hl = "Special",
+  hl = "Comment",
 }
 
 dashboard.section.footer.opts = {

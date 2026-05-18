@@ -1,11 +1,16 @@
 local function load()
   vim.pack.add({
     "https://github.com/MunifTanjim/nui.nvim",
-    { src = "https://github.com/esmuellert/codediff.nvim", version = "v2.43.15" },
+    { src = "https://github.com/esmuellert/codediff.nvim" },
   })
 
   require("codediff").setup({
-    cmd = "CodeDiff"
+    highlights = {
+      char_brightness = 1.2,
+    },
+    diff = {
+      original_position = "right",
+    },
   })
 
   if vim.o.background == "light" then

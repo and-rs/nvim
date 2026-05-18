@@ -1,8 +1,10 @@
+vim.pack.add({ "https://github.com/saghen/blink.lib" })
+
 local function load()
   vim.pack.add({
     "https://github.com/L3MON4D3/LuaSnip",
     "https://github.com/rafamadriz/friendly-snippets",
-    { src = "https://github.com/saghen/blink.cmp", version = "v1.7.0" },
+    { src = "https://github.com/saghen/blink.cmp" },
   })
 
   require("luasnip.loaders.from_vscode").lazy_load()
@@ -10,7 +12,9 @@ local function load()
     paths = "~/.config/nvim/snippets",
   })
 
-  require("blink.cmp").setup({
+  local cmp = require("blink.cmp")
+  cmp.build():wait(6000000)
+  cmp.setup({
     enabled = function()
       local filetype = vim.bo[0].filetype == "fzf"
       return filetype and false or true

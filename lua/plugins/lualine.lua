@@ -45,7 +45,7 @@ local function get_colors()
   end
 
   return {
-    white = fg("Normal"),
+    white = fg("NvimGrey"),
     red = fg("NvimRed"),
     blue = fg("NvimBlue"),
     cyan = fg("NvimCyan"),
@@ -78,9 +78,9 @@ local function get_theme(colors)
       c = { fg = colors.red },
     },
     terminal = {
-      a = { fg = colors.orange },
-      b = { fg = colors.orange },
-      c = { fg = colors.orange },
+      a = { fg = colors.violet },
+      b = { fg = colors.violet },
+      c = { fg = colors.violet },
     },
   }
 end
@@ -165,4 +165,3 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   group = cl.augroup,
   callback = setup_lualine,
 })
-

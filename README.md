@@ -52,7 +52,6 @@ Highlights are applied dynamically based on `vim.o.background`:
 .
 ├── init.lua                  # Entry point, loads config and plugins
 ├── lua/
-│   ├── ai/                   # AI integration logic (aichat wrapper)
 │   ├── config/
 │   │   ├── coloring.lua      # Color manipulation utils
 │   │   ├── highlights.lua    # Theme definitions

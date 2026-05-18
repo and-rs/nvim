@@ -10,7 +10,7 @@ local function binary_path()
 end
 
 local function project_root()
-  return vim.fs.root(0, { ".git" }) or vim.uv.cwd()
+  return vim.uv.cwd()
 end
 
 local function path_join(left, right)

@@ -15,7 +15,7 @@ Working:
 
 - `zt pick` reads stdin lines.
 - `zt pick --filter <query>` prints ranked matches.
-- `zt files --cwd <path>` uses `git ls-files --cached --others --exclude-standard`.
+- `zt files --cwd <path>` uses git file collection, with recursive non-git fallback.
 - `zt files --filter <query>` works.
 - `zt help` and `zt help --filter <query>` work.
 - Neovim command `:ZetesisFiles` opens floating terminal and calls `zt files --cwd --current-file --output-file`.
@@ -52,7 +52,7 @@ Known caveats:
 
 - `picker.zig` still owns rendering, protocol output, and vaxis shell code.
 - `picker_list.zig` now owns list rows, row widgets, marks, and list refresh state.
-- No non-git fallback yet.
+- Git-tracked paths deleted from working tree can still leak into `zt files` output.
 - Git marker slot exists but status is not populated.
 - No SQLite store yet.
 - Suspend/resume freeze still unproven.
@@ -84,28 +84,24 @@ Still needed before git work:
 
 ## Next implementation steps
 
-1. Extract `files.zig`:
-   - git file collection.
-   - non-git recursive fallback.
-   - tests for line parsing and fallback walking.
+1. Tighten file-collection contract:
+   - make `zt files` anchor unambiguously to provided `--cwd`.
+   - exclude git-tracked paths that no longer exist in working tree.
+   - keep recursive non-git fallback behavior unchanged.
+   - add tests for deleted tracked files and fallback walking.
 2. Add git status integration:
-   - git file collection.
-   - non-git recursive fallback.
-   - tests for line parsing and fallback walking.
-3. Add git status integration:
    - parse `git status --porcelain=v1 -z`.
    - map status to `Row.GitStatus`.
    - populate rightmost marker: `M`, `A`, `?`, `D`, `R`, or space.
    - add dirty-file boost.
-4. Add first file-brain boosts:
+3. Add first file-brain boosts:
    - special filename boost: `init.lua`, `mod.rs`, `lib.rs`, `main.rs`, `index.ts`, `index.tsx`, `index.js`, `__init__.py`.
    - SQLite frecency.
    - SQLite query/file combo memory.
-5. Add generic JSONL picker later:
+4. Add generic JSONL picker later:
    - `zt pick --source jsonl`.
    - display field.
    - output selected JSON unchanged.
-
 ## Test checklist
 
 Automated:

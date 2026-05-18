@@ -32,7 +32,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end, "Go to previous diagnostic")
 
     map("]d", function()
-      vim.diagnostic.jump({ float = { border = "rounded" }, count = -1 })
+      vim.diagnostic.jump({ float = { border = "rounded" }, count = 1 })
     end, "Go to next diagnostic")
   end,
 })
@@ -63,18 +63,6 @@ vim.diagnostic.config({
       [vim.diagnostic.severity.HINT] = " •",
       [vim.diagnostic.severity.INFO] = " •",
     },
-  },
-})
-
-vim.filetype.add({
-  extension = {
-    env = "env",
-  },
-  filename = {
-    [".env"] = "env",
-  },
-  pattern = {
-    ["%.env%.[%w_.-]+"] = "env",
   },
 })
 

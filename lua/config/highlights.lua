@@ -68,7 +68,7 @@ local function apply()
 
     Select = { bg = normal_bg },
     YankHighlight = { bg = color.adjust_hex(blue, a.yank) },
-    VisualNonText = { fg = color.adjust_hex(normal_fg, a.yank), bg = visual_bg_native },
+    VisualNonText = { fg = color.adjust_hex(color.get("Visual").bg, 1.1), bg = visual_bg_native },
     Search = { bg = normal_bg, fg = normal_fg, underline = true },
   }
 
