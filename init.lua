@@ -35,13 +35,21 @@ require("plugins.scissors")
 require("plugins.surround")
 require("plugins.tmux")
 require("plugins.tokyonight")
-require("plugins.treesitter")
 require("config.folding")
 require("plugins.typescript")
 require("plugins.visual-whitespace")
 require("plugins.whichkey")
 require("plugins.yazi")
 require("plugins.diff")
+require("plugins.treesitter")
+
+-- when I open nu term buffer in neovim
+vim.api.nvim_create_autocmd({ "FileType", "VimEnter" }, {
+  pattern = { "nu" },
+  callback = function()
+    vim.treesitter.start()
+  end,
+})
 
 require("vim._core.ui2").enable({ enable = true })
 vim.g.smart_splits_multiplexer_integration = "tmux"

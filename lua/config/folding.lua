@@ -41,7 +41,13 @@ vim.opt.foldtext = ""
 vim.opt.viewoptions:append("folds")
 vim.opt.foldopen:remove("hor")
 
-map("n", "<leader>uf", "za", "Toggle fold", { silent = true })
+map("n", "<leader>uf", function()
+  if vim.fn.foldclosed(".") ~= -1 then
+    vim.cmd("normal! zO")
+  else
+    vim.cmd("normal! zc")
+  end
+end, "Open fold recursively / close fold", { silent = true })
 map("n", "<leader>uF", toggle_all_folds, "Toggle all folds", { silent = true })
 map("n", "<leader>un", function()
   jump_closed_fold("next")

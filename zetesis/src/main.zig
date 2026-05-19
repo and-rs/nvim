@@ -11,28 +11,14 @@ const picker_state = @import("picker_state.zig");
 
 pub const panic = vaxis.panic_handler;
 
-const Flag = enum {
-    mode_files,
-    mode_help,
-    mode_pick,
-    cwd,
-    help,
-    plain,
-    filter,
-    output_file,
-    current_file,
-    debug_scores,
-    hide_scores,
-};
-
 const Mode = enum {
-    pick,
+    stdin,
     files,
     help,
 };
 
 const Config = struct {
-    mode: Mode = .pick,
+    mode: Mode = .stdin,
     filter: ?[]const u8 = null,
     cwd: ?[]const u8 = null,
     current_file: ?[]const u8 = null,
@@ -52,10 +38,10 @@ pub fn main(init: std.process.Init) anyerror!void {
     const stderr = &stderr_writer.interface;
 
     const args = try init.minimal.args.toSlice(allocator);
-    const config = handleFlag(args, stderr);
+    const config = parseArgs(args, stderr);
 
     switch (config.mode) {
-        .pick => try runPick(init, allocator, config),
+        .stdin => try runPick(init, allocator, config),
         .files => try runFiles(init, allocator, config),
         .help => try runHelp(init, allocator, config),
     }
@@ -170,10 +156,24 @@ fn collectLines(allocator: std.mem.Allocator, input: []const u8) ![]const []cons
     return lines.toOwnedSlice(allocator);
 }
 
+const Flag = enum {
+    cwd,
+    help,
+    plain,
+    filter,
+    output_file,
+    current_file,
+    debug_scores,
+    hide_scores,
+};
+
+const subcommands = std.StaticStringMap(Mode).initComptime(.{
+    .{ "files", .files },
+    .{ "stdin", .stdin },
+    .{ "help", .help },
+});
+
 const flags = std.StaticStringMap(Flag).initComptime(.{
-    .{ "files", .mode_files },
-    .{ "help", .mode_help },
-    .{ "pick", .mode_pick },
     .{ "-h", .help },
     .{ "-p", .plain },
     .{ "-f", .filter },
@@ -187,33 +187,57 @@ const flags = std.StaticStringMap(Flag).initComptime(.{
     .{ "--hide-scores", .hide_scores },
 });
 
-fn handleFlag(args: []const []const u8, stderr: *std.Io.Writer) Config {
-    var config: Config = .{};
-    var index: usize = 1;
-    while (index < args.len) : (index += 1) {
-        const flag = args[index];
-        if (flags.get(flag)) |f| {
-            switch (f) {
-                .mode_pick => {
-                    config.mode = .pick;
-                    config.show_scores = false;
-                },
-                .mode_help => config.mode = .help,
-                .mode_files => config.mode = .files,
-                .cwd => config.cwd = nextArg(args, &index, stderr),
-                .help => usage(stderr, 0),
-                .plain => config.plain = true,
-                .filter => config.filter = nextArg(args, &index, stderr),
-                .output_file => config.output_file = nextArg(args, &index, stderr),
-                .current_file => config.current_file = nextArg(args, &index, stderr),
-                .debug_scores => config.debug_scores = true,
-                .hide_scores => config.show_scores = false,
-            }
-        } else {
-            usage(stderr, 2);
+fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
+    if (args.len < 2) return usage(stderr, 2);
+
+    const mode = subcommands.get(args[1]) orelse return usage(stderr, 2);
+    var config: Config = .{ .mode = mode };
+    var idx: usize = 2;
+
+    switch (mode) {
+        .help => return config,
+        .stdin => parseStdinFlags(&config, args, &idx, stderr),
+        .files => parseFilesFlags(&config, args, &idx, stderr),
+    }
+
+    return config;
+}
+
+fn parseStdinFlags(config: *Config, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+    while (idx.* < args.len) : (idx.* += 1) {
+        const flag = parseFlag(args[idx.*], stderr);
+        switch (flag) {
+            .cwd => usage(stderr, 2),
+            else => applySharedFlag(config, flag, args, idx, stderr),
         }
     }
-    return config;
+}
+
+fn parseFilesFlags(config: *Config, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+    while (idx.* < args.len) : (idx.* += 1) {
+        const flag = parseFlag(args[idx.*], stderr);
+        switch (flag) {
+            .cwd => config.cwd = nextArg(args, idx, stderr),
+            else => applySharedFlag(config, flag, args, idx, stderr),
+        }
+    }
+}
+
+fn applySharedFlag(config: *Config, flag: Flag, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+    switch (flag) {
+        .cwd => unreachable,
+        .help => usage(stderr, 0),
+        .plain => config.plain = true,
+        .filter => config.filter = nextArg(args, idx, stderr),
+        .output_file => config.output_file = nextArg(args, idx, stderr),
+        .current_file => config.current_file = nextArg(args, idx, stderr),
+        .debug_scores => config.debug_scores = true,
+        .hide_scores => config.show_scores = false,
+    }
+}
+
+fn parseFlag(arg: []const u8, stderr: *std.Io.Writer) Flag {
+    return flags.get(arg) orelse usage(stderr, 2);
 }
 
 fn nextArg(args: []const []const u8, index: *usize, stderr: *std.Io.Writer) []const u8 {
@@ -224,7 +248,7 @@ fn nextArg(args: []const []const u8, index: *usize, stderr: *std.Io.Writer) []co
 
 fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
     stderr.writeAll(
-        \\Usage: zt [pick|files|help] [options]
+        \\Usage: zt [stdin|files|help] [options]
         \\
         \\Options:
         \\  -f, --filter QUERY       Filter without interactive TUI.
@@ -232,7 +256,7 @@ fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
         \\      --current-file PATH  Current editor file path.
         \\      --output-file PATH   Write selected item to file after TUI exits.
         \\  -p, --plain              Disable filepath ranking boosts.
-        \\      --show-scores        Show score column in interactive TUI.
+        \\      --hide-scores        Hide score column in interactive TUI.
         \\      --debug-scores       Print score breakdown in filter mode.
         \\  -h, --help               Show help.
         \\

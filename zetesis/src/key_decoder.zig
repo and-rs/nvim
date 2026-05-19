@@ -20,6 +20,7 @@ pub const Special = enum {
     enter,
     down,
     up,
+    f1,
 };
 
 pub const Input = struct {
@@ -34,6 +35,7 @@ pub fn decodeInput(input: Input) Command {
         .enter => .open,
         .down => .down,
         .up => .up,
+        .f1 => .help,
         .none => decodeByte(input.byte, input.ctrl),
     };
 }
@@ -43,6 +45,7 @@ pub fn decodeKey(key: vaxis.Key) Command {
     if (key.matches(vaxis.Key.enter, .{})) return .open;
     if (key.matches(vaxis.Key.down, .{})) return .down;
     if (key.matches(vaxis.Key.up, .{})) return .up;
+    if (key.matches(vaxis.Key.f1, .{})) return .help;
     if (key.matches('c', .{ .ctrl = true })) return .quit;
     if (key.matches('y', .{ .ctrl = true })) return .mark;
     if (key.matches('v', .{ .ctrl = true })) return .vsplit;
@@ -77,6 +80,10 @@ fn decodeByte(byte: ?u8, ctrl: bool) Command {
 
 test "ctrl semicolon opens help" {
     try std.testing.expectEqual(Command.help, decodeInput(.{ .byte = ';', .ctrl = true }));
+}
+
+test "f1 opens help" {
+    try std.testing.expectEqual(Command.help, decodeInput(.{ .special = .f1 }));
 }
 
 test "ctrl g is not a picker command" {

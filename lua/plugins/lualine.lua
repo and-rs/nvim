@@ -58,9 +58,9 @@ end
 local function get_theme(colors)
   return {
     normal = {
-      a = { fg = colors.white },
-      b = { fg = colors.white },
-      c = { fg = colors.white },
+      a = { fg = colors.cyan },
+      b = { fg = colors.cyan },
+      c = { fg = colors.cyan },
     },
     insert = {
       a = { fg = colors.green },
