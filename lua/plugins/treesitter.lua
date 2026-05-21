@@ -5,6 +5,7 @@ vim.treesitter.language.register("tsx", { "typescriptreact", "javascriptreact" }
 
 vim.filetype.add({
   extension = {
+    sh = "bash",
     mdx = "markdown",
     qml = "qmljs",
     jinja = "jinja",
@@ -92,3 +93,4 @@ end)
 require("nvim-treesitter").install(parser_languages)
 
 return M
+
