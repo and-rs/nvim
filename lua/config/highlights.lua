@@ -1,11 +1,6 @@
 local color = require("config.coloring")
 local palette = require("config.palette")
 
-local adjust = {
-  light = { yank = 1.7, visual = 1.74, diag = 1.8 },
-  dark = { yank = 0.5, visual = 0.3, diag = 0.2 },
-}
-
 ---@param specs table<string, vim.api.keyset.highlight>
 local function apply_specs(specs)
   for group, spec in pairs(specs) do
@@ -16,61 +11,74 @@ end
 local function apply()
   palette.apply()
 
-  local mode = vim.o.background == "light" and "light" or "dark"
-  local a = adjust[mode]
-
-  local normal_bg = color.get("Normal").bg
-  local normal_fg = color.get("Normal").fg
-  local blue = color.get("NvimBlue").fg
-  local grey = color.get("NvimGrey").fg
-  local yellow = color.get("NvimYellow").fg
-  local green = color.get("NvimGreen").fg
-  local visual_bg = color.adjust_hex(grey, a.visual)
-  local visual_bg_native = color.get("Visual").bg
-  local diagnostic_info = color.get("DiagnosticInfo").fg or blue
-  local diagnostic_hint = color.get("DiagnosticHint").fg or blue
-  local diagnostic_warn = color.get("DiagnosticWarn").fg or yellow
-  local diagnostic_error = color.get("DiagnosticError").fg or color.get("NvimRed").fg
-
   ---@type table<string, vim.api.keyset.highlight>
   local specs = {
     DiagnosticUnnecessary = { underline = true },
     DiagnosticUnderlineError = { underline = false, undercurl = true },
     DiagnosticVirtualTextInfo = {
-      fg = diagnostic_info,
-      bg = color.adjust_hex(diagnostic_info, a.diag),
+      fg = color.get("DiagnosticInfo").fg or color.get("NvimBlue").fg,
+      bg = color.adjust_hex(color.get("DiagnosticInfo").fg or color.get("NvimBlue").fg, 0.2),
     },
     DiagnosticVirtualTextHint = {
-      fg = diagnostic_hint,
-      bg = color.adjust_hex(diagnostic_hint, a.diag),
+      fg = color.get("DiagnosticHint").fg or color.get("NvimBlue").fg,
+      bg = color.adjust_hex(color.get("DiagnosticHint").fg or color.get("NvimBlue").fg, 0.2),
     },
     DiagnosticVirtualTextWarn = {
-      fg = diagnostic_warn,
-      bg = color.adjust_hex(diagnostic_warn, a.diag),
+      fg = color.get("DiagnosticWarn").fg or color.get("NvimYellow").fg,
+      bg = color.adjust_hex(color.get("DiagnosticWarn").fg or color.get("NvimYellow").fg, 0.2),
     },
     DiagnosticVirtualTextError = {
-      fg = diagnostic_error,
-      bg = color.adjust_hex(diagnostic_error, a.diag),
+      fg = color.get("DiagnosticError").fg or color.get("NvimRed").fg,
+      bg = color.adjust_hex(color.get("DiagnosticError").fg or color.get("NvimRed").fg, 0.2),
     },
 
-    TabKey = { fg = blue, bg = visual_bg, underline = true },
-    TabLine = { fg = blue, bg = visual_bg },
+    TabKey = {
+      fg = color.get("NvimBlue").fg,
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      underline = true
+    },
+    TabLine = {
+      fg = color.get("NvimBlue").fg,
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3)
+    },
 
-    TabKeySel = { fg = visual_bg, bg = blue, underline = true, bold = true },
-    TabLineSel = { fg = visual_bg, bg = blue, bold = true },
+    TabKeySel = {
+      fg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      bg = color.get("NvimBlue").fg,
+      underline = true,
+      bold = true,
+    },
+    TabLineSel = {
+      fg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      bg = color.get("NvimBlue").fg,
+      bold = true
+    },
 
     YaziFloat = { link = "NormalFloat" },
     YaziFloatBorder = { link = "FloatBorder" },
 
-    Substitute = { bg = green, fg = normal_bg },
-    IncSearch = { bg = visual_bg, fg = green, underline = true },
-    MatchParen = { bg = visual_bg, fg = green, bold = true, underline = true },
+    Substitute = { bg = color.get("NvimGreen").fg, fg = color.get("Normal").bg },
+    IncSearch = {
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      fg = color.get("NvimGreen").fg,
+      underline = true,
+    },
+    MatchParen = {
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      fg = color.get("NvimGreen").fg,
+      bold = true,
+      underline = true,
+    },
 
-    Select = { bg = normal_bg },
-    YankHighlight = { bg = color.adjust_hex(blue, a.yank) },
-    VisualNonText = { fg = color.adjust_hex(color.get("Visual").bg, 1.1), bg = visual_bg_native },
-    Search = { bg = normal_bg, fg = normal_fg, underline = true },
+    Select = { bg = color.get("Normal").bg },
+    YankHighlight = { bg = color.adjust_hex(color.get("NvimYellow").fg, 0.5) },
+    VisualNonText = {
+      fg = color.adjust_hex(color.get("Visual").bg, 1.1),
+      bg = color.get("Visual").bg,
+    },
+    Search = { bg = color.get("Normal").bg, fg = color.get("Normal").fg, underline = true },
   }
+
 
   apply_specs(specs)
 end

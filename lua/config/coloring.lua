@@ -62,12 +62,13 @@ function M.rgb_to_hex(r, g, b)
   return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
 end
 
----@param hex string | nil
----@param factor number | nil
----@return string
-function M.adjust_hex(hex, factor)
-  hex = M.validate_hex(hex)
+---@class ColorAdjustOpts
+---@field invert_on_light boolean?
 
+---@param factor number
+---@param options ColorAdjustOpts?
+---@return number
+local function normalize_factor(factor, options)
   factor = factor or 1
   if factor < 0 then
     factor = 0
@@ -75,6 +76,23 @@ function M.adjust_hex(hex, factor)
   if factor > 2 then
     factor = 2
   end
+
+  if options == nil or options.invert_on_light ~= false then
+    if vim.o.background == "light" then
+      factor = 2 - factor
+    end
+  end
+
+  return factor
+end
+
+---@param hex string | nil
+---@param factor number | nil
+---@param options ColorAdjustOpts?
+---@return string
+function M.adjust_hex(hex, factor, options)
+  hex = M.validate_hex(hex)
+  factor = normalize_factor(factor or 1, options)
 
   local r, g, b = M.hex_to_rgb(hex)
 

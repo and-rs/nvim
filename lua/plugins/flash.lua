@@ -2,6 +2,7 @@ vim.schedule(function()
   vim.pack.add({ "https://github.com/and-rs/flash.nvim" })
 
   local color = require("config.coloring")
+
   local function set_flash_rainbow(name, base_hl)
     local fg_color = color.get(base_hl).fg
     if not fg_color then
