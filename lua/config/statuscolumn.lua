@@ -60,12 +60,12 @@ local function is_edit_window(buf, win)
   if vim.bo[buf].buftype ~= "" then
     return false
   end
-  if vim.bo[buf].filetype == "" or not vim.bo[buf].modifiable or not vim.bo[buf].buflisted then
-    return false
-  end
-  if not treesitter.has_highlighting(buf) then
-    return false
-  end
+  -- if vim.bo[buf].filetype == "" or not vim.bo[buf].modifiable or not vim.bo[buf].buflisted then
+  --   return false
+  -- end
+  -- if not treesitter.has_highlighting(buf) then
+  --   return false
+  -- end
   return true
 end
 
@@ -94,3 +94,4 @@ return {
   render_border = render_border,
   render_normal_statuscolumn = render_normal_statuscolumn,
 }
+
