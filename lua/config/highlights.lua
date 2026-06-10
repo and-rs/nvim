@@ -70,8 +70,12 @@ local function apply()
       underline = true,
     },
 
+    ["@markup.raw.markdown_inline"] = {
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+    },
+
     Select = { bg = color.get("Normal").bg },
-    YankHighlight = { bg = color.adjust_hex(color.get("NvimYellow").fg, 0.5) },
+    YankHighlight = { bg = color.adjust_hex(color.get("NvimGreen").fg, 0.5) },
     VisualNonText = {
       fg = color.adjust_hex(color.get("Visual").bg, 1.1),
       bg = color.get("Visual").bg,

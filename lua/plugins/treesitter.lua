@@ -51,7 +51,6 @@ local parser_languages = {
   "kdl",
   "nu",
   "bash",
-  "sql",
   "jinja",
   "python",
   "vim",
@@ -63,6 +62,11 @@ local parser_languages = {
   "zig",
   "go",
 }
+
+vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
+  pattern = { "sql" },
+  command = "syntax off",
+})
 
 local filetypes = vim.list_extend(vim.deepcopy(parser_languages), {
   "typescriptreact",
@@ -93,4 +97,3 @@ end)
 require("nvim-treesitter").install(parser_languages)
 
 return M
-

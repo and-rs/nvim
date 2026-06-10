@@ -142,7 +142,7 @@ vim.lsp.config.jsonls = {
 }
 
 vim.lsp.config.html = {
-  filetypes = { "jinja", "htmldjango" },
+  filetypes = { "htmldjango" },
 }
 
 vim.lsp.config.cssls = {

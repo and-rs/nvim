@@ -20,6 +20,12 @@ conform.formatters = {
   sleek = {
     append_args = { "--indent-spaces=2", "--lines-between-queries=1" },
   },
+  sqlfluff = {
+    command = "sqlfluff",
+    args = { "fix", "--dialect=snowflake", "--templater=jinja" },
+    require_cwd = false,
+    stdin = true,
+  },
   deno_fmt = {
     append_args = { "--prose-wrap=always" },
   },
@@ -63,7 +69,7 @@ conform.setup({
     kdl = { "kdlfmt" },
     lua = { "stylua" },
     nix = { "nixfmt" },
-    sql = { "sleek" },
+    sql = { "sqlfluff" },
   },
   format_on_save = {
     lsp_fallback = true,
