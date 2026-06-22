@@ -142,7 +142,6 @@ pub const State = struct {
         return std.fmt.allocPrint(arena, "{d}", .{rounded});
     }
 
-
     fn appendRowBoxes(self: *State, arena: std.mem.Allocator) !void {
         for (self.rows.items) |*row| {
             try self.row_boxes.append(arena, .{
@@ -151,7 +150,6 @@ pub const State = struct {
             });
         }
     }
-
 
     fn rankedRowLessThan(_: void, left: RankedRow, right: RankedRow) bool {
         const left_score = left.line.score.total();
@@ -178,13 +176,11 @@ pub const State = struct {
         };
     }
 
-
     fn gitStatusAt(statuses: ?GitStatuses, index: usize) Row.GitStatus {
         const values = statuses orelse return .none;
         if (index >= values.len) return .none;
         return values[index];
     }
-
 
     fn isMarked(self: *const State, mode: state.Mode, text: []const u8) bool {
         if (mode != .files) return false;

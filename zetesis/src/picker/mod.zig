@@ -81,7 +81,7 @@ const Model = struct {
         const self: *Model = @ptrCast(@alignCast(ptr));
         switch (event) {
             .init => {
-                try self.refresh(self.state.currentQuery());
+                try self.refresh(self.state.currentQuery(), .reset);
                 return ctx.requestFocus(self.text_field.widget());
             },
             .key_press => |key| {
@@ -107,20 +107,15 @@ const Model = struct {
             .mark => return self.markCurrent(ctx),
             .vsplit => return self.finishAction(ctx, .vsplit),
             .tabedit => return self.finishAction(ctx, .tabedit),
-            .move_down => {
-                self.scroll_view.nextItem(ctx);
-                return;
-            },
-            .move_up => {
-                self.scroll_view.prevItem(ctx);
-                return;
-            },
+            .move_down => return self.moveCursor(ctx, .down),
+            .move_up => return self.moveCursor(ctx, .up),
         }
     }
 
     fn typeErasedDrawFn(ptr: *anyopaque, ctx: vxfw.DrawContext) std.mem.Allocator.Error!vxfw.Surface {
         const self: *Model = @ptrCast(@alignCast(ptr));
         const max = ctx.max.size();
+        self.syncViewport(.preserve);
 
         const prompt_text = if (self.state.mode == .help) ":" else "$";
         const prompt: vxfw.Text = .{ .text = prompt_text, .style = .{ .fg = .{ .index = 2 } } };
@@ -210,9 +205,8 @@ const Model = struct {
         const ptr = maybe_ptr orelse return;
         const self: *Model = @ptrCast(@alignCast(ptr));
         try self.state.setQuery(query);
-        try self.refresh(query);
-        self.scroll_view.cursor = 0;
-        self.state.saveCursor(0);
+        try self.refresh(query, .reset);
+        self.state.saveCursor(self.scroll_view.cursor);
         return ctx.consumeAndRedraw();
     }
 
@@ -261,9 +255,40 @@ const Model = struct {
     fn switchMode(self: *Model, ctx: *vxfw.EventContext, mode: Mode) !void {
         self.state.switchMode(mode, self.scroll_view.cursor);
         try self.setTextFieldValue(self.state.currentQuery());
-        try self.refresh(self.state.currentQuery());
+        try self.refresh(self.state.currentQuery(), .reset);
         self.scroll_view.cursor = @intCast(self.state.clampCursor(self.list.len()));
+        self.syncViewport(.preserve);
         return ctx.consumeAndRedraw();
+    }
+
+    const ViewportSync = enum { preserve, reset };
+
+    const CursorDirection = enum { down, up };
+
+    fn moveCursor(self: *Model, ctx: *vxfw.EventContext, direction: CursorDirection) void {
+        self.syncViewport(.preserve);
+        switch (direction) {
+            .down => self.scroll_view.nextItem(ctx),
+            .up => self.scroll_view.prevItem(ctx),
+        }
+        self.syncViewport(.preserve);
+        self.state.saveCursor(self.scroll_view.cursor);
+    }
+
+    fn syncViewport(self: *Model, mode: ViewportSync) void {
+        const count = self.list.len();
+        self.scroll_view.item_count = @intCast(count);
+
+        if (mode == .reset) self.scroll_view.scroll = .{};
+        if (count == 0) {
+            self.scroll_view.cursor = 0;
+            self.scroll_view.scroll = .{};
+            return;
+        }
+
+        if (self.scroll_view.cursor >= count) self.scroll_view.cursor = @intCast(count - 1);
+        if (self.scroll_view.scroll.top >= count) self.scroll_view.scroll = .{};
+        self.scroll_view.ensureScroll();
     }
 
     fn setTextFieldValue(self: *Model, query: []const u8) !void {
@@ -278,6 +303,7 @@ const Model = struct {
         try self.list.toggleMark(self.gpa, self.state.mode, self.scroll_view.cursor);
         if (self.scroll_view.cursor + 1 < self.list.len()) {
             self.scroll_view.nextItem(ctx);
+            self.syncViewport(.preserve);
             self.state.saveCursor(self.scroll_view.cursor);
             return;
         }
@@ -292,12 +318,13 @@ const Model = struct {
             return;
         }
 
+        self.syncViewport(.preserve);
         const path = self.list.currentText(self.scroll_view.cursor) orelse return ctx.consumeAndRedraw();
         self.result = try formatActionResult(self.gpa, action, &.{path});
         ctx.quit = true;
     }
 
-    fn refresh(self: *Model, query: []const u8) !void {
+    fn refresh(self: *Model, query: []const u8, viewport_sync: ViewportSync) !void {
         const arena = self.arena.allocator();
         self.list.clear(arena);
         _ = self.arena.reset(.free_all);
@@ -321,6 +348,7 @@ const Model = struct {
             self.rank_options,
             self.show_scores,
         );
+        self.syncViewport(viewport_sync);
     }
 };
 
