@@ -64,7 +64,7 @@ conform.setup({
     ocaml = { "ocamlformat" },
 
     markdown = { "deno_fmt_md" },
-    qml = { "qmlformat" },
+    qmljs = { "qmlformat" },
     yaml = { "yamlfmt" },
     kdl = { "kdlfmt" },
     lua = { "stylua" },

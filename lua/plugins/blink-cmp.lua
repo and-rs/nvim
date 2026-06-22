@@ -13,7 +13,7 @@ local function load()
   })
 
   local cmp = require("blink.cmp")
-  cmp.build():wait(6000000)
+  cmp.build():wait(600)
   cmp.setup({
     enabled = function()
       local filetype = vim.bo[0].filetype == "fzf"
