@@ -32,6 +32,10 @@
       "rev": "5c22774c3ecc7f8883af5d143b366e45b1f0875d",
       "src": "https://github.com/hat0uma/csvview.nvim"
     },
+    "exoskeleton.nvim": {
+      "rev": "c62068a62cbb098d910bc1ad879fb47decfb8046",
+      "src": "file:///home/and-rs/Vault/dev/exoskeleton"
+    },
     "fidget.nvim": {
       "rev": "889e2e96edef4e144965571d46f7a77bcc4d0ddf",
       "src": "https://github.com/j-hui/fidget.nvim"

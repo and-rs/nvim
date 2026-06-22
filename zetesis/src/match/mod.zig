@@ -19,7 +19,9 @@ pub const ScoreBreakdown = struct {
 
 pub const RankedLine = struct {
     text: []const u8,
+    source_index: usize,
     score: ScoreBreakdown,
+    match_indexes: []const usize = &.{},
 };
 
 pub fn hasUpper(text: []const u8) bool {
@@ -96,15 +98,60 @@ pub fn rankAndSort(
     opts: RankOptions,
 ) ![]RankedLine {
     var ranked: std.ArrayList(RankedLine) = .empty;
-    for (lines) |line| {
+    for (lines, 0..) |line, index| {
         if (needles.len == 0) {
-            try ranked.append(allocator, .{ .text = line, .score = applyContextScore(line, .{}, opts) });
+            try ranked.append(allocator, .{ .text = line, .source_index = index, .score = applyContextScore(line, .{}, opts) });
         } else if (rank(line, needles, opts)) |score| {
-            try ranked.append(allocator, .{ .text = line, .score = score });
+            try ranked.append(allocator, .{ .text = line, .source_index = index, .score = score, .match_indexes = try matchIndexes(allocator, line, needles, opts.case_sensitive) });
         }
     }
     std.mem.sort(RankedLine, ranked.items, {}, compareRankedLine);
     return ranked.toOwnedSlice(allocator);
+}
+
+pub fn rankAndSortLimit(
+    allocator: std.mem.Allocator,
+    lines: []const []const u8,
+    needles: []const []const u8,
+    opts: RankOptions,
+    limit: usize,
+) ![]RankedLine {
+    if (limit == 0) return &.{};
+
+    var ranked: std.ArrayList(RankedLine) = .empty;
+    for (lines, 0..) |line, index| {
+        const score = if (needles.len == 0) applyContextScore(line, .{}, opts) else rank(line, needles, opts) orelse continue;
+        try insertBounded(allocator, &ranked, .{ .text = line, .source_index = index, .score = score }, limit);
+    }
+
+    if (needles.len != 0) {
+        for (ranked.items) |*line| {
+            line.match_indexes = try matchIndexes(allocator, line.text, needles, opts.case_sensitive);
+        }
+    }
+
+    return ranked.toOwnedSlice(allocator);
+}
+
+fn insertBounded(allocator: std.mem.Allocator, ranked: *std.ArrayList(RankedLine), candidate: RankedLine, limit: usize) !void {
+    var index: usize = 0;
+    while (index < ranked.items.len) : (index += 1) {
+        if (compareRankedLine({}, candidate, ranked.items[index])) break;
+    }
+
+    if (index >= limit) return;
+    if (ranked.items.len < limit) {
+        try ranked.append(allocator, candidate);
+    } else {
+        _ = ranked.pop();
+        try ranked.append(allocator, candidate);
+    }
+
+    var move_index = ranked.items.len - 1;
+    while (move_index > index) : (move_index -= 1) {
+        ranked.items[move_index] = ranked.items[move_index - 1];
+    }
+    ranked.items[index] = candidate;
 }
 
 fn applyContextScore(line: []const u8, score: ScoreBreakdown, opts: RankOptions) ScoreBreakdown {
@@ -183,6 +230,31 @@ fn scoreSubsequence(haystack: []const u8, needle: []const u8, case_sensitive: bo
     return score + coverage * 5.0;
 }
 
+fn matchIndexes(allocator: std.mem.Allocator, haystack: []const u8, needles: []const []const u8, case_sensitive: bool) ![]const usize {
+    var indexes: std.ArrayList(usize) = .empty;
+    errdefer indexes.deinit(allocator);
+
+    for (needles) |needle| {
+        var start: usize = 0;
+        var iter = std.mem.splitAny(u8, needle, "/\\");
+        while (iter.next()) |segment| {
+            if (segment.len == 0) continue;
+            for (segment) |byte| {
+                const found = findByte(haystack, start, byte, case_sensitive) orelse break;
+                try indexes.append(allocator, found);
+                start = found + 1;
+            }
+        }
+    }
+
+    std.mem.sort(usize, indexes.items, {}, lessThanUsize);
+    return indexes.toOwnedSlice(allocator);
+}
+
+fn lessThanUsize(_: void, left: usize, right: usize) bool {
+    return left < right;
+}
+
 fn findByte(haystack: []const u8, start: usize, needle: u8, case_sensitive: bool) ?usize {
     if (case_sensitive) return std.mem.indexOfScalarPos(u8, haystack, start, needle);
 
@@ -243,4 +315,27 @@ test "current file penalty lowers total only" {
     const ranked = rank("src/main.zig", &.{"main"}, .{ .current_file = "src/main.zig" }) orelse return error.TestUnexpectedResult;
     try testing.expect(ranked.fuzzy > 0);
     try testing.expect(ranked.current_file_penalty < 0);
+}
+
+test "ranked lines keep source index and match positions" {
+    const ranked = try rankAndSort(std.testing.allocator, &.{ "src/main.zig", "README.md" }, &.{"main"}, .{});
+    defer {
+        for (ranked) |line| std.testing.allocator.free(line.match_indexes);
+        std.testing.allocator.free(ranked);
+    }
+
+    try std.testing.expectEqual(@as(usize, 0), ranked[0].source_index);
+    try std.testing.expectEqual(@as(usize, 4), ranked[0].match_indexes.len);
+    try std.testing.expectEqual(@as(usize, 4), ranked[0].match_indexes[0]);
+}
+
+test "ranked lines limit keeps only best matches" {
+    const ranked = try rankAndSortLimit(std.testing.allocator, &.{ "src/main.zig", "src/matcher.zig", "README.md" }, &.{"zig"}, .{}, 1);
+    defer {
+        for (ranked) |line| std.testing.allocator.free(line.match_indexes);
+        std.testing.allocator.free(ranked);
+    }
+
+    try std.testing.expectEqual(@as(usize, 1), ranked.len);
+    try std.testing.expect(ranked[0].match_indexes.len > 0);
 }

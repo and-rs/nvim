@@ -1,7 +1,7 @@
 const std = @import("std");
 
 const key_decoder = @import("key_decoder.zig");
-const picker_state = @import("picker_state.zig");
+const state = @import("state.zig");
 
 pub const Effect = enum {
     none,
@@ -16,7 +16,7 @@ pub const Effect = enum {
     move_up,
 };
 
-pub fn reduce(mode: picker_state.Mode, command: key_decoder.Command) Effect {
+pub fn reduce(mode: state.Mode, command: key_decoder.Command) Effect {
     return switch (command) {
         .none => .none,
         .quit => .quit,

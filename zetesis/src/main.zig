@@ -1,13 +1,14 @@
 const std = @import("std");
 const vaxis = @import("vaxis");
 
-const matcher = @import("matcher.zig");
-const files = @import("files.zig");
-const picker = @import("picker.zig");
-const actions = @import("actions.zig");
-const key_decoder = @import("key_decoder.zig");
-const picker_reducer = @import("picker_reducer.zig");
-const picker_state = @import("picker_state.zig");
+const matcher = @import("match/mod.zig");
+const files = @import("files/mod.zig");
+const picker = @import("picker/mod.zig");
+const actions = @import("picker/actions.zig");
+const key_decoder = @import("picker/key_decoder.zig");
+const reducer = @import("picker/reducer.zig");
+const state = @import("picker/state.zig");
+const Row = @import("picker/row.zig");
 
 pub const panic = vaxis.panic_handler;
 
@@ -50,13 +51,19 @@ pub fn main(init: std.process.Init) anyerror!void {
 fn runPick(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
     const input = try readStdin(init.io, allocator);
     const lines = try collectLines(allocator, input);
-    try runPicker(init, allocator, config, lines, .{ .plain = config.plain });
+    try runPicker(init, allocator, config, lines, null, .{ .plain = config.plain });
 }
 
 fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
     const cwd = config.cwd orelse ".";
-    const lines = try files.collectProjectFiles(allocator, init.io, cwd);
-    try runPicker(init, allocator, config, lines, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
+    const entries = try files.collectProjectEntries(allocator, init.io, cwd);
+    const lines = try allocator.alloc([]const u8, entries.len);
+    const git_statuses = try allocator.alloc(Row.GitStatus, entries.len);
+    for (entries, 0..) |entry, index| {
+        lines[index] = entry.path;
+        git_statuses[index] = entry.git_status;
+    }
+    try runPicker(init, allocator, config, lines, git_statuses, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
 }
 
 fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
@@ -79,7 +86,7 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     }
 }
 
-fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, rank_options: matcher.RankOptions) !void {
+fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, git_statuses: ?[]const Row.GitStatus, rank_options: matcher.RankOptions) !void {
     var stdout_file: std.Io.File = .stdout();
     var stdout_buf: [1024]u8 = undefined;
     var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
@@ -96,7 +103,7 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
         return;
     }
 
-    const result = try picker.run(init, allocator, lines, rank_options, config.show_scores);
+    const result = try picker.run(init, allocator, lines, git_statuses, rank_options, config.show_scores);
     if (result.len == 0) std.process.exit(130);
     if (config.output_file) |path| {
         try std.Io.Dir.writeFile(.cwd(), init.io, .{ .sub_path = path, .data = result });
@@ -271,6 +278,6 @@ test {
     _ = key_decoder;
     _ = matcher;
     _ = picker;
-    _ = picker_reducer;
-    _ = picker_state;
+    _ = reducer;
+    _ = state;
 }

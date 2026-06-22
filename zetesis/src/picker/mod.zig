@@ -3,27 +3,28 @@ const vaxis = @import("vaxis");
 
 const actions = @import("actions.zig");
 const key_decoder = @import("key_decoder.zig");
-const matcher = @import("matcher.zig");
-const picker_reducer = @import("picker_reducer.zig");
-const picker_state = @import("picker_state.zig");
-const picker_list = @import("picker_list.zig");
+const matcher = @import("../match/mod.zig");
+const reducer = @import("reducer.zig");
+const state = @import("state.zig");
+const list = @import("list.zig");
 
 const Action = actions.Action;
-const Mode = picker_state.Mode;
+const Mode = state.Mode;
 const vxfw = vaxis.vxfw;
 
 const Model = struct {
     gpa: std.mem.Allocator,
     lines: []const []const u8,
-    list: picker_list.State,
+    git_statuses: ?list.GitStatuses,
+    list: list.State,
     scroll_view: vxfw.ScrollView,
     text_field: vxfw.TextField,
     arena: std.heap.ArenaAllocator,
     result: []const u8,
     rank_options: matcher.RankOptions,
     show_scores: bool,
-    state: picker_state.State,
-    pub fn init(gpa: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions, show_scores: bool) !*Model {
+    state: state.State,
+    pub fn init(gpa: std.mem.Allocator, lines: []const []const u8, git_statuses: ?list.GitStatuses, rank_options: matcher.RankOptions, show_scores: bool) !*Model {
         const model = try gpa.create(Model);
         errdefer gpa.destroy(model);
 
@@ -31,6 +32,7 @@ const Model = struct {
             .list = .{},
             .gpa = gpa,
             .lines = lines,
+            .git_statuses = git_statuses,
             .rank_options = rank_options,
             .show_scores = show_scores,
             .scroll_view = .{
@@ -53,7 +55,7 @@ const Model = struct {
             },
             .arena = .init(gpa),
             .result = "",
-            .state = picker_state.State.init(gpa),
+            .state = state.State.init(gpa),
         };
 
         return model;
@@ -84,7 +86,7 @@ const Model = struct {
             },
             .key_press => |key| {
                 const command = key_decoder.decodeKey(key);
-                const effect = picker_reducer.reduce(self.state.mode, command);
+                const effect = reducer.reduce(self.state.mode, command);
                 return self.applyEffect(ctx, event, effect);
             },
             .focus_in => return ctx.requestFocus(self.text_field.widget()),
@@ -92,7 +94,7 @@ const Model = struct {
         }
     }
 
-    fn applyEffect(self: *Model, ctx: *vxfw.EventContext, event: vxfw.Event, effect: picker_reducer.Effect) !void {
+    fn applyEffect(self: *Model, ctx: *vxfw.EventContext, event: vxfw.Event, effect: reducer.Effect) !void {
         switch (effect) {
             .none => return self.scroll_view.handleEvent(ctx, event),
             .quit => {
@@ -204,13 +206,14 @@ const Model = struct {
         return self.list.widgetAt(index);
     }
 
-    fn onChange(maybe_ptr: ?*anyopaque, _: *vxfw.EventContext, query: []const u8) anyerror!void {
+    fn onChange(maybe_ptr: ?*anyopaque, ctx: *vxfw.EventContext, query: []const u8) anyerror!void {
         const ptr = maybe_ptr orelse return;
         const self: *Model = @ptrCast(@alignCast(ptr));
         try self.state.setQuery(query);
         try self.refresh(query);
         self.scroll_view.cursor = 0;
         self.state.saveCursor(0);
+        return ctx.consumeAndRedraw();
     }
 
     fn onSubmit(maybe_ptr: ?*anyopaque, ctx: *vxfw.EventContext, _: []const u8) anyerror!void {
@@ -304,9 +307,14 @@ const Model = struct {
             .files => self.lines,
             .help => actions.help_lines[0..],
         };
+        const git_statuses = switch (self.state.mode) {
+            .files => self.git_statuses,
+            .help => null,
+        };
         try self.list.refresh(
             fresh_arena,
             source,
+            git_statuses,
             query,
             self.state.mode,
             &self.scroll_view.cursor,
@@ -327,12 +335,12 @@ pub fn formatActionResult(allocator: std.mem.Allocator, action: Action, paths: [
     return result.toOwnedSlice(allocator);
 }
 
-pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, rank_options: matcher.RankOptions, show_scores: bool) ![]const u8 {
+pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, git_statuses: ?list.GitStatuses, rank_options: matcher.RankOptions, show_scores: bool) ![]const u8 {
     var buffer: [1024]u8 = undefined;
     var app: vxfw.App = try .init(init.io, allocator, init.environ_map, &buffer);
     defer app.deinit();
 
-    const model = try Model.init(allocator, lines, rank_options, show_scores);
+    const model = try Model.init(allocator, lines, git_statuses, rank_options, show_scores);
     defer model.deinit(allocator);
 
     try app.run(model.widget(), .{});
