@@ -4,19 +4,15 @@ const vaxis = @import("vaxis");
 const matcher = @import("../match/mod.zig");
 const state = @import("state.zig");
 const Row = @import("row.zig");
+const results = @import("results.zig");
+const GitStatus = @import("../git_status.zig").GitStatus;
 
 const vxfw = vaxis.vxfw;
 
-pub const GitStatuses = []const Row.GitStatus;
-const max_ranked_rows: usize = 512;
-const git_priority_score_window: f64 = 25;
+pub const GitStatuses = results.GitStatuses;
 
 pub const State = struct {
     const Marked = std.ArrayList([]const u8);
-    const RankedRow = struct {
-        line: matcher.RankedLine,
-        git_status: Row.GitStatus,
-    };
 
     filtered: std.ArrayList(matcher.RankedLine) = .empty,
     marked: Marked = .empty,
@@ -83,40 +79,15 @@ pub const State = struct {
         self.clear(arena);
         self.show_scores = show_scores;
 
-        const needles = try matcher.splitQuery(arena, query);
-        var options = rank_options;
-        options.case_sensitive = matcher.hasUpper(query);
-        if (mode == .help) options.plain = true;
-        const ranked = try matcher.rankAndSortLimit(arena, source, needles, options, max_ranked_rows);
-
-        const ranked_rows = try orderedRankedRows(arena, ranked, git_statuses, mode);
+        const ranked_rows = try results.rankRows(arena, source, git_statuses, query, mode, rank_options);
         try self.appendRows(arena, ranked_rows, mode, cursor, show_scores);
         try self.appendRowBoxes(arena);
-    }
-
-    fn orderedRankedRows(
-        arena: std.mem.Allocator,
-        ranked: []const matcher.RankedLine,
-        git_statuses: ?GitStatuses,
-        mode: state.Mode,
-    ) ![]const RankedRow {
-        const statuses = if (mode == .files) git_statuses else null;
-        var rows: std.ArrayList(RankedRow) = .empty;
-        for (ranked) |line| {
-            try rows.append(arena, .{
-                .line = line,
-                .git_status = gitStatusAt(statuses, line.source_index),
-            });
-        }
-
-        if (mode == .files) std.mem.sort(RankedRow, rows.items, {}, rankedRowLessThan);
-        return rows.toOwnedSlice(arena);
     }
 
     fn appendRows(
         self: *State,
         arena: std.mem.Allocator,
-        ranked_rows: []const RankedRow,
+        ranked_rows: []const results.RankedRow,
         mode: state.Mode,
         cursor: *const u32,
         show_scores: bool,
@@ -149,37 +120,6 @@ pub const State = struct {
                 .size = .{ .width = self.available_width, .height = 1 },
             });
         }
-    }
-
-    fn rankedRowLessThan(_: void, left: RankedRow, right: RankedRow) bool {
-        const left_score = left.line.score.total();
-        const right_score = right.line.score.total();
-        const score_gap = @abs(left_score - right_score);
-
-        if (score_gap <= git_priority_score_window) {
-            const left_priority = gitStatusPriority(left.git_status);
-            const right_priority = gitStatusPriority(right.git_status);
-            if (left_priority != right_priority) return left_priority < right_priority;
-        }
-
-        return left_score > right_score;
-    }
-
-    fn gitStatusPriority(status: Row.GitStatus) u8 {
-        return switch (status) {
-            .modified => 0,
-            .added => 1,
-            .renamed => 2,
-            .untracked => 3,
-            .deleted => 4,
-            .none => 5,
-        };
-    }
-
-    fn gitStatusAt(statuses: ?GitStatuses, index: usize) Row.GitStatus {
-        const values = statuses orelse return .none;
-        if (index >= values.len) return .none;
-        return values[index];
     }
 
     fn isMarked(self: *const State, mode: state.Mode, text: []const u8) bool {
@@ -253,48 +193,6 @@ test "list rows get git status and match indexes" {
     defer arena_impl.deinit();
 
     try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, &.{.modified}, "main", .files, &cursor, .{}, false);
-    try std.testing.expectEqual(Row.GitStatus.modified, list.rows.items[0].git_status);
+    try std.testing.expectEqual(GitStatus.modified, list.rows.items[0].git_status);
     try std.testing.expect(list.rows.items[0].match_indexes.len > 0);
-}
-
-test "modified rows win only when scores are close" {
-    var list: State = .{};
-    defer list.deinit(std.testing.allocator);
-
-    var cursor: u32 = 0;
-    var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
-    defer arena_impl.deinit();
-
-    try list.refresh(arena_impl.allocator(), &.{ "index.tsx", "src/routes/index.tsx" }, &.{ .none, .modified }, "index", .files, &cursor, .{}, true);
-    try std.testing.expectEqualStrings("src/routes/index.tsx", list.currentText(0).?);
-    try std.testing.expectEqual(Row.GitStatus.modified, list.rows.items[0].git_status);
-    try std.testing.expectEqual(@as(usize, 0), list.rows.items[0].index);
-}
-
-test "clean strong matches beat weak git status matches" {
-    var list: State = .{};
-    defer list.deinit(std.testing.allocator);
-
-    var cursor: u32 = 0;
-    var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
-    defer arena_impl.deinit();
-
-    try list.refresh(arena_impl.allocator(), &.{ "packages/ai/pnpm-lock.yaml", ".github/workflows/ci.yml" }, &.{ .untracked, .none }, "ci", .files, &cursor, .{}, true);
-    try std.testing.expectEqualStrings(".github/workflows/ci.yml", list.currentText(0).?);
-    try std.testing.expectEqual(Row.GitStatus.none, list.rows.items[0].git_status);
-}
-
-test "list refresh caps ranked rows" {
-    var list: State = .{};
-    defer list.deinit(std.testing.allocator);
-
-    var cursor: u32 = 0;
-    var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
-    defer arena_impl.deinit();
-
-    const files = try arena_impl.allocator().alloc([]const u8, max_ranked_rows + 1);
-    for (files, 0..) |*file, index| file.* = if (index == 0) "best.zig" else "other.zig";
-
-    try list.refresh(arena_impl.allocator(), files, null, "zig", .files, &cursor, .{}, false);
-    try std.testing.expectEqual(max_ranked_rows, list.len());
 }

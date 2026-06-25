@@ -49,6 +49,7 @@ map({ "c", "i", "t" }, "<C-j>", "<nop>")
 map({ "c", "i", "t" }, "<C-k>", "<nop>")
 
 -- terminal remaps
+map({ "c", "i", "t" }, "<C-e>", "<Home>")
 map({ "c", "i" }, "<C-a>", "<Home>")
 map({ "c", "i" }, "<C-d>", "<Del>")
 map({ "c", "i" }, "<C-f>", "<Right>")

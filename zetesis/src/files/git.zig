@@ -1,9 +1,9 @@
 const std = @import("std");
-const Row = @import("../picker/row.zig");
+const GitStatus = @import("../git_status.zig").GitStatus;
 
 pub const Entry = struct {
     path: []const u8,
-    git_status: Row.GitStatus = .none,
+    git_status: GitStatus = .none,
 };
 
 pub fn collectEntries(
@@ -98,8 +98,8 @@ fn entriesFromGitStatus(allocator: std.mem.Allocator, lines: []const []const u8,
     return entries.toOwnedSlice(allocator);
 }
 
-fn gitStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.StringHashMap(Row.GitStatus) {
-    var map = std.StringHashMap(Row.GitStatus).init(allocator);
+fn gitStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.StringHashMap(GitStatus) {
+    var map = std.StringHashMap(GitStatus).init(allocator);
     errdefer map.deinit();
 
     var index: usize = 0;
@@ -122,13 +122,13 @@ fn gitStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.St
     return map;
 }
 
-fn gitStatusForPath(allocator: std.mem.Allocator, status_output: []const u8, path: []const u8) !Row.GitStatus {
+fn gitStatusForPath(allocator: std.mem.Allocator, status_output: []const u8, path: []const u8) !GitStatus {
     var map = try gitStatusMap(allocator, status_output);
     defer map.deinit();
     return map.get(path) orelse .none;
 }
 
-fn gitStatusFromCode(x: u8, y: u8) Row.GitStatus {
+fn gitStatusFromCode(x: u8, y: u8) GitStatus {
     if (x == '?' and y == '?') return .untracked;
     if (x == 'R' or y == 'R') return .renamed;
     if (x == 'D' or y == 'D') return .deleted;
@@ -151,11 +151,11 @@ test "collect lines drops blanks and duplicates text" {
 
 test "git status parser maps porcelain status" {
     const output = " M src/main.zig\x00A  src/new.zig\x00?? scratch.txt\x00R  new.txt\x00old.txt\x00";
-    try std.testing.expectEqual(Row.GitStatus.modified, try gitStatusForPath(std.testing.allocator, output, "src/main.zig"));
-    try std.testing.expectEqual(Row.GitStatus.added, try gitStatusForPath(std.testing.allocator, output, "src/new.zig"));
-    try std.testing.expectEqual(Row.GitStatus.untracked, try gitStatusForPath(std.testing.allocator, output, "scratch.txt"));
-    try std.testing.expectEqual(Row.GitStatus.renamed, try gitStatusForPath(std.testing.allocator, output, "new.txt"));
-    try std.testing.expectEqual(Row.GitStatus.none, try gitStatusForPath(std.testing.allocator, output, "old.txt"));
+    try std.testing.expectEqual(GitStatus.modified, try gitStatusForPath(std.testing.allocator, output, "src/main.zig"));
+    try std.testing.expectEqual(GitStatus.added, try gitStatusForPath(std.testing.allocator, output, "src/new.zig"));
+    try std.testing.expectEqual(GitStatus.untracked, try gitStatusForPath(std.testing.allocator, output, "scratch.txt"));
+    try std.testing.expectEqual(GitStatus.renamed, try gitStatusForPath(std.testing.allocator, output, "new.txt"));
+    try std.testing.expectEqual(GitStatus.none, try gitStatusForPath(std.testing.allocator, output, "old.txt"));
 }
 
 test "git file collection skips deleted tracked files" {

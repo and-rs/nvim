@@ -5,10 +5,7 @@ const matcher = @import("match/mod.zig");
 const files = @import("files/mod.zig");
 const picker = @import("picker/mod.zig");
 const actions = @import("picker/actions.zig");
-const key_decoder = @import("picker/key_decoder.zig");
-const reducer = @import("picker/reducer.zig");
-const state = @import("picker/state.zig");
-const Row = @import("picker/row.zig");
+const GitStatus = @import("git_status.zig").GitStatus;
 
 pub const panic = vaxis.panic_handler;
 
@@ -58,7 +55,7 @@ fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config
     const cwd = config.cwd orelse ".";
     const entries = try files.collectProjectEntries(allocator, init.io, cwd);
     const lines = try allocator.alloc([]const u8, entries.len);
-    const git_statuses = try allocator.alloc(Row.GitStatus, entries.len);
+    const git_statuses = try allocator.alloc(GitStatus, entries.len);
     for (entries, 0..) |entry, index| {
         lines[index] = entry.path;
         git_statuses[index] = entry.git_status;
@@ -75,7 +72,7 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
 
     if (config.filter) |query| {
         const needles = try matcher.splitQuery(allocator, query);
-        const ranked = try matcher.rankAndSort(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
+        const ranked = try matcher.rankAll(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
         if (ranked.len == 0) std.process.exit(1);
         try writeRanked(stdout, ranked, config.debug_scores);
         return;
@@ -86,7 +83,7 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     }
 }
 
-fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, git_statuses: ?[]const Row.GitStatus, rank_options: matcher.RankOptions) !void {
+fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, git_statuses: ?[]const GitStatus, rank_options: matcher.RankOptions) !void {
     var stdout_file: std.Io.File = .stdout();
     var stdout_buf: [1024]u8 = undefined;
     var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
@@ -97,7 +94,7 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
         const needles = try matcher.splitQuery(allocator, query);
         var filter_options = rank_options;
         filter_options.case_sensitive = matcher.hasUpper(query);
-        const ranked = try matcher.rankAndSort(allocator, lines, needles, filter_options);
+        const ranked = try matcher.rankAll(allocator, lines, needles, filter_options);
         if (ranked.len == 0) std.process.exit(1);
         try writeRanked(stdout, ranked, config.debug_scores);
         return;
@@ -275,9 +272,11 @@ fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
 test {
     _ = actions;
     _ = files;
-    _ = key_decoder;
+    _ = @import("picker/key_decoder.zig");
     _ = matcher;
     _ = picker;
-    _ = reducer;
-    _ = state;
+    _ = @import("picker/reducer.zig");
+    _ = @import("picker/state.zig");
+    _ = @import("picker/protocol.zig");
+    _ = @import("picker/results.zig");
 }

@@ -82,7 +82,7 @@ pub fn rankNeedle(
         if (scoreSubsequence(name, needle, case_sensitive)) |score| {
             return .{
                 .fuzzy = score,
-                .filename_boost = score * 1.5,
+                .filename_boost = score * 1.5 + if (contains(name, needle, case_sensitive)) score * 3.0 else 0,
                 .exact_filename_boost = if (equals(name, needle, case_sensitive)) score * 7.5 else 0,
             };
         }
@@ -91,7 +91,7 @@ pub fn rankNeedle(
     return .{ .fuzzy = scoreSubsequence(haystack, needle, case_sensitive) orelse return null };
 }
 
-pub fn rankAndSort(
+pub fn rankAll(
     allocator: std.mem.Allocator,
     lines: []const []const u8,
     needles: []const []const u8,
@@ -109,7 +109,7 @@ pub fn rankAndSort(
     return ranked.toOwnedSlice(allocator);
 }
 
-pub fn rankAndSortLimit(
+pub fn rankTop(
     allocator: std.mem.Allocator,
     lines: []const []const u8,
     needles: []const []const u8,
@@ -279,6 +279,11 @@ fn equals(a: []const u8, b: []const u8, case_sensitive: bool) bool {
     return std.ascii.eqlIgnoreCase(a, b);
 }
 
+fn contains(haystack: []const u8, needle: []const u8, case_sensitive: bool) bool {
+    if (case_sensitive) return std.mem.indexOf(u8, haystack, needle) != null;
+    return std.ascii.indexOfIgnoreCase(haystack, needle) != null;
+}
+
 fn compareRankedLine(_: void, left: RankedLine, right: RankedLine) bool {
     const left_total = left.score.total();
     const right_total = right.score.total();
@@ -292,6 +297,13 @@ test "filename priority" {
     const direct = (rank("GNUmakefile", needles, .{}) orelse ScoreBreakdown{}).total();
     const nested = (rank("source/blender/makesdna/DNA_genfile.h", needles, .{}) orelse ScoreBreakdown{}).total();
     try testing.expect(direct > nested);
+}
+
+test "contiguous filename match beats separated filename match" {
+    const needles = &.{"mu"};
+    const contiguous = (rank("lua/plugins/tmux.lua", needles, .{}) orelse ScoreBreakdown{}).total();
+    const separated = (rank("lua/config/map.lua", needles, .{}) orelse ScoreBreakdown{}).total();
+    try std.testing.expect(contiguous > separated);
 }
 
 test "strict path" {
@@ -318,7 +330,7 @@ test "current file penalty lowers total only" {
 }
 
 test "ranked lines keep source index and match positions" {
-    const ranked = try rankAndSort(std.testing.allocator, &.{ "src/main.zig", "README.md" }, &.{"main"}, .{});
+    const ranked = try rankAll(std.testing.allocator, &.{ "src/main.zig", "README.md" }, &.{"main"}, .{});
     defer {
         for (ranked) |line| std.testing.allocator.free(line.match_indexes);
         std.testing.allocator.free(ranked);
@@ -329,8 +341,8 @@ test "ranked lines keep source index and match positions" {
     try std.testing.expectEqual(@as(usize, 4), ranked[0].match_indexes[0]);
 }
 
-test "ranked lines limit keeps only best matches" {
-    const ranked = try rankAndSortLimit(std.testing.allocator, &.{ "src/main.zig", "src/matcher.zig", "README.md" }, &.{"zig"}, .{}, 1);
+test "rankTop keeps only best matches" {
+    const ranked = try rankTop(std.testing.allocator, &.{ "src/main.zig", "src/matcher.zig", "README.md" }, &.{"zig"}, .{}, 1);
     defer {
         for (ranked) |line| std.testing.allocator.free(line.match_indexes);
         std.testing.allocator.free(ranked);

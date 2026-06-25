@@ -7,6 +7,7 @@ const matcher = @import("../match/mod.zig");
 const reducer = @import("reducer.zig");
 const state = @import("state.zig");
 const list = @import("list.zig");
+const protocol = @import("protocol.zig");
 
 const Action = actions.Action;
 const Mode = state.Mode;
@@ -313,14 +314,14 @@ const Model = struct {
 
     fn finishAction(self: *Model, ctx: *vxfw.EventContext, action: Action) !void {
         if (self.list.marked.items.len > 0 and action == .edit) {
-            self.result = try formatActionResult(self.gpa, .quickfix, self.list.marked.items);
+            self.result = try protocol.formatActionResult(self.gpa, .quickfix, self.list.marked.items);
             ctx.quit = true;
             return;
         }
 
         self.syncViewport(.preserve);
         const path = self.list.currentText(self.scroll_view.cursor) orelse return ctx.consumeAndRedraw();
-        self.result = try formatActionResult(self.gpa, action, &.{path});
+        self.result = try protocol.formatActionResult(self.gpa, action, &.{path});
         ctx.quit = true;
     }
 
@@ -352,17 +353,6 @@ const Model = struct {
     }
 };
 
-pub fn formatActionResult(allocator: std.mem.Allocator, action: Action, paths: []const []const u8) ![]const u8 {
-    var result: std.ArrayList(u8) = .empty;
-    for (paths) |path| {
-        try result.appendSlice(allocator, action.label());
-        try result.append(allocator, '\t');
-        try result.appendSlice(allocator, path);
-        try result.append(allocator, '\n');
-    }
-    return result.toOwnedSlice(allocator);
-}
-
 pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, git_statuses: ?list.GitStatuses, rank_options: matcher.RankOptions, show_scores: bool) ![]const u8 {
     var buffer: [1024]u8 = undefined;
     var app: vxfw.App = try .init(init.io, allocator, init.environ_map, &buffer);
@@ -373,16 +363,4 @@ pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const 
 
     try app.run(model.widget(), .{});
     return model.result;
-}
-
-test "formatActionResult writes action protocol" {
-    const result = try formatActionResult(std.testing.allocator, .vsplit, &.{"src/main.zig"});
-    defer std.testing.allocator.free(result);
-    try std.testing.expectEqualStrings("vsplit\tsrc/main.zig\n", result);
-}
-
-test "formatActionResult writes quickfix entries" {
-    const result = try formatActionResult(std.testing.allocator, .quickfix, &.{ "a.zig", "b.zig" });
-    defer std.testing.allocator.free(result);
-    try std.testing.expectEqualStrings("quickfix\ta.zig\nquickfix\tb.zig\n", result);
 }

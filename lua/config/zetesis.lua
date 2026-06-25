@@ -26,23 +26,49 @@ local commands = {
   tabedit = "tabedit",
 }
 
+local function parse_json_entry(line)
+  local ok, decoded = pcall(vim.json.decode, line)
+  if not ok or type(decoded) ~= "table" then
+    return nil
+  end
+
+  if type(decoded.action) ~= "string" or type(decoded.path) ~= "string" then
+    return nil
+  end
+
+  return {
+    action = decoded.action,
+    kind = decoded.kind or "file",
+    path = decoded.path,
+    line = decoded.line,
+    col = decoded.col,
+    text = decoded.text,
+  }
+end
+
+local function parse_legacy_entry(line)
+  local tab = line:find("\t", 1, true)
+  if tab then
+    return {
+      action = line:sub(1, tab - 1),
+      kind = "file",
+      path = line:sub(tab + 1),
+    }
+  end
+
+  return {
+    action = "edit",
+    kind = "file",
+    path = line,
+  }
+end
+
 local function parse_output(lines)
   local entries = {}
 
   for _, line in ipairs(lines) do
     if line ~= "" then
-      local tab = line:find("\t", 1, true)
-      if tab then
-        table.insert(entries, {
-          action = line:sub(1, tab - 1),
-          path = line:sub(tab + 1),
-        })
-      else
-        table.insert(entries, {
-          action = "edit",
-          path = line,
-        })
-      end
+      table.insert(entries, parse_json_entry(line) or parse_legacy_entry(line))
     end
   end
 
@@ -55,7 +81,9 @@ local function open_quickfix(cwd, entries)
   for _, entry in ipairs(entries) do
     table.insert(items, {
       filename = path_join(cwd, entry.path),
-      text = entry.path,
+      lnum = entry.line or 1,
+      col = entry.col or 1,
+      text = entry.text or entry.path,
     })
   end
 
@@ -84,6 +112,9 @@ local function execute_entries(cwd, entries)
     end
 
     vim.cmd[command](vim.fn.fnameescape(path_join(cwd, entry.path)))
+    if entry.line then
+      vim.api.nvim_win_set_cursor(0, { entry.line, math.max((entry.col or 1) - 1, 0) })
+    end
   end
 end
 
