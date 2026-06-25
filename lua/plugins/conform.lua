@@ -57,9 +57,10 @@ conform.setup({
     -- bash = { "shfmt" },
     fish = { "fish_indent" },
 
-    python = { "ruff_format", "ruff_organize_imports" },
+    -- python = { "ruff_format", "ruff_organize_imports" },
     htmldjango = { "djlint", "rustywind" },
     jinja = { "djlint", "rustywind" },
+    j2 = { "sqlfluff" },
 
     ocaml = { "ocamlformat" },
 

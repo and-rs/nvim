@@ -9,7 +9,7 @@ vim.filetype.add({
     mdx = "markdown",
     qml = "qmljs",
     jinja = "jinja",
-    j2 = "jinja",
+    j2 = "j2",
     azcli = "bash",
     env = "env",
   },
