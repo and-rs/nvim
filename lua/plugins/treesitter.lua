@@ -18,6 +18,7 @@ vim.filetype.add({
   },
   pattern = {
     ["%.env%.[%w_.-]+"] = "env",
+    ["SYSTEM.md"] = "xml",
   },
 })
 
@@ -29,6 +30,7 @@ require("nvim-treesitter").setup({
 })
 
 local parser_languages = {
+  "xml",
   "bicep",
   "rust",
   "ocaml",

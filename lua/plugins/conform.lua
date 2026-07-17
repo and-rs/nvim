@@ -49,6 +49,8 @@ conform.setup({
     css = { "biome" },
 
     html = { "deno_fmt", "rustywind" },
+    xml = { "xmlstarlet" },
+
     jsonc = { "deno_fmt" },
     json = { "deno_fmt" },
 
