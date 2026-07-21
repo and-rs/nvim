@@ -56,19 +56,6 @@ map("n", "<leader>sr", function()
   }))
 end, { desc = "Files" })
 
-map("n", "<leader>sg", function()
-  fzf.live_grep_native(get_opts({
-    no_header = true,
-    no_header_i = true,
-    rg_glob = false,
-    rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
-  }))
-end, { desc = "Grep Word" })
-
-map("v", "<leader>sv", function()
-  fzf.grep_visual(get_opts())
-end, { desc = "Grep visual" })
-
 map("t", "<C-e>", function()
   require("fzf-lua.win").toggle_fullscreen()
   require("fzf-lua.win").toggle_preview()
