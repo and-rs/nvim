@@ -8,7 +8,7 @@ local function get_opts(opts)
   opts.winopts = opts.winopts or {}
   opts.winopts.row = 0.25
   opts.winopts.height = math.floor(vim.o.lines / 2)
-  opts.winopts.width = math.min(74, vim.o.columns - 4)
+  opts.winopts.width = math.min(84, vim.o.columns - 4)
   opts.winopts.backdrop = 100
   return opts
 end
@@ -39,7 +39,7 @@ fzf.setup({
   winopts = {
     border = "rounded",
     height = 15,
-    width = 76,
+    width = 84,
     row = 0.2,
     col = 0.5,
     preview = { hidden = true, winopts = { number = false } },
