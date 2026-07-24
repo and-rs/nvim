@@ -1,10 +1,25 @@
+- TODO: fix this horrendous algo result
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│$ nushell                                                                                    │
+│> common/nushell/config.nu                                                               M 18│
+│  common/nushell/nushelter/nvim.nu                                                       A 18│
+│  nixos/quickshell/AGENTS.md                                                               22│
+│  nixos/quickshell/launch.sh                                                               22│
+│  nixos/quickshell/shell.qml                                                               22│
+│  nixos/quickshell/Bar/Bar.qml                                                             21│
+│  nixos/quickshell/Niri/qmldir                                                             21│
+│  nixos/quickshell/Osd/Osd.qml                                                             21│
+```
+
 # zetesis plan
 
 ## Plan preface
 
 - Objective: build `zetesis` / `zt` as middle ground between `fzf` and `fff`.
-- `fzf` class strength to keep: usable general-purpose matcher for many picker jobs,
-  not only files.
+- `fzf` class strength to keep: usable general-purpose matcher for many picker
+  jobs, not only files.
 - `fff` class strength to grow toward: file-aware ranking and repo-aware file
   behavior that beats generic fuzzy tools on file picking.
 - Current practical target: make `zt` strong enough to replace `fzf` for common
@@ -80,12 +95,12 @@ Working:
 - [x] `zt stdin` reads stdin lines.
 - [x] `zt stdin --filter <query>` prints ranked matches.
 - [x] `zt files --cwd <path>` uses git file collection, with recursive non-git
-  fallback.
+      fallback.
 - [x] `zt files --filter <query>` works.
 - [x] `zt help` works.
 
 - [x] Neovim command `:ZetesisFiles` opens floating terminal and calls
-  `zt files --cwd --current-file --output-file`.
+      `zt files --cwd --current-file --output-file`.
 - [x] Output protocol is action lines:
   - `edit	path`
   - `vsplit	path`
@@ -96,14 +111,13 @@ Working:
 - [x] Enter with marks sends marked paths to quickfix.
 - [x] `<C-v>` opens vertical split.
 - [x] `<C-y>` toggles mark marker `:` and moves cursor down when possible.
-- [ ] Help mode opens with `Ctrl-;`, uses same searchable list UI, and Enter runs
-  selected help action.
+- [ ] Help mode opens with `Ctrl-;`, uses same searchable list UI, and Enter
+      runs selected help action.
 
 - [x] `Esc` in help returns to file picker.
 - [x] `Esc` and `<C-c>` quit picker.
 - [x] `<C-g>` quit removed.
 - [x] `Ctrl-/`, `?`, and `/` help fallbacks removed.
-
 
 Project layout:
 
@@ -153,8 +167,9 @@ Done:
 Still needed before git work:
 
 - [ ] Keep `ZT_LOG` or equivalent env-gated debug hook available while terminal
-  input is still evolving.
-- [ ] Split remaining overgrown picker responsibilities only where boundary is real.
+      input is still evolving.
+- [ ] Split remaining overgrown picker responsibilities only where boundary is
+      real.
 - [ ] Keep help/file mode transitions easy to reason about.
 - [ ] Keep output protocol path separate from render path.
 
@@ -186,8 +201,8 @@ Still needed before git work:
 - [ ] add parser test for `zt files --help` behavior.
 - [ ] add parser test for `zt help --filter x` failing.
 - [ ] add parser test for global `--help` short-circuit behavior if kept.
-- [ ] rename `Mode` to `Subcommand` later if code meaning stays clearer that way.
-
+- [ ] rename `Mode` to `Subcommand` later if code meaning stays clearer that
+      way.
 
 ### File collection contract
 
@@ -196,7 +211,8 @@ Still needed before git work:
 - [ ] verify git command runs in intended directory.
 - [ ] exclude git-tracked paths deleted from working tree.
 - [ ] keep recursive non-git fallback unchanged.
-- [ ] decide whether hidden files follow git/fallback source or custom filter rules.
+- [ ] decide whether hidden files follow git/fallback source or custom filter
+      rules.
 - [ ] decide behavior for unreadable directories in fallback walk.
 - [ ] add test for deleted tracked file exclusion.
 - [ ] add test for fallback walking in non-git directory.
@@ -224,8 +240,8 @@ Still needed before git work:
 - [ ] preserve strong generic stdin matching while adding file boosts.
 - [ ] document current ranking components.
 - [ ] audit current-file penalty behavior.
-- [ ] decide whether current-file match should demote exact current file or only near
-  duplicates.
+- [ ] decide whether current-file match should demote exact current file or only
+      near duplicates.
 - [ ] add special filename boosts:
   - `init.lua`
   - `mod.rs`
@@ -237,7 +253,8 @@ Still needed before git work:
   - `__init__.py`
 - [ ] decide whether filename boosts should be language-configurable later.
 - [ ] add tests for each filename boost family.
-- [ ] add tests proving stdin mode does not inherit file-only boosts incorrectly.
+- [ ] add tests proving stdin mode does not inherit file-only boosts
+      incorrectly.
 - [ ] add tests for strict path matching.
 - [ ] add tests for current-file penalty.
 - [ ] add tests for hide/show score behavior.
@@ -278,15 +295,15 @@ Still needed before git work:
 
 - [x] keep action protocol stable: `edit`, `vsplit`, `tabedit`, `quickfix`.
 - [ ] decide whether protocol should later carry line/column.
-- [ ] decide whether protocol should later carry multiple quickfix items in richer
-  form.
+- [ ] decide whether protocol should later carry multiple quickfix items in
+      richer form.
 - [ ] add Zig-side tests for emitted protocol strings if missing.
 - [x] keep Lua bare-path fallback.
 - [ ] add Lua tests for mixed action and bare-path lines.
 - [ ] add Lua tests for empty output.
 - [ ] add Lua tests for unknown action fallback behavior.
 - [ ] verify `:ZetesisFiles` still passes `--cwd`, `--current-file`, and
-  `--output-file` correctly.
+      `--output-file` correctly.
 - [ ] verify terminal close timing after action output.
 
 ### Persistence and file brain
@@ -305,8 +322,10 @@ Still needed before git work:
 ### Generic picker expansion
 
 - [ ] design generic stdin/path-independent ranking path explicitly.
-- [ ] decide whether future JSONL source belongs under `stdin` or new subcommand.
-- [x] if JSONL stays planned, rename old `pick` wording to `stdin --source jsonl`.
+- [ ] decide whether future JSONL source belongs under `stdin` or new
+      subcommand.
+- [x] if JSONL stays planned, rename old `pick` wording to
+      `stdin --source jsonl`.
 - [ ] define display field selection behavior.
 - [ ] define output behavior: selected JSON unchanged.
 - [ ] add parser tests for source selection when implemented.
