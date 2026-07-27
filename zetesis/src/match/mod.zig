@@ -78,17 +78,55 @@ pub fn rankNeedle(
         return .{ .fuzzy = rankStrictPath(haystack, needle, case_sensitive) orelse return null };
     }
 
-    if (filename) |name| {
-        if (scoreSubsequence(name, needle, case_sensitive)) |score| {
-            return .{
-                .fuzzy = score,
-                .filename_boost = score * 1.5 + if (contains(name, needle, case_sensitive)) score * 3.0 else 0,
-                .exact_filename_boost = if (equals(name, needle, case_sensitive)) score * 7.5 else 0,
-            };
-        }
-    }
+    if (bestComponentMatch(haystack, filename orelse "", needle, case_sensitive)) |match| return match.score;
 
     return .{ .fuzzy = scoreSubsequence(haystack, needle, case_sensitive) orelse return null };
+}
+
+const ComponentMatch = struct {
+    component: []const u8,
+    score: ScoreBreakdown,
+};
+
+fn bestComponentMatch(haystack: []const u8, filename: []const u8, needle: []const u8, case_sensitive: bool) ?ComponentMatch {
+    var best: ?ComponentMatch = null;
+    var components = std.mem.splitAny(u8, haystack, "/\\");
+    while (components.next()) |component| {
+        const fuzzy = scoreSubsequence(component, needle, case_sensitive) orelse continue;
+        const score = componentScore(haystack, component, filename, needle, case_sensitive, fuzzy);
+        if (best == null or score.total() > best.?.score.total()) best = .{ .component = component, .score = score };
+    }
+    return best;
+}
+
+fn componentScore(haystack: []const u8, component: []const u8, filename: []const u8, needle: []const u8, case_sensitive: bool, fuzzy: f64) ScoreBreakdown {
+    var score: ScoreBreakdown = .{ .fuzzy = fuzzy };
+    if (std.mem.eql(u8, component, filename)) {
+        score.filename_boost = fuzzy * 1.5 + if (contains(component, needle, case_sensitive)) fuzzy * 3.0 else 0;
+        if (startsWith(component, needle, case_sensitive)) score.filename_boost += 300.0;
+        if (equals(component, needle, case_sensitive)) score.exact_filename_boost = fuzzy * 7.5;
+        return score;
+    }
+    if (equals(component, needle, case_sensitive)) {
+        score.exact_filename_boost = fuzzy * 7.5 + componentProximityBonus(haystack, component);
+    }
+    return score;
+}
+
+fn componentProximityBonus(haystack: []const u8, component: []const u8) f64 {
+    const offset = @intFromPtr(component.ptr) - @intFromPtr(haystack.ptr);
+    const suffix = haystack[offset + component.len ..];
+    var distance: usize = 0;
+    var in_component = false;
+    for (suffix) |byte| {
+        if (byte == '/' or byte == '\\') {
+            in_component = false;
+        } else if (!in_component) {
+            in_component = true;
+            distance += 1;
+        }
+    }
+    return if (distance == 0) 0 else 100.0 / @as(f64, @floatFromInt(distance));
 }
 
 pub fn rankAll(
@@ -235,20 +273,29 @@ fn matchIndexes(allocator: std.mem.Allocator, haystack: []const u8, needles: []c
     errdefer indexes.deinit(allocator);
 
     for (needles) |needle| {
-        var start: usize = 0;
-        var iter = std.mem.splitAny(u8, needle, "/\\");
-        while (iter.next()) |segment| {
-            if (segment.len == 0) continue;
-            for (segment) |byte| {
-                const found = findByte(haystack, start, byte, case_sensitive) orelse break;
-                try indexes.append(allocator, found);
-                start = found + 1;
-            }
-        }
+        const component = if (bestComponentMatch(haystack, std.fs.path.basename(haystack), needle, case_sensitive)) |match| match.component else haystack;
+        const offset = @intFromPtr(component.ptr) - @intFromPtr(haystack.ptr);
+        try appendSubsequenceIndexes(&indexes, allocator, component, needle, case_sensitive, offset);
     }
 
     std.mem.sort(usize, indexes.items, {}, lessThanUsize);
     return indexes.toOwnedSlice(allocator);
+}
+
+fn appendSubsequenceIndexes(
+    indexes: *std.ArrayList(usize),
+    allocator: std.mem.Allocator,
+    haystack: []const u8,
+    needle: []const u8,
+    case_sensitive: bool,
+    offset: usize,
+) !void {
+    var start: usize = 0;
+    for (needle) |byte| {
+        const found = findByte(haystack, start, byte, case_sensitive) orelse return;
+        try indexes.append(allocator, offset + found);
+        start = found + 1;
+    }
 }
 
 fn lessThanUsize(_: void, left: usize, right: usize) bool {
@@ -284,6 +331,11 @@ fn contains(haystack: []const u8, needle: []const u8, case_sensitive: bool) bool
     return std.ascii.indexOfIgnoreCase(haystack, needle) != null;
 }
 
+fn startsWith(haystack: []const u8, needle: []const u8, case_sensitive: bool) bool {
+    if (needle.len > haystack.len) return false;
+    return equals(haystack[0..needle.len], needle, case_sensitive);
+}
+
 fn compareRankedLine(_: void, left: RankedLine, right: RankedLine) bool {
     const left_total = left.score.total();
     const right_total = right.score.total();
@@ -297,6 +349,39 @@ test "filename priority" {
     const direct = (rank("GNUmakefile", needles, .{}) orelse ScoreBreakdown{}).total();
     const nested = (rank("source/blender/makesdna/DNA_genfile.h", needles, .{}) orelse ScoreBreakdown{}).total();
     try testing.expect(direct > nested);
+}
+
+test "matching parent directory beats unrelated path subsequence" {
+    const needles = &.{"nushell"};
+    const directory_match = (rank("common/nushell/config.nu", needles, .{}) orelse ScoreBreakdown{}).total();
+    const unrelated = (rank("nixos/quickshell/AGENTS.md", needles, .{}) orelse ScoreBreakdown{}).total();
+    try std.testing.expect(directory_match > unrelated);
+}
+
+test "nearest exact component order beats nested and filename substring matches" {
+    const needles = &.{"bar"};
+    const filename = (rank("nixos/quickshell/Bar/Bar.qml", needles, .{}) orelse ScoreBreakdown{}).total();
+    const direct_parent = (rank("nixos/quickshell/Bar/Config.qml", needles, .{}) orelse ScoreBreakdown{}).total();
+    const nested = (rank("nixos/quickshell/Bar/Status/Battery/Button.qml", needles, .{}) orelse ScoreBreakdown{}).total();
+    const filename_substring = (rank("nixos/quickshell/NotificationV2/NotificationTimeoutBar.qml", needles, .{}) orelse ScoreBreakdown{}).total();
+
+    try std.testing.expect(filename > direct_parent);
+    try std.testing.expect(direct_parent > nested);
+    try std.testing.expect(nested > filename_substring);
+}
+
+test "component match indexes follow the ranked directory component" {
+    const indexes = try matchIndexes(std.testing.allocator, "common/nushell/config.nu", &.{"nushell"}, false);
+    defer std.testing.allocator.free(indexes);
+
+    try std.testing.expectEqualSlices(usize, &.{ 7, 8, 9, 10, 11, 12, 13 }, indexes);
+}
+
+test "exact filename highlights the filename component" {
+    const indexes = try matchIndexes(std.testing.allocator, "nixos/quickshell/Bar/Bar.qml", &.{"bar"}, false);
+    defer std.testing.allocator.free(indexes);
+
+    try std.testing.expectEqualSlices(usize, &.{ 21, 22, 23 }, indexes);
 }
 
 test "contiguous filename match beats separated filename match" {

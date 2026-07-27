@@ -5,6 +5,8 @@ const matcher = @import("match/mod.zig");
 const files = @import("files/mod.zig");
 const picker = @import("picker/mod.zig");
 const actions = @import("picker/actions.zig");
+const candidates = @import("candidates.zig");
+const protocol = @import("picker/protocol.zig");
 const GitStatus = @import("git_status.zig").GitStatus;
 
 pub const panic = vaxis.panic_handler;
@@ -12,6 +14,7 @@ pub const panic = vaxis.panic_handler;
 const Mode = enum {
     stdin,
     files,
+    candidates,
     help,
 };
 
@@ -41,6 +44,7 @@ pub fn main(init: std.process.Init) anyerror!void {
     switch (config.mode) {
         .stdin => try runPick(init, allocator, config),
         .files => try runFiles(init, allocator, config),
+        .candidates => try runCandidates(init, allocator, config),
         .help => try runHelp(init, allocator, config),
     }
 }
@@ -48,7 +52,12 @@ pub fn main(init: std.process.Init) anyerror!void {
 fn runPick(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
     const input = try readStdin(init.io, allocator);
     const lines = try collectLines(allocator, input);
-    try runPicker(init, allocator, config, lines, null, .{ .plain = config.plain });
+    var selection = try runPicker(init, allocator, config, .{ .lines = lines }, .{ .plain = config.plain });
+    defer selection.deinit(allocator);
+    if (selection.indexes.len == 0) std.process.exit(130);
+    const result = try formatSelectedLines(allocator, lines, selection.indexes);
+    defer allocator.free(result);
+    try writeOutput(init.io, result, config.output_file);
 }
 
 fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
@@ -60,7 +69,34 @@ fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config
         lines[index] = entry.path;
         git_statuses[index] = entry.git_status;
     }
-    try runPicker(init, allocator, config, lines, git_statuses, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
+    var selection = try runPicker(init, allocator, config, .{ .lines = lines, .git_statuses = git_statuses }, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
+    defer selection.deinit(allocator);
+    if (selection.indexes.len == 0) std.process.exit(130);
+    const paths = try collectSelectedLines(allocator, lines, selection.indexes);
+    defer allocator.free(paths);
+    const result = try protocol.formatActionResult(allocator, selection.action, paths);
+    defer allocator.free(result);
+    try writeOutput(init.io, result, config.output_file);
+}
+
+fn runCandidates(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
+    const input = try readStdin(init.io, allocator);
+    const parsed = try candidates.parseJsonl(allocator, input);
+    defer candidates.deinitCandidates(allocator, parsed);
+
+    const match_lines = try allocator.alloc([]const u8, parsed.len);
+    const display_lines = try allocator.alloc([]const u8, parsed.len);
+    for (parsed, 0..) |candidate, index| {
+        match_lines[index] = candidate.match_text;
+        display_lines[index] = candidate.display_text;
+    }
+
+    var selection = try runPicker(init, allocator, config, .{ .lines = match_lines, .display_texts = display_lines }, .{ .plain = config.plain });
+    defer selection.deinit(allocator);
+    if (selection.indexes.len == 0) std.process.exit(130);
+    const result = try formatCandidateSelection(allocator, parsed, selection);
+    defer allocator.free(result);
+    try writeOutput(init.io, result, config.output_file);
 }
 
 fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
@@ -68,13 +104,13 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     var stdout_buf: [1024]u8 = undefined;
     var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
     const stdout = &stdout_writer.interface;
-    defer stdout.flush() catch unreachable;
+    defer stdout.flush() catch {};
 
     if (config.filter) |query| {
         const needles = try matcher.splitQuery(allocator, query);
         const ranked = try matcher.rankAll(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
         if (ranked.len == 0) std.process.exit(1);
-        try writeRanked(stdout, ranked, config.debug_scores);
+        writeRanked(stdout, ranked, null, config.debug_scores) catch std.process.exit(0);
         return;
     }
 
@@ -83,34 +119,29 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     }
 }
 
-fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, lines: []const []const u8, git_statuses: ?[]const GitStatus, rank_options: matcher.RankOptions) !void {
+fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, source: picker.SourceData, rank_options: matcher.RankOptions) !picker.Selection {
     var stdout_file: std.Io.File = .stdout();
     var stdout_buf: [1024]u8 = undefined;
     var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
     const stdout = &stdout_writer.interface;
-    defer stdout.flush() catch unreachable;
+    defer stdout.flush() catch {};
 
     if (config.filter) |query| {
         const needles = try matcher.splitQuery(allocator, query);
         var filter_options = rank_options;
         filter_options.case_sensitive = matcher.hasUpper(query);
-        const ranked = try matcher.rankAll(allocator, lines, needles, filter_options);
+        const ranked = try matcher.rankAll(allocator, source.lines, needles, filter_options);
         if (ranked.len == 0) std.process.exit(1);
-        try writeRanked(stdout, ranked, config.debug_scores);
-        return;
+        writeRanked(stdout, ranked, source.display_texts, config.debug_scores) catch std.process.exit(0);
+        std.process.exit(0);
     }
 
-    const result = try picker.run(init, allocator, lines, git_statuses, rank_options, config.show_scores);
-    if (result.len == 0) std.process.exit(130);
-    if (config.output_file) |path| {
-        try std.Io.Dir.writeFile(.cwd(), init.io, .{ .sub_path = path, .data = result });
-    } else {
-        try stdout.writeAll(result);
-    }
+    return picker.run(init, allocator, source, rank_options, config.show_scores, "");
 }
 
-fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, debug_scores: bool) !void {
+fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, display_texts: ?[]const []const u8, debug_scores: bool) !void {
     for (ranked) |line| {
+        const text = if (display_texts) |display| display[line.source_index] else line.text;
         if (debug_scores) {
             try stdout.print(
                 "{d:.2}\tfz={d:.2}\tfn={d:.2}\tex={d:.2}\tcf={d:.2}\t{s}\n",
@@ -120,13 +151,61 @@ fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, debug
                     line.score.filename_boost,
                     line.score.exact_filename_boost,
                     line.score.current_file_penalty,
-                    line.text,
+                    text,
                 },
             );
         } else {
-            try stdout.print("{s}\n", .{line.text});
+            try stdout.print("{s}\n", .{text});
         }
     }
+}
+
+fn collectSelectedLines(allocator: std.mem.Allocator, lines: []const []const u8, indexes: []const usize) ![]const []const u8 {
+    const selected = try allocator.alloc([]const u8, indexes.len);
+    for (indexes, 0..) |index, position| selected[position] = lines[index];
+    return selected;
+}
+
+fn formatSelectedLines(allocator: std.mem.Allocator, lines: []const []const u8, indexes: []const usize) ![]const u8 {
+    var result: std.Io.Writer.Allocating = .init(allocator);
+    errdefer result.deinit();
+
+    for (indexes) |index| {
+        try result.writer.writeAll(lines[index]);
+        try result.writer.writeByte('\n');
+    }
+
+    return result.toOwnedSlice();
+}
+
+fn formatCandidateSelection(allocator: std.mem.Allocator, parsed: []const candidates.Candidate, selection: picker.Selection) ![]const u8 {
+    var entries: std.ArrayList(protocol.ResultEntry) = .empty;
+    defer entries.deinit(allocator);
+
+    for (selection.indexes) |index| {
+        const candidate = parsed[index];
+        var action = selection.action;
+        if (action == .edit) {
+            if (candidate.default_action) |label| action = actions.Action.parse(label) orelse unreachable;
+        }
+        try entries.append(allocator, .{ .action = action, .output = candidate.output });
+    }
+
+    return protocol.formatResults(allocator, entries.items);
+}
+
+fn writeOutput(io: std.Io, result: []const u8, output_file: ?[]const u8) !void {
+    if (output_file) |path| {
+        try std.Io.Dir.writeFile(.cwd(), io, .{ .sub_path = path, .data = result });
+        return;
+    }
+
+    var stdout_file: std.Io.File = .stdout();
+    var stdout_buf: [1024]u8 = undefined;
+    var stdout_writer = stdout_file.writer(io, &stdout_buf);
+    const stdout = &stdout_writer.interface;
+    defer stdout.flush() catch unreachable;
+    try stdout.writeAll(result);
 }
 
 fn relativeCurrentFile(cwd: []const u8, current_file: ?[]const u8) ?[]const u8 {
@@ -174,6 +253,7 @@ const Flag = enum {
 const subcommands = std.StaticStringMap(Mode).initComptime(.{
     .{ "files", .files },
     .{ "stdin", .stdin },
+    .{ "candidates", .candidates },
     .{ "help", .help },
 });
 
@@ -200,7 +280,7 @@ fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
 
     switch (mode) {
         .help => return config,
-        .stdin => parseStdinFlags(&config, args, &idx, stderr),
+        .stdin, .candidates => parseStdinFlags(&config, args, &idx, stderr),
         .files => parseFilesFlags(&config, args, &idx, stderr),
     }
 
@@ -252,7 +332,7 @@ fn nextArg(args: []const []const u8, index: *usize, stderr: *std.Io.Writer) []co
 
 fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
     stderr.writeAll(
-        \\Usage: zt [stdin|files|help] [options]
+        \\Usage: zt [stdin|files|candidates|help] [options]
         \\
         \\Options:
         \\  -f, --filter QUERY       Filter without interactive TUI.
@@ -279,4 +359,5 @@ test {
     _ = @import("picker/state.zig");
     _ = @import("picker/protocol.zig");
     _ = @import("picker/results.zig");
+    _ = @import("candidates.zig");
 }

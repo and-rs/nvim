@@ -7,33 +7,50 @@ const matcher = @import("../match/mod.zig");
 const reducer = @import("reducer.zig");
 const state = @import("state.zig");
 const list = @import("list.zig");
-const protocol = @import("protocol.zig");
 
 const Action = actions.Action;
 const Mode = state.Mode;
 const vxfw = vaxis.vxfw;
 
+pub const Selection = struct {
+    action: Action = .edit,
+    indexes: []const usize = &.{},
+
+    pub fn deinit(self: *Selection, allocator: std.mem.Allocator) void {
+        if (self.indexes.len > 0) allocator.free(self.indexes);
+        self.* = .{};
+    }
+};
+
+pub const SourceData = struct {
+    lines: []const []const u8,
+    display_texts: ?[]const []const u8 = null,
+    git_statuses: ?list.GitStatuses = null,
+};
+
 const Model = struct {
     gpa: std.mem.Allocator,
     lines: []const []const u8,
+    display_texts: ?[]const []const u8,
     git_statuses: ?list.GitStatuses,
     list: list.State,
     scroll_view: vxfw.ScrollView,
     text_field: vxfw.TextField,
     arena: std.heap.ArenaAllocator,
-    result: []const u8,
+    result: Selection,
     rank_options: matcher.RankOptions,
     show_scores: bool,
     state: state.State,
-    pub fn init(gpa: std.mem.Allocator, lines: []const []const u8, git_statuses: ?list.GitStatuses, rank_options: matcher.RankOptions, show_scores: bool) !*Model {
+    pub fn init(gpa: std.mem.Allocator, source: SourceData, rank_options: matcher.RankOptions, show_scores: bool, initial_query: []const u8) !*Model {
         const model = try gpa.create(Model);
         errdefer gpa.destroy(model);
 
         model.* = .{
             .list = .{},
             .gpa = gpa,
-            .lines = lines,
-            .git_statuses = git_statuses,
+            .lines = source.lines,
+            .display_texts = source.display_texts,
+            .git_statuses = source.git_statuses,
             .rank_options = rank_options,
             .show_scores = show_scores,
             .scroll_view = .{
@@ -50,13 +67,14 @@ const Model = struct {
             },
             .text_field = .{
                 .buf = .init(gpa),
+                .style = .{ .fg = .default, .bg = .default },
                 .userdata = model,
                 .onChange = Model.onChange,
                 .onSubmit = Model.onSubmit,
             },
             .arena = .init(gpa),
-            .result = "",
-            .state = state.State.init(gpa),
+            .result = .{},
+            .state = try state.State.init(gpa, initial_query),
         };
 
         return model;
@@ -65,6 +83,7 @@ const Model = struct {
     pub fn deinit(self: *Model, gpa: std.mem.Allocator) void {
         self.state.deinit();
         self.arena.deinit();
+        self.result.deinit(gpa);
         self.list.deinit(gpa);
         self.text_field.deinit();
         gpa.destroy(self);
@@ -192,7 +211,7 @@ const Model = struct {
 
     fn footerText(self: *const Model) []const u8 {
         return switch (self.state.mode) {
-            .files => if (self.show_scores) "ctrl-; help · scores on" else "ctrl-; help",
+            .files => if (self.show_scores) "ctrl-g help · scores on" else "ctrl-g help",
             .help => if (self.show_scores) "esc files · enter run · scores on" else "esc files · enter run",
         };
     }
@@ -249,7 +268,7 @@ const Model = struct {
 
     fn currentHelpEntry(self: *const Model) ?actions.HelpEntry {
         if (self.state.mode != .help) return null;
-        const text = self.list.currentText(self.scroll_view.cursor) orelse return null;
+        const text = self.list.currentDisplayText(self.scroll_view.cursor) orelse return null;
         return actions.helpEntryForText(text);
     }
 
@@ -314,14 +333,22 @@ const Model = struct {
 
     fn finishAction(self: *Model, ctx: *vxfw.EventContext, action: Action) !void {
         if (self.list.marked.items.len > 0 and action == .edit) {
-            self.result = try protocol.formatActionResult(self.gpa, .quickfix, self.list.marked.items);
+            self.result.deinit(self.gpa);
+            self.result = .{
+                .action = .quickfix,
+                .indexes = try self.gpa.dupe(usize, self.list.marked.items),
+            };
             ctx.quit = true;
             return;
         }
 
         self.syncViewport(.preserve);
-        const path = self.list.currentText(self.scroll_view.cursor) orelse return ctx.consumeAndRedraw();
-        self.result = try protocol.formatActionResult(self.gpa, action, &.{path});
+        const source_index = self.list.currentSourceIndex(self.scroll_view.cursor) orelse return ctx.consumeAndRedraw();
+        self.result.deinit(self.gpa);
+        self.result = .{
+            .action = action,
+            .indexes = try self.gpa.dupe(usize, &.{source_index}),
+        };
         ctx.quit = true;
     }
 
@@ -335,6 +362,10 @@ const Model = struct {
             .files => self.lines,
             .help => actions.help_lines[0..],
         };
+        const display_texts = switch (self.state.mode) {
+            .files => self.display_texts,
+            .help => null,
+        };
         const git_statuses = switch (self.state.mode) {
             .files => self.git_statuses,
             .help => null,
@@ -342,25 +373,29 @@ const Model = struct {
         try self.list.refresh(
             fresh_arena,
             source,
+            display_texts,
             git_statuses,
             query,
             self.state.mode,
             &self.scroll_view.cursor,
             self.rank_options,
             self.show_scores,
+            false,
         );
         self.syncViewport(viewport_sync);
     }
 };
 
-pub fn run(init: std.process.Init, allocator: std.mem.Allocator, lines: []const []const u8, git_statuses: ?list.GitStatuses, rank_options: matcher.RankOptions, show_scores: bool) ![]const u8 {
+pub fn run(init: std.process.Init, allocator: std.mem.Allocator, source: SourceData, rank_options: matcher.RankOptions, show_scores: bool, initial_query: []const u8) !Selection {
     var buffer: [1024]u8 = undefined;
     var app: vxfw.App = try .init(init.io, allocator, init.environ_map, &buffer);
     defer app.deinit();
 
-    const model = try Model.init(allocator, lines, git_statuses, rank_options, show_scores);
+    const model = try Model.init(allocator, source, rank_options, show_scores, initial_query);
     defer model.deinit(allocator);
 
     try app.run(model.widget(), .{});
-    return model.result;
+    const result = model.result;
+    model.result = .{};
+    return result;
 }

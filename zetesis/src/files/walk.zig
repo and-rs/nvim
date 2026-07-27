@@ -1,4 +1,10 @@
 const std = @import("std");
+const git = @import("git.zig");
+
+pub fn collectEntries(allocator: std.mem.Allocator, io: std.Io, dir: std.Io.Dir) ![]const git.Entry {
+    const paths = try collect(allocator, io, dir);
+    return git.entriesFromLines(allocator, paths);
+}
 
 pub fn collect(allocator: std.mem.Allocator, io: std.Io, dir: std.Io.Dir) ![]const []const u8 {
     var walker = try dir.walk(allocator);
@@ -21,7 +27,17 @@ pub fn collect(allocator: std.mem.Allocator, io: std.Io, dir: std.Io.Dir) ![]con
 }
 
 fn ignoredPath(path: []const u8) bool {
-    return std.mem.eql(u8, path, ".git") or std.mem.startsWith(u8, path, ".git/");
+    const ignored_roots = [_][]const u8{
+        ".git",
+        ".cache",
+        ".zig-cache",
+        "node_modules",
+    };
+    for (ignored_roots) |root| {
+        if (!std.mem.startsWith(u8, path, root)) continue;
+        if (path.len == root.len or path[root.len] == '/') return true;
+    }
+    return false;
 }
 
 fn lessThan(_: void, left: []const u8, right: []const u8) bool {
@@ -38,6 +54,10 @@ test "walk files falls back and skips dot git" {
     try tmp.dir.writeFile(io, .{ .sub_path = "README.md", .data = "" });
     try tmp.dir.createDir(io, ".git", .default_dir);
     try tmp.dir.writeFile(io, .{ .sub_path = ".git/config", .data = "" });
+    try tmp.dir.createDir(io, "node_modules", .default_dir);
+    try tmp.dir.writeFile(io, .{ .sub_path = "node_modules/package.js", .data = "" });
+    try tmp.dir.createDir(io, ".zig-cache", .default_dir);
+    try tmp.dir.writeFile(io, .{ .sub_path = ".zig-cache/cache.bin", .data = "" });
 
     var dir = try std.Io.Dir.openDir(tmp.dir, io, ".", .{ .iterate = true });
     defer dir.close(io);

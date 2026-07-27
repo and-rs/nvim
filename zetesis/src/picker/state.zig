@@ -13,15 +13,16 @@ pub const State = struct {
     file_cursor: usize = 0,
     help_cursor: usize = 0,
 
-    pub fn init(allocator: std.mem.Allocator) State {
-        return .{ .allocator = allocator };
+    pub fn init(allocator: std.mem.Allocator, initial_query: []const u8) !State {
+        var result: State = .{ .allocator = allocator };
+        if (initial_query.len > 0) result.file_query = try allocator.dupe(u8, initial_query);
+        return result;
     }
 
     pub fn deinit(self: *State) void {
         if (self.file_query.len > 0) self.allocator.free(self.file_query);
         if (self.help_query.len > 0) self.allocator.free(self.help_query);
     }
-
     pub fn currentQuery(self: *const State) []const u8 {
         return switch (self.mode) {
             .files => self.file_query,
@@ -67,7 +68,7 @@ pub const State = struct {
 };
 
 test "state preserves per-mode query and cursor" {
-    var state = State.init(std.testing.allocator);
+    var state = try State.init(std.testing.allocator, "");
     defer state.deinit();
 
     try state.setQuery("src");
@@ -87,7 +88,7 @@ test "state preserves per-mode query and cursor" {
 }
 
 test "state restores file query and cursor after help search" {
-    var state = State.init(std.testing.allocator);
+    var state = try State.init(std.testing.allocator, "");
     defer state.deinit();
 
     try state.setQuery("picker");
@@ -108,7 +109,7 @@ test "state restores file query and cursor after help search" {
 }
 
 test "state clamps cursor to visible length" {
-    var state = State.init(std.testing.allocator);
+    var state = try State.init(std.testing.allocator, "");
     defer state.deinit();
 
     state.saveCursor(10);

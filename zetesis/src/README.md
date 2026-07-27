@@ -107,7 +107,7 @@ Full object:
   "line": 10,
   "col": 5,
   "action": "edit",
-  "data": { "source": "ripgrep" }
+  "data": { "source": "external" }
 }
 ```
 

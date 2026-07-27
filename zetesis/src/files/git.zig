@@ -42,14 +42,14 @@ pub fn entriesFromLines(allocator: std.mem.Allocator, lines: []const []const u8)
     return entries.toOwnedSlice(allocator);
 }
 
-pub fn collectLinesDuped(allocator: std.mem.Allocator, input: []const u8) ![]const []const u8 {
+pub fn collectNulDelimitedLines(allocator: std.mem.Allocator, input: []const u8) ![]const []const u8 {
     var lines: std.ArrayList([]const u8) = .empty;
     errdefer {
         for (lines.items) |line| allocator.free(line);
         lines.deinit(allocator);
     }
 
-    var iter = std.mem.splitScalar(u8, std.mem.trim(u8, input, "\n"), '\n');
+    var iter = std.mem.splitScalar(u8, input, 0);
     while (iter.next()) |line| {
         if (line.len == 0) continue;
         try lines.append(allocator, try allocator.dupe(u8, line));
@@ -72,13 +72,17 @@ fn filterExistingFiles(
     defer allocator.free(lines);
 
     for (lines) |line| {
-        dir.access(io, line, .{}) catch |err| switch (err) {
+        const stat = dir.statFile(io, line, .{}) catch |err| switch (err) {
             error.FileNotFound => {
                 allocator.free(line);
                 continue;
             },
             else => return err,
         };
+        if (stat.kind != .file) {
+            allocator.free(line);
+            continue;
+        }
         try filtered.append(allocator, line);
     }
 
@@ -137,8 +141,8 @@ fn gitStatusFromCode(x: u8, y: u8) GitStatus {
     return .none;
 }
 
-test "collect lines drops blanks and duplicates text" {
-    const lines = try collectLinesDuped(std.testing.allocator, "a.zig\n\nb.zig\n");
+test "NUL-delimited file list drops blanks and duplicates text" {
+    const lines = try collectNulDelimitedLines(std.testing.allocator, "a.zig\x00\x00b.zig\x00");
     defer {
         for (lines) |line| std.testing.allocator.free(line);
         std.testing.allocator.free(lines);
@@ -158,6 +162,17 @@ test "git status parser maps porcelain status" {
     try std.testing.expectEqual(GitStatus.none, try gitStatusForPath(std.testing.allocator, output, "old.txt"));
 }
 
+test "NUL-delimited file list preserves newlines in paths" {
+    const lines = try collectNulDelimitedLines(std.testing.allocator, "normal.zig\x00line\nbreak.zig\x00");
+    defer {
+        for (lines) |line| std.testing.allocator.free(line);
+        std.testing.allocator.free(lines);
+    }
+
+    try std.testing.expectEqual(@as(usize, 2), lines.len);
+    try std.testing.expectEqualStrings("line\nbreak.zig", lines[1]);
+}
+
 test "git file collection skips deleted tracked files" {
     const io = std.testing.io;
     var tmp = std.testing.tmpDir(.{});
@@ -165,6 +180,7 @@ test "git file collection skips deleted tracked files" {
 
     try tmp.dir.writeFile(io, .{ .sub_path = "keep.txt", .data = "keep\n" });
     try tmp.dir.writeFile(io, .{ .sub_path = "gone.txt", .data = "gone\n" });
+    try tmp.dir.createDir(io, "nested", .default_dir);
 
     const init_result = try std.process.run(std.testing.allocator, io, .{
         .argv = &.{ "git", "init" },
@@ -177,7 +193,7 @@ test "git file collection skips deleted tracked files" {
     try std.testing.expectEqual(@as(u8, 0), init_result.term.exited);
 
     const add_result = try std.process.run(std.testing.allocator, io, .{
-        .argv = &.{ "git", "add", "keep.txt", "gone.txt" },
+        .argv = &.{ "git", "add", "keep.txt", "gone.txt", "nested" },
         .cwd = .{ .dir = tmp.dir },
     });
     defer {
@@ -190,7 +206,7 @@ test "git file collection skips deleted tracked files" {
     try tmp.dir.writeFile(io, .{ .sub_path = "new.txt", .data = "new\n" });
 
     const git_result = try std.process.run(std.testing.allocator, io, .{
-        .argv = &.{ "git", "ls-files", "--cached", "--others", "--exclude-standard" },
+        .argv = &.{ "git", "ls-files", "-z", "--cached", "--others", "--exclude-standard" },
         .cwd = .{ .dir = tmp.dir },
     });
     defer {
@@ -198,7 +214,7 @@ test "git file collection skips deleted tracked files" {
         std.testing.allocator.free(git_result.stderr);
     }
 
-    const git_lines = try collectLinesDuped(std.testing.allocator, git_result.stdout);
+    const git_lines = try collectNulDelimitedLines(std.testing.allocator, git_result.stdout);
     var dir = try std.Io.Dir.openDir(tmp.dir, io, ".", .{ .iterate = true });
     defer dir.close(io);
 

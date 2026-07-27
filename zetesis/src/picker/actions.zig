@@ -14,6 +14,14 @@ pub const Action = enum {
             .quickfix => "quickfix",
         };
     }
+
+    pub fn parse(name: []const u8) ?Action {
+        if (std.mem.eql(u8, name, "edit")) return .edit;
+        if (std.mem.eql(u8, name, "vsplit")) return .vsplit;
+        if (std.mem.eql(u8, name, "tabedit")) return .tabedit;
+        if (std.mem.eql(u8, name, "quickfix")) return .quickfix;
+        return null;
+    }
 };
 
 pub const HelpAction = enum {
@@ -90,6 +98,14 @@ test "help actions dispatch to shared picker actions" {
     try std.testing.expectEqual(HelpDispatch.mark, dispatchForHelpAction(.mark));
     try std.testing.expectEqual(HelpDispatch.back, dispatchForHelpAction(.back));
     try std.testing.expectEqual(HelpDispatch.quit, dispatchForHelpAction(.quit));
+}
+
+test "action label parser matches labels" {
+    try std.testing.expectEqual(Action.edit, Action.parse("edit").?);
+    try std.testing.expectEqual(Action.vsplit, Action.parse("vsplit").?);
+    try std.testing.expectEqual(Action.tabedit, Action.parse("tabedit").?);
+    try std.testing.expectEqual(Action.quickfix, Action.parse("quickfix").?);
+    try std.testing.expectEqual(null, Action.parse("bogus"));
 }
 
 test "help entry lookup handles empty results" {

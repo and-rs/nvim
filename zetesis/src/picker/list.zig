@@ -12,7 +12,7 @@ const vxfw = vaxis.vxfw;
 pub const GitStatuses = results.GitStatuses;
 
 pub const State = struct {
-    const Marked = std.ArrayList([]const u8);
+    const Marked = std.ArrayList(usize);
 
     filtered: std.ArrayList(matcher.RankedLine) = .empty,
     marked: Marked = .empty,
@@ -47,21 +47,26 @@ pub const State = struct {
         }
     }
 
-    pub fn currentText(self: *const State, cursor: usize) ?[]const u8 {
+    pub fn currentDisplayText(self: *const State, cursor: usize) ?[]const u8 {
+        if (cursor >= self.rows.items.len) return null;
+        return self.rows.items[cursor].text;
+    }
+
+    pub fn currentSourceIndex(self: *const State, cursor: usize) ?usize {
         if (cursor >= self.filtered.items.len) return null;
-        return self.filtered.items[cursor].text;
+        return self.filtered.items[cursor].source_index;
     }
 
     pub fn toggleMark(self: *State, allocator: std.mem.Allocator, mode: state.Mode, cursor: usize) !void {
         if (mode != .files) return;
-        const text = self.currentText(cursor) orelse return;
-        if (self.markedIndex(text)) |index| {
+        const source_index = self.currentSourceIndex(cursor) orelse return;
+        if (self.markedIndex(source_index)) |index| {
             _ = self.marked.swapRemove(index);
             if (cursor < self.rows.items.len) self.rows.items[cursor].marked = false;
             return;
         }
 
-        try self.marked.append(allocator, text);
+        try self.marked.append(allocator, source_index);
         if (cursor < self.rows.items.len) self.rows.items[cursor].marked = true;
     }
 
@@ -69,25 +74,61 @@ pub const State = struct {
         self: *State,
         arena: std.mem.Allocator,
         source: []const []const u8,
+        display_texts: ?[]const []const u8,
         git_statuses: ?GitStatuses,
         query: []const u8,
         mode: state.Mode,
         cursor: *const u32,
         rank_options: matcher.RankOptions,
         show_scores: bool,
+        ordered: bool,
     ) !void {
         self.clear(arena);
         self.show_scores = show_scores;
 
-        const ranked_rows = try results.rankRows(arena, source, git_statuses, query, mode, rank_options);
-        try self.appendRows(arena, ranked_rows, mode, cursor, show_scores);
+        if (ordered) {
+            try self.appendOrderedRows(arena, source, display_texts, mode, cursor);
+        } else {
+            const ranked_rows = try results.rankRows(arena, source, git_statuses, query, mode, rank_options);
+            try self.appendRows(arena, ranked_rows, display_texts, mode, cursor, show_scores);
+        }
         try self.appendRowBoxes(arena);
+    }
+
+    fn appendOrderedRows(
+        self: *State,
+        arena: std.mem.Allocator,
+        source: []const []const u8,
+        display_texts: ?[]const []const u8,
+        mode: state.Mode,
+        cursor: *const u32,
+    ) !void {
+        const row_styles: Row.Styles = .{};
+        for (source, 0..) |text, source_index| {
+            try self.filtered.append(arena, .{
+                .text = text,
+                .source_index = source_index,
+                .score = .{},
+                .match_indexes = &.{},
+            });
+            try self.rows.append(arena, .{
+                .text = displayTextAt(display_texts, source_index, text),
+                .index = self.rows.items.len,
+                .cursor = cursor,
+                .marked = self.isMarked(mode, source_index),
+                .git_status = .none,
+                .score_text = null,
+                .match_indexes = &.{},
+                .styles = row_styles,
+            });
+        }
     }
 
     fn appendRows(
         self: *State,
         arena: std.mem.Allocator,
         ranked_rows: []const results.RankedRow,
+        display_texts: ?[]const []const u8,
         mode: state.Mode,
         cursor: *const u32,
         show_scores: bool,
@@ -96,10 +137,10 @@ pub const State = struct {
         for (ranked_rows) |entry| {
             try self.filtered.append(arena, entry.line);
             try self.rows.append(arena, .{
-                .text = entry.line.text,
+                .text = displayTextAt(display_texts, entry.line.source_index, entry.line.text),
                 .index = self.rows.items.len,
                 .cursor = cursor,
-                .marked = self.isMarked(mode, entry.line.text),
+                .marked = self.isMarked(mode, entry.line.source_index),
                 .git_status = entry.git_status,
                 .score_text = if (show_scores) try scoreText(arena, entry.line.score.total()) else null,
                 .match_indexes = entry.line.match_indexes,
@@ -122,16 +163,22 @@ pub const State = struct {
         }
     }
 
-    fn isMarked(self: *const State, mode: state.Mode, text: []const u8) bool {
+    fn isMarked(self: *const State, mode: state.Mode, source_index: usize) bool {
         if (mode != .files) return false;
-        return self.markedIndex(text) != null;
+        return self.markedIndex(source_index) != null;
     }
 
-    fn markedIndex(self: *const State, text: []const u8) ?usize {
+    fn markedIndex(self: *const State, source_index: usize) ?usize {
         for (self.marked.items, 0..) |marked, index| {
-            if (std.mem.eql(u8, marked, text)) return index;
+            if (marked == source_index) return index;
         }
         return null;
+    }
+
+    fn displayTextAt(display_texts: ?[]const []const u8, source_index: usize, fallback: []const u8) []const u8 {
+        const texts = display_texts orelse return fallback;
+        if (source_index >= texts.len) return fallback;
+        return texts[source_index];
     }
 };
 
@@ -144,12 +191,12 @@ test "list state restores marks after refresh" {
     defer arena_impl.deinit();
     const arena = arena_impl.allocator();
 
-    try list.refresh(arena, &.{ "a.zig", "b.zig" }, null, "", .files, &cursor, .{}, false);
+    try list.refresh(arena, &.{ "a.zig", "b.zig" }, null, null, "", .files, &cursor, .{}, false, false);
     try list.toggleMark(std.testing.allocator, .files, 0);
     try std.testing.expect(list.rows.items[0].marked);
 
     _ = arena_impl.reset(.free_all);
-    try list.refresh(arena_impl.allocator(), &.{ "a.zig", "b.zig" }, null, "", .files, &cursor, .{}, false);
+    try list.refresh(arena_impl.allocator(), &.{ "a.zig", "b.zig" }, null, null, "", .files, &cursor, .{}, false, false);
     try std.testing.expect(list.rows.items[0].marked);
 }
 
@@ -161,7 +208,7 @@ test "help mode never marks rows" {
     var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena_impl.deinit();
 
-    try list.refresh(arena_impl.allocator(), &.{"help row"}, null, "", .help, &cursor, .{}, false);
+    try list.refresh(arena_impl.allocator(), &.{"help row"}, null, null, "", .help, &cursor, .{}, false, false);
     try list.toggleMark(std.testing.allocator, .help, 0);
     try std.testing.expectEqual(@as(usize, 0), list.marked.items.len);
 }
@@ -174,7 +221,7 @@ test "score text appears only when enabled" {
     var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena_impl.deinit();
 
-    try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, null, "main", .files, &cursor, .{}, true);
+    try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, null, null, "main", .files, &cursor, .{}, true, false);
     try std.testing.expect(list.rows.items[0].score_text != null);
 }
 
@@ -192,7 +239,20 @@ test "list rows get git status and match indexes" {
     var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena_impl.deinit();
 
-    try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, &.{.modified}, "main", .files, &cursor, .{}, false);
+    try list.refresh(arena_impl.allocator(), &.{"src/main.zig"}, null, &.{.modified}, "main", .files, &cursor, .{}, false, false);
     try std.testing.expectEqual(GitStatus.modified, list.rows.items[0].git_status);
     try std.testing.expect(list.rows.items[0].match_indexes.len > 0);
+}
+
+test "list can render display text separate from match text" {
+    var list: State = .{};
+    defer list.deinit(std.testing.allocator);
+
+    var cursor: u32 = 0;
+    var arena_impl = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_impl.deinit();
+
+    try list.refresh(arena_impl.allocator(), &.{"match-value"}, &.{"shown-value"}, null, "match", .files, &cursor, .{}, false, false);
+    try std.testing.expectEqualStrings("shown-value", list.currentDisplayText(0).?);
+    try std.testing.expectEqual(@as(usize, 0), list.currentSourceIndex(0).?);
 }

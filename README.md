@@ -5,20 +5,12 @@ This is my baller neovim config. There is barely no plugin left under defaults.
 
 ## Features
 
-- **Bleeding Edge:** Leverages Neovim 0.12+ features including `vim.pack` for
-  plugin management and the new `vim.lsp.config` API.
+- **Bleeding Edge:** Leverages Neovim 0.12+ features including `vim.pack` for plugin management and the new `vim.lsp.config` API.
 - **Custom UI Components:**
-  - **Dynamic Theme System:** A hand-rolled color scheme (vanilla++)
-    (`lua/config/coloring.lua`) that generates semantic colors for both light
-    and dark modes.
-  - **Custom Tabline:** A minimal tabline (`lua/config/tabline.lua`) showing
-    only relevant buffers and allowing quick tab switching via `A, S, D, F`
-    keys.
-  - **Custom Statuscolumn:** Combines line numbers, signs, and a visual border
-    (`lua/config/statuscolumn.lua`).
-- **Opinionated Workflow:** Preconfigured for web development (Typescript,
-  React, Tailwind, Jinja) with specific formatting, linting, and navigation
-  preferences.
+  - **Dynamic Theme System:** A hand-rolled color scheme (vanilla++) (`lua/config/coloring.lua`) that generates semantic colors for both light and dark modes.
+  - **Custom Tabline:** A minimal tabline (`lua/config/tabline.lua`) showing only relevant buffers and allowing quick tab switching via `A, S, D, F` keys.
+  - **Custom Statuscolumn:** Combines line numbers, signs, and a visual border (`lua/config/statuscolumn.lua`).
+- **Opinionated Workflow:** Preconfigured for web development (Typescript, React, Tailwind, Jinja) with specific formatting, linting, and navigation preferences.
 - **AI Integration is WIP**
 
 ## Prerequisites
@@ -35,14 +27,11 @@ This is my baller neovim config. There is barely no plugin left under defaults.
    ```bash
    git clone https://github.com/yourusername/nvim-config.git ~/.config/nvim
    ```
-2. Start Neovim. The `init.lua` will automatically bootstrap plugins using
-   `vim.pack`.
+2. Start Neovim. The `init.lua` will automatically bootstrap plugins using `vim.pack`.
 
 ## Theming
 
-The configuration defines a custom color palette in `lua/config/coloring.lua`.
-It generates helper functions for manipulating hex codes (`darken_hex`,
-`lighten_hex`).
+The configuration defines a custom color palette in `lua/config/coloring.lua`. It generates helper functions for manipulating hex codes (`darken_hex`, `lighten_hex`).
 
 Highlights are applied dynamically based on `vim.o.background`:
 

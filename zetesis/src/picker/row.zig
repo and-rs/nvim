@@ -8,7 +8,7 @@ const Row = @This();
 
 pub const Styles = struct {
     normal: vaxis.Style = .{},
-    current: vaxis.Style = .{ .bold = true, .fg = .{ .index = 2 }, .bg = .{ .index = 0 } },
+    current: vaxis.Style = .{ .bold = true, .fg = .{ .index = 2 }, .bg = .default },
     marker: vaxis.Style = .{ .fg = .{ .index = 2 } },
     git: vaxis.Style = .{ .fg = .{ .index = 3 } },
     score: vaxis.Style = .{ .fg = .{ .index = 8 } },

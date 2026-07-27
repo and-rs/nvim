@@ -5,38 +5,28 @@ const walk = @import("walk.zig");
 
 pub const Entry = git.Entry;
 
-pub fn collectProjectFiles(allocator: std.mem.Allocator, io: std.Io, cwd: []const u8) ![]const []const u8 {
-    const entries = try collectProjectEntries(allocator, io, cwd);
-    var lines: std.ArrayList([]const u8) = .empty;
-    errdefer lines.deinit(allocator);
-    for (entries) |entry| try lines.append(allocator, entry.path);
-    allocator.free(entries);
-    return lines.toOwnedSlice(allocator);
-}
-
 pub fn collectProjectEntries(allocator: std.mem.Allocator, io: std.Io, cwd: []const u8) ![]const Entry {
     var dir = try std.Io.Dir.openDir(.cwd(), io, cwd, .{ .iterate = true });
     defer dir.close(io);
 
-    const git_result = try std.process.run(allocator, io, .{
-        .argv = &.{ "git", "ls-files", "--cached", "--others", "--exclude-standard" },
+    const git_result = std.process.run(allocator, io, .{
+        .argv = &.{ "git", "ls-files", "-z", "--cached", "--others", "--exclude-standard" },
         .cwd = .{ .path = cwd },
-    });
+    }) catch return walk.collectEntries(allocator, io, dir);
     defer allocator.free(git_result.stdout);
     defer allocator.free(git_result.stderr);
 
     switch (git_result.term) {
         .exited => |code| {
             if (code == 0) {
-                const lines = try git.collectLinesDuped(allocator, git_result.stdout);
+                const lines = try git.collectNulDelimitedLines(allocator, git_result.stdout);
                 return git.collectEntries(allocator, io, cwd, dir, lines);
             }
         },
         else => {},
     }
 
-    const lines = try walk.collect(allocator, io, dir);
-    return git.entriesFromLines(allocator, lines);
+    return walk.collectEntries(allocator, io, dir);
 }
 
 test {
