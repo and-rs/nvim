@@ -1,7 +1,7 @@
 vim.pack.add({ "https://github.com/stevearc/conform.nvim" })
 
 local conform = require("conform")
-local prose_wrap = true
+local prose_wrap = false
 
 conform.formatters = {
   topiary_nu = {
@@ -25,9 +25,6 @@ conform.formatters = {
     args = { "fix", "--dialect=snowflake", "--templater=jinja" },
     require_cwd = false,
     stdin = true,
-  },
-  deno_fmt = {
-    append_args = { "--prose-wrap=always" },
   },
   deno_fmt_md = {
     inherit = "deno_fmt",

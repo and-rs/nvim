@@ -52,6 +52,18 @@ vim.schedule(function()
         },
       },
     },
+    search = {
+      exclude = {
+        "qf",
+        "noice",
+        "notify",
+        "cmp_menu",
+        "flash_prompt",
+        function(win)
+          return not vim.api.nvim_win_get_config(win).focusable
+        end,
+      },
+    },
     highlight = {
       backdrop = true,
       matches = true,

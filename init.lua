@@ -43,7 +43,6 @@ require("plugins.whichkey")
 require("plugins.yazi")
 require("plugins.diff")
 require("plugins.treesitter")
-require("plugins.exoskeleton")
 
 -- when I open nu term buffer in neovim
 vim.api.nvim_create_autocmd({ "FileType", "VimEnter" }, {
