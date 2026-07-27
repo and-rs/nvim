@@ -107,8 +107,8 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     defer stdout.flush() catch {};
 
     if (config.filter) |query| {
-        const needles = try matcher.splitQuery(allocator, query);
-        const ranked = try matcher.rankAll(allocator, actions.help_lines[0..], needles, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) });
+        const terms = try matcher.parseQuery(allocator, query);
+        const ranked = try matcher.rankQueryTop(allocator, actions.help_lines[0..], terms, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) }, actions.help_lines.len);
         if (ranked.len == 0) std.process.exit(1);
         writeRanked(stdout, ranked, null, config.debug_scores) catch std.process.exit(0);
         return;
@@ -127,10 +127,10 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
     defer stdout.flush() catch {};
 
     if (config.filter) |query| {
-        const needles = try matcher.splitQuery(allocator, query);
+        const terms = try matcher.parseQuery(allocator, query);
         var filter_options = rank_options;
         filter_options.case_sensitive = matcher.hasUpper(query);
-        const ranked = try matcher.rankAll(allocator, source.lines, needles, filter_options);
+        const ranked = try matcher.rankQueryTop(allocator, source.lines, terms, filter_options, source.lines.len);
         if (ranked.len == 0) std.process.exit(1);
         writeRanked(stdout, ranked, source.display_texts, config.debug_scores) catch std.process.exit(0);
         std.process.exit(0);

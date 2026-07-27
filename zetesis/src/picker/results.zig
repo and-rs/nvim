@@ -22,12 +22,12 @@ pub fn rankRows(
     mode: state.Mode,
     rank_options: matcher.RankOptions,
 ) ![]const RankedRow {
-    const needles = try matcher.splitQuery(arena, query);
+    const terms = try matcher.parseQuery(arena, query);
     var options = rank_options;
     options.case_sensitive = matcher.hasUpper(query);
     if (mode == .help) options.plain = true;
 
-    const ranked = try matcher.rankTop(arena, source, needles, options, max_ranked_rows);
+    const ranked = try matcher.rankQueryTop(arena, source, terms, options, max_ranked_rows);
     return orderedRankedRows(arena, ranked, git_statuses, mode);
 }
 

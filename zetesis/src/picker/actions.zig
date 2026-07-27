@@ -31,6 +31,7 @@ pub const HelpAction = enum {
     tabedit,
     quit,
     back,
+    info,
 };
 
 pub const HelpEntry = struct {
@@ -42,6 +43,7 @@ pub const HelpDispatch = union(enum) {
     back,
     quit,
     mark,
+    none,
     file_action: Action,
 };
 
@@ -53,6 +55,7 @@ pub fn dispatchForHelpAction(action: HelpAction) HelpDispatch {
         .tabedit => .{ .file_action = .tabedit },
         .quit => .quit,
         .back => .back,
+        .info => .none,
     };
 }
 
@@ -61,6 +64,10 @@ pub const help_entries = [_]HelpEntry{
     .{ .text = "Mark or unmark row       Ctrl-y", .action = .mark },
     .{ .text = "Open in vertical split   Ctrl-v", .action = .vsplit },
     .{ .text = "Open in new tab          Ctrl-t", .action = .tabedit },
+    .{ .text = "Fuzzy path term          name", .action = .info },
+    .{ .text = "Literal path substring   %literal", .action = .info },
+    .{ .text = "Filename-only fuzzy      >name", .action = .info },
+    .{ .text = "Extension suffix filter  #zig / #test.ts", .action = .info },
     .{ .text = "Return to file picker    Esc", .action = .back },
     .{ .text = "Quit zetesis             Esc / Ctrl-c", .action = .quit },
 };

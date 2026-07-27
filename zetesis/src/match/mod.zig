@@ -47,6 +47,105 @@ pub fn splitQuery(allocator: std.mem.Allocator, query: []const u8) ![]const []co
     return needles.toOwnedSlice(allocator);
 }
 
+pub const QueryTerm = union(enum) {
+    fuzzy: []const u8,
+    basename: []const u8,
+    extension: []const u8,
+    literal: []const u8,
+};
+
+pub fn parseQuery(allocator: std.mem.Allocator, query: []const u8) ![]const QueryTerm {
+    var terms: std.ArrayList(QueryTerm) = .empty;
+    var iter = std.mem.tokenizeAny(u8, query, " \t");
+    while (iter.next()) |token| {
+        const term: QueryTerm = if (token.len > 1 and token[0] == '%') .{ .literal = token[1..] } else if (token.len > 1 and token[0] == '>') .{ .basename = token[1..] } else if (token.len > 1 and token[0] == '#') .{ .extension = token[1..] } else .{ .fuzzy = token };
+        try terms.append(allocator, term);
+    }
+    return terms.toOwnedSlice(allocator);
+}
+
+pub fn rankQuery(haystack: []const u8, terms: []const QueryTerm, opts: RankOptions) ?ScoreBreakdown {
+    if (haystack.len == 0) return null;
+    var total: ScoreBreakdown = .{};
+    const filename = std.fs.path.basename(haystack);
+    for (terms) |term| switch (term) {
+        .fuzzy => |needle| {
+            const strict_path = !opts.plain and hasSeparator(needle);
+            const score = rankNeedle(haystack, if (opts.plain) null else filename, needle, opts.case_sensitive, strict_path) orelse return null;
+            total.fuzzy += score.fuzzy;
+            total.filename_boost += score.filename_boost;
+            total.exact_filename_boost += score.exact_filename_boost;
+        },
+        .basename => |needle| {
+            const fuzzy = scoreSubsequence(filename, needle, opts.case_sensitive) orelse return null;
+            const score = componentScore(haystack, filename, filename, needle, opts.case_sensitive, fuzzy);
+            total.fuzzy += score.fuzzy;
+            total.filename_boost += score.filename_boost;
+            total.exact_filename_boost += score.exact_filename_boost;
+        },
+        .extension => |extension| {
+            if (!endsWithExtension(filename, extension, opts.case_sensitive or hasUpper(extension))) return null;
+            total.filename_boost += 1;
+        },
+        .literal => |literal| {
+            if (indexOf(haystack, literal, opts.case_sensitive or hasUpper(literal)) == null) return null;
+            total.filename_boost += 1;
+        },
+    };
+    return applyContextScore(haystack, total, opts);
+}
+
+pub fn rankQueryTop(allocator: std.mem.Allocator, lines: []const []const u8, terms: []const QueryTerm, opts: RankOptions, limit: usize) ![]RankedLine {
+    if (limit == 0) return &.{};
+    var ranked: std.ArrayList(RankedLine) = .empty;
+    for (lines, 0..) |line, index| {
+        const score = if (terms.len == 0) applyContextScore(line, .{}, opts) else rankQuery(line, terms, opts) orelse continue;
+        try insertBounded(allocator, &ranked, .{ .text = line, .source_index = index, .score = score }, limit);
+    }
+    for (ranked.items) |*line| line.match_indexes = try queryMatchIndexes(allocator, line.text, terms, opts.case_sensitive);
+    return ranked.toOwnedSlice(allocator);
+}
+
+fn queryMatchIndexes(allocator: std.mem.Allocator, haystack: []const u8, terms: []const QueryTerm, case_sensitive: bool) ![]const usize {
+    var indexes: std.ArrayList(usize) = .empty;
+    errdefer indexes.deinit(allocator);
+    for (terms) |term| switch (term) {
+        .fuzzy => |needle| {
+            const component = if (bestComponentMatch(haystack, std.fs.path.basename(haystack), needle, case_sensitive)) |match| match.component else haystack;
+            try appendSubsequenceIndexes(&indexes, allocator, component, needle, case_sensitive, @intFromPtr(component.ptr) - @intFromPtr(haystack.ptr));
+        },
+        .basename => |needle| try appendSubsequenceIndexes(&indexes, allocator, std.fs.path.basename(haystack), needle, case_sensitive, haystack.len - std.fs.path.basename(haystack).len),
+        .literal => |literal| if (indexOf(haystack, literal, case_sensitive or hasUpper(literal))) |start| for (0..literal.len) |i| try indexes.append(allocator, start + i),
+        .extension => {},
+    };
+    std.mem.sort(usize, indexes.items, {}, lessThanUsize);
+    var write: usize = 0;
+    for (indexes.items) |index| {
+        if (write == 0 or indexes.items[write - 1] != index) {
+            indexes.items[write] = index;
+            write += 1;
+        }
+    }
+    indexes.shrinkRetainingCapacity(write);
+    return indexes.toOwnedSlice(allocator);
+}
+
+fn indexOf(haystack: []const u8, needle: []const u8, case_sensitive: bool) ?usize {
+    if (case_sensitive) return std.mem.indexOf(u8, haystack, needle);
+    return std.ascii.indexOfIgnoreCase(haystack, needle);
+}
+
+fn endsWithExtension(filename: []const u8, extension: []const u8, case_sensitive: bool) bool {
+    if (extension.len == 0) return false;
+    if (extension[0] == '.') {
+        if (extension.len > filename.len) return false;
+        return equals(filename[filename.len - extension.len ..], extension, case_sensitive);
+    }
+    if (extension.len + 1 > filename.len) return false;
+    const start = filename.len - extension.len - 1;
+    return filename[start] == '.' and equals(filename[start + 1 ..], extension, case_sensitive);
+}
+
 pub fn rank(haystack: []const u8, needles: []const []const u8, opts: RankOptions) ?ScoreBreakdown {
     if (haystack.len == 0 or needles.len == 0) return null;
 
@@ -341,6 +440,37 @@ fn compareRankedLine(_: void, left: RankedLine, right: RankedLine) bool {
     const right_total = right.score.total();
     if (left_total == right_total) return std.mem.lessThan(u8, left.text, right.text);
     return left_total > right_total;
+}
+
+test "query prefixes filter and highlight paths" {
+    const terms = try parseQuery(std.testing.allocator, ">config #nu %nushell");
+    defer std.testing.allocator.free(terms);
+    const ranked = try rankQueryTop(std.testing.allocator, &.{ "common/nushell/config.nu", "config/nushell.txt", "common/nushell/other.nu" }, terms, .{}, 10);
+    defer {
+        for (ranked) |line| std.testing.allocator.free(line.match_indexes);
+        std.testing.allocator.free(ranked);
+    }
+    try std.testing.expectEqual(@as(usize, 1), ranked.len);
+    try std.testing.expectEqualStrings("common/nushell/config.nu", ranked[0].text);
+    try std.testing.expect(std.mem.indexOfScalar(usize, ranked[0].match_indexes, 7) != null);
+}
+
+test "empty query prefixes remain fuzzy text" {
+    const terms = try parseQuery(std.testing.allocator, "% > #");
+    defer std.testing.allocator.free(terms);
+    try std.testing.expectEqual(@as(usize, 3), terms.len);
+    for (terms) |term| try std.testing.expect(std.meta.activeTag(term) == .fuzzy);
+}
+
+test "literal smart case and basename exclusion" {
+    const literal = try parseQuery(std.testing.allocator, "%Bar.qml");
+    defer std.testing.allocator.free(literal);
+    try std.testing.expect(rankQuery("src/Bar.qml", literal, .{}) != null);
+    try std.testing.expect(rankQuery("src/bar.qml", literal, .{}) == null);
+
+    const basename = try parseQuery(std.testing.allocator, ">config");
+    defer std.testing.allocator.free(basename);
+    try std.testing.expect(rankQuery("config/file.nu", basename, .{}) == null);
 }
 
 test "filename priority" {

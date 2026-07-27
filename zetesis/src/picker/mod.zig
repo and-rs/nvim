@@ -209,11 +209,24 @@ const Model = struct {
         };
     }
 
-    fn footerText(self: *const Model) []const u8 {
+    fn footerText(self: *Model) []const u8 {
         return switch (self.state.mode) {
-            .files => if (self.show_scores) "ctrl-g help · scores on" else "ctrl-g help",
+            .files => self.fileFooterText(),
             .help => if (self.show_scores) "esc files · enter run · scores on" else "esc files · enter run",
         };
+    }
+
+    fn fileFooterText(self: *Model) []const u8 {
+        const base = if (self.list.marked.items.len > 0) " files · marked · ctrl-g help" else " files · ctrl-g help";
+        const mode = queryModeLabel(self.state.currentQuery());
+        return std.fmt.allocPrint(self.arena.allocator(), "{d} / {d}{s}{s}", .{ self.list.len(), self.lines.len, mode, base }) catch "ctrl-g help";
+    }
+
+    fn queryModeLabel(query: []const u8) []const u8 {
+        if (std.mem.indexOfScalar(u8, query, '%') != null) return " · literal";
+        if (std.mem.indexOfScalar(u8, query, '>') != null) return " · filename";
+        if (std.mem.indexOfScalar(u8, query, '#') != null) return " · extension";
+        return "";
     }
 
     fn widgetBuilder(ptr: *const anyopaque, index: usize, _: usize) ?vxfw.Widget {
@@ -255,6 +268,7 @@ const Model = struct {
                 ctx.quit = true;
                 return;
             },
+            .none => return ctx.consumeAndRedraw(),
             .mark => {
                 try self.switchMode(ctx, .files);
                 return self.markCurrent(ctx);
