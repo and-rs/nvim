@@ -57,3 +57,27 @@ vim.g.smart_splits_multiplexer_integration = "tmux"
 
 vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
 vim.keymap.set({ "c", "t" }, "<M-BS>", "<M-C-H>")
+
+if vim.g.neovide then
+  vim.o.linespace = 10
+  vim.g.neovide_text_gamma = 0.0
+  vim.g.neovide_text_contrast = 0.5
+  vim.g.neovide_pixel_geometry = "RGBH"
+
+  vim.g.neovide_padding_top = 4
+  vim.g.neovide_padding_bottom = 0
+  vim.g.neovide_padding_right = 0
+  vim.g.neovide_padding_left = 0
+
+  vim.g.neovide_floating_shadow = true
+  vim.g.neovide_floating_z_height = 2
+  vim.g.neovide_light_angle_degrees = 90
+  vim.g.neovide_light_radius = 100
+  vim.g.neovide_refresh_rate = 120
+
+  local function paste()
+    vim.api.nvim_paste(vim.fn.getreg("+"), true, -1)
+  end
+
+  vim.keymap.set({ "n", "i", "v", "c", "t" }, "<M-v>", paste, { silent = true, desc = "Paste" })
+end

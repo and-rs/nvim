@@ -58,29 +58,29 @@ end
 local function get_theme(colors)
   return {
     normal = {
-      a = { fg = colors.cyan },
-      b = { fg = colors.cyan },
-      c = { fg = colors.cyan },
+      a = { fg = colors.cyan, bg = colors.bg },
+      b = { fg = colors.cyan, bg = colors.bg },
+      c = { fg = colors.cyan, bg = colors.bg },
     },
     insert = {
-      a = { fg = colors.green },
-      b = { fg = colors.green },
-      c = { fg = colors.green },
+      a = { fg = colors.green, bg = colors.bg },
+      b = { fg = colors.green, bg = colors.bg },
+      c = { fg = colors.green, bg = colors.bg },
     },
     visual = {
-      a = { fg = colors.cyan },
-      b = { fg = colors.cyan },
-      c = { fg = colors.cyan },
+      a = { fg = colors.cyan, bg = colors.bg },
+      b = { fg = colors.cyan, bg = colors.bg },
+      c = { fg = colors.cyan, bg = colors.bg },
     },
     replace = {
-      a = { fg = colors.red },
-      b = { fg = colors.red },
-      c = { fg = colors.red },
+      a = { fg = colors.red, bg = colors.bg },
+      b = { fg = colors.red, bg = colors.bg },
+      c = { fg = colors.red, bg = colors.bg },
     },
     terminal = {
-      a = { fg = colors.violet },
-      b = { fg = colors.violet },
-      c = { fg = colors.violet },
+      a = { fg = colors.violet, bg = colors.bg },
+      b = { fg = colors.violet, bg = colors.bg },
+      c = { fg = colors.violet, bg = colors.bg },
     },
   }
 end
