@@ -1,6 +1,8 @@
 # Neovim Configuration
 
-<img width="2520" height="1507" alt="Neovim setup" src="https://github.com/user-attachments/assets/f12718fe-b4c9-43de-b969-3550cdd9496e" />
+<img width="2525" height="1517" alt="image" src="https://github.com/user-attachments/assets/699605b6-ebf1-4ec5-996d-178d7c45ad9c" />
+
+<img width="2525" height="1517" alt="image" src="https://github.com/user-attachments/assets/748abb06-f949-49fa-ad6f-789bddd98301" />
 
 My personal Neovim setup: opinionated, relatively minimal in the UI, and built around fast navigation rather than a distribution's defaults. It is useful as a starting point, but expect to adapt its keymaps, language tooling, and external commands to your own workflow.
 
