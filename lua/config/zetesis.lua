@@ -179,7 +179,9 @@ local function run_zt(subcommand, opts)
     command[#command + 1] = opts.current_file
   end
 
-  local job = vim.fn.termopen(command, {
+  --- Using jobstart instead of termopen
+  local job = vim.fn.jobstart(command, {
+    term = true,
     on_exit = function(_, code)
       vim.schedule(function()
         if vim.api.nvim_win_is_valid(window) then

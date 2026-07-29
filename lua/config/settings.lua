@@ -29,7 +29,7 @@ vim.opt.undofile = true
 vim.opt.nu = true
 
 -- incremental search
-vim.opt.hlsearch = false
+vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 -- term colors

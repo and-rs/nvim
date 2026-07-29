@@ -1,55 +1,106 @@
 # Neovim Configuration
 
-<img width="2520" height="1507" alt="image" src="https://github.com/user-attachments/assets/f12718fe-b4c9-43de-b969-3550cdd9496e" />
-This is my baller neovim config. There is barely no plugin left under defaults.
+<img width="2520" height="1507" alt="Neovim setup" src="https://github.com/user-attachments/assets/f12718fe-b4c9-43de-b969-3550cdd9496e" />
 
-## Features
+My personal Neovim setup: opinionated, relatively minimal in the UI, and built around fast navigation rather than a distribution's defaults. It is useful as a starting point, but expect to adapt its keymaps, language tooling, and external commands to your own workflow.
 
-- **Bleeding Edge:** Leverages Neovim 0.12+ features including `vim.pack` for plugin management and the new `vim.lsp.config` API.
-- **Custom UI Components:**
-  - **Dynamic Theme System:** A hand-rolled color scheme (vanilla++) (`lua/config/coloring.lua`) that generates semantic colors for both light and dark modes.
-  - **Custom Tabline:** A minimal tabline (`lua/config/tabline.lua`) showing only relevant buffers and allowing quick tab switching via `A, S, D, F` keys.
-  - **Custom Statuscolumn:** Combines line numbers, signs, and a visual border (`lua/config/statuscolumn.lua`).
-- **Opinionated Workflow:** Preconfigured for web development (Typescript, React, Tailwind, Jinja) with specific formatting, linting, and navigation preferences.
-- **AI Integration is WIP**
+The configuration uses Neovim's built-in `vim.pack` package manager rather than a third-party plugin manager.
 
-## Prerequisites
+## What is here
 
-- **Neovim:** v0.12.0+ (Required for `vim.pack` and `vim.lsp.config`).
-- **External Tools:**
-  - `ripgrep` (for search)
-  - `fd` (for file finding)
-  - LSPs & Formatters
+- **Zetesis as the primary file picker.** A local Zig application that exists because I was not fully happy with the available picker options for my main file-navigation workflow.
+- **fzf-lua for everything else.** Buffers, help, diagnostics, LSP references, code actions, and secondary file-search workflows remain available through fzf-lua.
+- **Built-in LSP configuration** with Blink completion, Fidget progress notifications, diagnostic UI, and Rust support through rustaceanvim.
+- **Formatting on save** through Conform, with per-language formatter choices for web languages, Lua, Nix, Python-adjacent tooling, shell, SQL, OCaml, QML, Markdown, and more.
+- **Treesitter-first editing** with custom filetype overrides, snippets, tag support, commentstring handling, and visual whitespace.
+- **Git and review tools:** Gitsigns, CodeDiff, and a more useful quickfix list.
+- **A custom interface:** TokyoNight-based semantic highlights, custom tabline and statuscolumn, folding, rounded UI borders, and no mouse.
+- **Terminal workflow integration:** tmux-aware split movement/resizing, Yazi integration, and Neovide-specific adjustments.
 
-## Installation
+## Zetesis
 
-1. Clone the repository into your Neovim config directory:
-   ```bash
-   git clone https://github.com/yourusername/nvim-config.git ~/.config/nvim
-   ```
-2. Start Neovim. The `init.lua` will automatically bootstrap plugins using `vim.pack`.
+Zetesis (`zt`) is the core picker for project files, bound to `<leader>sf` (with `<leader>` set to `Space`). It is included in [`zetesis/`](zetesis/) and deliberately lives alongside the Neovim configuration rather than being another Lua plugin.
 
-## Theming
+I built it because the current picker landscape did not quite fit the interaction I wanted for opening project files. It is a focused terminal picker rather than a general replacement for every fuzzy-finding use case.
 
-The configuration defines a custom color palette in `lua/config/coloring.lua`. It generates helper functions for manipulating hex codes (`darken_hex`, `lighten_hex`).
+When invoked, Neovim starts `zt files` in a small floating terminal. Zetesis gathers project files from Git when possible and falls back to filesystem walking otherwise. It fuzzy-ranks the query interactively, shows Git status in the results, and returns selections as JSON Lines. The Lua bridge decodes that protocol and performs the requested Neovim action: edit, vertical split, tab, or quickfix. The protocol also supports locations and text entries, leaving room for non-file picker sources later.
 
-Highlights are applied dynamically based on `vim.o.background`:
+The binary is expected at `zetesis/zig-out/bin/zt`. Build it from the `zetesis` directory with Zig before using `<leader>sf`:
 
-## File Structure
-
+```sh
+zig build
 ```
+
+If it is not built, Neovim reports the missing binary instead of silently falling back to another picker.
+
+## Requirements
+
+Use the current stable Neovim release. The rest is intentionally external and modular:
+
+| Tool | Used for | Required? |
+| --- | --- | --- |
+| `git` | Plugin downloads, Git-aware Zetesis file discovery | Yes |
+| `ripgrep` | fzf-lua file search | Recommended |
+| `fd` | General file finding | Recommended |
+| Zig | Building Zetesis | For `<leader>sf` |
+| Language servers and formatters | LSP and formatting features | Only for the languages you use |
+| `tmux` | Cross-pane navigation and resizing | Optional |
+| `yazi` | File manager integration | Optional |
+
+Language tooling is configured, not installed or managed here. Install only the servers and formatters relevant to your projects; inspect [`lua/plugins/lsp-config.lua`](lua/plugins/lsp-config.lua) and [`lua/plugins/conform.lua`](lua/plugins/conform.lua) for the current lists.
+
+## Getting started
+
+Place this repository at Neovim's configuration path (normally `~/.config/nvim` on Linux and macOS), start Neovim to let `vim.pack` fetch the declared plugins, and build Zetesis if you want the primary file picker.
+
+This is a personal configuration, so newcomers should treat it as readable source rather than a turnkey distribution. In particular, review:
+
+- [`lua/config/settings.lua`](lua/config/settings.lua) for editor defaults;
+- [`lua/config/keymaps.lua`](lua/config/keymaps.lua) for global mappings;
+- [`lua/plugins/lsp-config.lua`](lua/plugins/lsp-config.lua) for enabled language servers; and
+- [`lua/plugins/conform.lua`](lua/plugins/conform.lua) for formatting on save.
+
+## Key bindings
+
+`<leader>` is `Space`. Which-key exposes the broader mapping surface; these are the useful entry points:
+
+| Mapping | Action |
+| --- | --- |
+| `<leader>sf` | Open the Zetesis project-file picker |
+| `<leader>sr` | Search files with fzf-lua |
+| `<leader>sb` | Switch buffers |
+| `<leader>sd` | Show diagnostics for the current buffer |
+| `gd` | Go to LSP definition |
+| `<leader>lr` | Find LSP references |
+| `<leader>lc` | Show LSP code actions |
+| `<leader>rn` | Rename symbol |
+| `<leader>mp` | Format the current buffer |
+| `<leader>gd` | Compare the current file with `HEAD` |
+| `]h` / `[h` | Next / previous Git hunk |
+| `]d` / `[d` | Next / previous diagnostic |
+| `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | Move between Neovim and tmux panes |
+| `<A-h>` / `<A-j>` / `<A-k>` / `<A-l>` | Resize tmux-aware splits |
+
+## Layout
+
+```text
 .
-├── init.lua                  # Entry point, loads config and plugins
+├── init.lua                 # Load order and plugin entry points
 ├── lua/
-│   ├── config/
-│   │   ├── coloring.lua      # Color manipulation utils
-│   │   ├── highlights.lua    # Theme definitions
-│   │   ├── keymaps.lua       # Global keymaps
-│   │   ├── settings.lua      # Vim options
-│   │   ├── statuscolumn.lua  # Custom statuscolumn
-│   │   └── tabline.lua       # Custom tabline
-│   ├── lsp/                  # LSP configs (e.g., Tailwind)
-│   └── plugins/              # Custom plugin specifications
-├── queries/                  # Treesitter queries (Jinja overrides)
-└── snippets/                 # Custom VSCode-style snippets
+│   ├── config/              # Options, keymaps, UI, colors, folding, Zetesis bridge
+│   ├── lsp/                 # Per-server overrides
+│   └── plugins/             # vim.pack declarations and plugin configuration
+├── after/ftplugin/          # Filetype-specific settings
+├── snippets/                # Custom VS Code-style snippets
+├── zetesis/                 # Zig source for the primary project-file picker
+├── nvim-pack-lock.json      # Plugin versions locked by vim.pack
+└── .stylua.toml             # Lua formatting settings
 ```
+
+## Customization notes
+
+- The base colorscheme is TokyoNight; semantic palette and highlight overrides are in [`lua/config/palette.lua`](lua/config/palette.lua) and [`lua/config/highlights.lua`](lua/config/highlights.lua).
+- Formatting runs on save. Remove or change entries in `formatters_by_ft` if that does not suit a project.
+- The default indentation is two spaces, and persistent undo history is enabled.
+- The config keeps project-specific ShaDa state, so jumps, marks, and command history do not spill between projects.
+- The mouse is disabled by design.

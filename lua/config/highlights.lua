@@ -35,11 +35,11 @@ local function apply()
     TabKey = {
       fg = color.get("NvimBlue").fg,
       bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      underline = true
+      underline = true,
     },
     TabLine = {
       fg = color.get("NvimBlue").fg,
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3)
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
     },
 
     TabKeySel = {
@@ -51,13 +51,18 @@ local function apply()
     TabLineSel = {
       fg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
       bg = color.get("NvimBlue").fg,
-      bold = true
+      bold = true,
     },
 
     YaziFloat = { link = "NormalFloat" },
     YaziFloatBorder = { link = "FloatBorder" },
 
     Substitute = { bg = color.get("NvimGreen").fg, fg = color.get("Normal").bg },
+    Search = {
+      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      fg = color.get("NvimCyan").fg,
+      underline = true,
+    },
     IncSearch = {
       bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
       fg = color.get("NvimGreen").fg,
@@ -70,6 +75,24 @@ local function apply()
       underline = true,
     },
 
+    MsgArea = {
+      fg = color.get("NvimCyan").fg,
+    },
+    Pmenu = {
+      fg = color.get("NvimCyan").fg,
+      bg = color.get("Normal").bg,
+    },
+    PmenuSel = {
+      fg = color.get("NvimCyan").fg,
+      bg = color.get("Normal").bg,
+      bold = true,
+    },
+    PmenuMatch = {
+      fg = color.get("NvimCyan").fg,
+      bg = color.get("Normal").bg,
+      bold = true,
+    },
+
     ["@markup.raw.markdown_inline"] = {
       bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
     },
@@ -77,12 +100,10 @@ local function apply()
     Select = { bg = color.get("Normal").bg },
     YankHighlight = { bg = color.adjust_hex(color.get("NvimGreen").fg, 0.5) },
     VisualNonText = {
-      fg = color.adjust_hex(color.get("Visual").bg, 1.1),
+      fg = color.adjust_hex(color.get("Visual").bg, 1.2),
       bg = color.get("Visual").bg,
     },
-    Search = { bg = color.get("Normal").bg, fg = color.get("Normal").fg, underline = true },
   }
-
 
   apply_specs(specs)
 end

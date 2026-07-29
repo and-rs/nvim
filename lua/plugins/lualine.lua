@@ -39,19 +39,15 @@ end
 local cl = require("config.coloring")
 
 local function get_colors()
-  local fallback = cl.get("Normal").fg or "#c0caf5"
-  local function fg(name)
-    return cl.get(name).fg or fallback
-  end
-
+  local p = require("config.palette").palettes["tokyonight-day"]
   return {
-    white = fg("NvimGrey"),
-    red = fg("NvimRed"),
-    blue = fg("NvimBlue"),
-    cyan = fg("NvimCyan"),
-    green = fg("NvimGreen"),
-    orange = fg("NvimOrange"),
-    violet = fg("NvimViolet"),
+    bg = cl.get("Normal").bg,
+    red = p.NvimRed,
+    blue = p.NvimBlue,
+    cyan = p.NvimCyan,
+    green = p.NvimGreen,
+    orange = p.NvimOrange,
+    violet = p.NvimViolet,
   }
 end
 
@@ -68,14 +64,14 @@ local function get_theme(colors)
       c = { fg = colors.green, bg = colors.bg },
     },
     visual = {
-      a = { fg = colors.cyan, bg = colors.bg },
-      b = { fg = colors.cyan, bg = colors.bg },
-      c = { fg = colors.cyan, bg = colors.bg },
-    },
-    replace = {
       a = { fg = colors.red, bg = colors.bg },
       b = { fg = colors.red, bg = colors.bg },
       c = { fg = colors.red, bg = colors.bg },
+    },
+    replace = {
+      a = { fg = colors.blue, bg = colors.bg },
+      b = { fg = colors.blue, bg = colors.bg },
+      c = { fg = colors.blue, bg = colors.bg },
     },
     terminal = {
       a = { fg = colors.violet, bg = colors.bg },

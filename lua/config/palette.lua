@@ -1,6 +1,6 @@
 local M = {}
 
-local palettes = {
+M.palettes = {
   ["tokyonight"] = {
     NvimRed = "#f7768e",
     NvimOrange = "#ff966c",
@@ -44,7 +44,7 @@ end
 
 ---@return table<string, string>
 function M.colors()
-  return palettes[current_palette_name()] or palettes["tokyonight"]
+  return M.palettes[current_palette_name()] or M.palettes["tokyonight"]
 end
 
 ---@return nil
