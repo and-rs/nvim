@@ -6,6 +6,7 @@ vim.opt.winborder = "rounded"
 vim.opt.guicursor = vim.opt.guicursor + "t:block-blinkon0"
 
 vim.opt.scrolloff = 999
+vim.opt.sidescrolloff = 20
 
 -- no folds in diff
 -- vim.o.diffopt = "context:9999"

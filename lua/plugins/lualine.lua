@@ -88,7 +88,7 @@ local function setup_lualine()
     options = {
       icons_enabled = true,
       globalstatus = true,
-      component_separators = { left = " ╱ ", right = " ╲ " },
+      component_separators = { left = " ┃ ", right = " ┃ " },
       section_separators = "",
       theme = get_theme(colors),
     },
@@ -104,7 +104,7 @@ local function setup_lualine()
     sections = {
       lualine_a = {
         "separator",
-        { "mode", padding = { right = 1, left = 2 } },
+        { "mode", padding = { right = 0, left = 2 } },
         {
           "filename",
           path = 4,
