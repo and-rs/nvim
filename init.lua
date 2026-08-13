@@ -17,8 +17,7 @@ require("config.tabline")
 require("config.profiling")
 Deferred_group = vim.api.nvim_create_augroup("Deferred", { clear = true })
 
--- require("plugins.hlchunk")
-
+require("plugins.hlchunk")
 require("plugins.alpha")
 require("plugins.autotag")
 require("plugins.blink-cmp")

@@ -4,7 +4,7 @@ vim.schedule(function()
   local colors = require("config.coloring")
   require("hlchunk").setup({
     chunk = {
-      enable = true,
+      enable = false,
       chars = {
         horizontal_line = "─",
         vertical_line = "│",
@@ -18,8 +18,8 @@ vim.schedule(function()
     },
     blank = {
       enable = true,
-      style = colors.get("LineNrBelow").fg,
-      chars = { "│", "", "", "", "", "", "", "", "" },
+      style = colors.adjust_hex(colors.get("LineNrBelow").fg, 0.6),
+      chars = { "»" },
     },
   })
 end)
