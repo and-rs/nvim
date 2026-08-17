@@ -1,0 +1,6 @@
+{
+  "nu-shebang": {
+    "body": "#!/usr/bin/env -S nu -n",
+    "prefix": "nu-shebang"
+  }
+}

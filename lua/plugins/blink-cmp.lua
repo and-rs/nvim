@@ -25,7 +25,7 @@ local function load()
     },
 
     sources = {
-      default = { "lsp", "snippets", "path", "buffer" },
+      default = { "lsp", "path", "buffer" },
       providers = {
         path = {
           name = "PATH",
@@ -41,7 +41,7 @@ local function load()
         },
         snippets = {
           name = "SNP",
-          score_offset = -20,
+          score_offset = 1,
         },
       },
     },
@@ -52,6 +52,11 @@ local function load()
       ["<C-t>"] = {
         function(list)
           list.show()
+        end,
+      },
+      ["^"] = {
+        function(blink)
+          return blink.show({ providers = { "snippets" } })
         end,
       },
     },
@@ -119,6 +124,7 @@ end
 vim.schedule(function()
   vim.api.nvim_create_autocmd({ "CmdlineEnter", "InsertEnter" }, {
     group = Deferred_group,
+    once = true,
     callback = load,
   })
 end)
