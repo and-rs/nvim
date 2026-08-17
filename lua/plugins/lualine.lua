@@ -20,6 +20,10 @@ local function location()
   end
 end
 
+local function cwd()
+  return vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+end
+
 local function progress()
   local cur = vim.fn.line(".")
   local total = vim.fn.line("$")
@@ -41,7 +45,7 @@ local cl = require("config.coloring")
 local function get_colors()
   local p = require("config.palette").palettes["tokyonight-day"]
   return {
-    bg = cl.get("Normal").bg,
+    bg = cl.get("NormalFloat").bg,
     red = p.NvimRed,
     blue = p.NvimBlue,
     cyan = p.NvimCyan,
@@ -64,9 +68,9 @@ local function get_theme(colors)
       c = { fg = colors.green, bg = colors.bg },
     },
     visual = {
-      a = { fg = colors.red, bg = colors.bg },
-      b = { fg = colors.red, bg = colors.bg },
-      c = { fg = colors.red, bg = colors.bg },
+      a = { fg = colors.violet, bg = colors.bg },
+      b = { fg = colors.violet, bg = colors.bg },
+      c = { fg = colors.violet, bg = colors.bg },
     },
     replace = {
       a = { fg = colors.blue, bg = colors.bg },
@@ -105,6 +109,7 @@ local function setup_lualine()
       lualine_a = {
         "separator",
         { "mode", padding = { right = 0, left = 2 } },
+        cwd,
         {
           "filename",
           path = 4,
