@@ -1,9 +1,17 @@
 const std = @import("std");
-const GitStatus = @import("../git_status.zig").GitStatus;
 
 pub const Entry = struct {
     path: []const u8,
     git_status: GitStatus = .none,
+};
+
+pub const GitStatus = enum {
+    none,
+    modified,
+    added,
+    untracked,
+    deleted,
+    renamed,
 };
 
 pub fn collectEntries(

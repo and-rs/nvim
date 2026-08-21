@@ -5,7 +5,7 @@ const matcher = @import("../match/mod.zig");
 const state = @import("state.zig");
 const Row = @import("row.zig");
 const results = @import("results.zig");
-const GitStatus = @import("../git_status.zig").GitStatus;
+const GitStatus = @import("../files/git.zig").GitStatus;
 
 const vxfw = vaxis.vxfw;
 

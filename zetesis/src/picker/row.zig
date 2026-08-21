@@ -2,7 +2,7 @@ const std = @import("std");
 const vaxis = @import("vaxis");
 
 const vxfw = vaxis.vxfw;
-const GitStatus = @import("../git_status.zig").GitStatus;
+const GitStatus = @import("../files/git.zig").GitStatus;
 
 const Row = @This();
 

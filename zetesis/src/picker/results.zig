@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const GitStatus = @import("../git_status.zig").GitStatus;
+const GitStatus = @import("../files/git.zig").GitStatus;
 const matcher = @import("../match/mod.zig");
 const state = @import("state.zig");
 

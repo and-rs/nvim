@@ -7,7 +7,7 @@ const picker = @import("picker/mod.zig");
 const actions = @import("picker/actions.zig");
 const candidates = @import("candidates.zig");
 const protocol = @import("picker/protocol.zig");
-const GitStatus = @import("git_status.zig").GitStatus;
+const GitStatus = @import("files/git.zig").GitStatus;
 
 pub const panic = vaxis.panic_handler;
 
