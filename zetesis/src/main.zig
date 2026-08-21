@@ -29,38 +29,82 @@ const Config = struct {
     debug_scores: bool = false,
 };
 
+const Standard = struct {
+    const Self = @This();
+    var stderr_buf: [1024]u8 = undefined;
+    var stdout_buf: [1024]u8 = undefined;
+    var stdin_buf: [1024]u8 = undefined;
+    var stderr_writer: std.Io.File.Writer = undefined;
+    var stdout_writer: std.Io.File.Writer = undefined;
+    var stdin_reader: std.Io.File.Reader = undefined;
+    fn init(io: std.Io) void {
+        Self.stderr_writer = std.Io.File.stderr().writer(io, &Self.stderr_buf);
+        Self.stdout_writer = std.Io.File.stdout().writer(io, &Self.stdout_buf);
+        Self.stdin_reader = std.Io.File.stdin().reader(io, &Self.stdin_buf);
+    }
+    fn err() *std.Io.Writer {
+        return &Self.stderr_writer.interface;
+    }
+    fn out() *std.Io.Writer {
+        return &Self.stdout_writer.interface;
+    }
+    fn in() *std.Io.Reader {
+        return &Self.stdin_reader.interface;
+    }
+    fn flushAll() void {
+        Self.stderr_writer.interface.flush() catch {};
+        Self.stdout_writer.interface.flush() catch {};
+    }
+};
+
 pub fn main(init: std.process.Init) anyerror!void {
     const io = init.io;
     const allocator = init.arena.allocator();
-
-    var stderr_file: std.Io.File = .stderr();
-    var stderr_buf: [1024]u8 = undefined;
-    var stderr_writer = stderr_file.writer(io, &stderr_buf);
-    const stderr = &stderr_writer.interface;
+    Standard.init(io);
+    defer Standard.flushAll();
 
     const args = try init.minimal.args.toSlice(allocator);
-    const config = parseArgs(args, stderr);
+    const config = parseArgs(args, Standard.err());
 
     switch (config.mode) {
-        .stdin => try runPick(init, allocator, config),
-        .files => try runFiles(init, allocator, config),
-        .candidates => try runCandidates(init, allocator, config),
-        .help => try runHelp(init, allocator, config),
+        .stdin => try runPick(Standard.out(), Standard.in(), init, allocator, config),
+        .candidates => try runCandidates(Standard.out(), Standard.in(), init, allocator, config),
+        .files => try runFiles(Standard.out(), init, allocator, config),
+        .help => try runHelp(Standard.out(), allocator, config),
     }
 }
 
-fn runPick(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
-    const input = try readStdin(init.io, allocator);
+fn runPick(
+    stdout: *std.Io.Writer,
+    stdin: *std.Io.Reader,
+    init: std.process.Init,
+    allocator: std.mem.Allocator,
+    config: Config,
+) !void {
+    const input = try stdin.allocRemaining(allocator, .unlimited);
     const lines = try collectLines(allocator, input);
-    var selection = try runPicker(init, allocator, config, .{ .lines = lines }, .{ .plain = config.plain });
+    var selection = try runPicker(
+        stdout,
+        init,
+        allocator,
+        config,
+        .{ .lines = lines },
+        .{ .plain = config.plain },
+    );
     defer selection.deinit(allocator);
+
     if (selection.indexes.len == 0) std.process.exit(130);
     const result = try formatSelectedLines(allocator, lines, selection.indexes);
     defer allocator.free(result);
-    try writeOutput(init.io, result, config.output_file);
+    try writeOutput(stdout, init.io, result, config.output_file);
 }
 
-fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
+fn runFiles(
+    stdout: *std.Io.Writer,
+    init: std.process.Init,
+    allocator: std.mem.Allocator,
+    config: Config,
+) !void {
     const cwd = config.cwd orelse ".";
     const entries = try files.collectProjectEntries(allocator, init.io, cwd);
     const lines = try allocator.alloc([]const u8, entries.len);
@@ -69,46 +113,68 @@ fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: Config
         lines[index] = entry.path;
         git_statuses[index] = entry.git_status;
     }
-    var selection = try runPicker(init, allocator, config, .{ .lines = lines, .git_statuses = git_statuses }, .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) });
+    var selection = try runPicker(
+        stdout,
+        init,
+        allocator,
+        config,
+        .{ .lines = lines, .git_statuses = git_statuses },
+        .{ .plain = config.plain, .current_file = relativeCurrentFile(cwd, config.current_file) },
+    );
     defer selection.deinit(allocator);
     if (selection.indexes.len == 0) std.process.exit(130);
     const paths = try collectSelectedLines(allocator, lines, selection.indexes);
     defer allocator.free(paths);
     const result = try protocol.formatActionResult(allocator, selection.action, paths);
     defer allocator.free(result);
-    try writeOutput(init.io, result, config.output_file);
+    try writeOutput(stdout, init.io, result, config.output_file);
 }
 
-fn runCandidates(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
-    const input = try readStdin(init.io, allocator);
+fn runCandidates(
+    stdout: *std.Io.Writer,
+    stdin: *std.Io.Reader,
+    init: std.process.Init,
+    allocator: std.mem.Allocator,
+    config: Config,
+) !void {
+    const input = try stdin.allocRemaining(allocator, .unlimited);
     const parsed = try candidates.parseJsonl(allocator, input);
     defer candidates.deinitCandidates(allocator, parsed);
-
     const match_lines = try allocator.alloc([]const u8, parsed.len);
     const display_lines = try allocator.alloc([]const u8, parsed.len);
     for (parsed, 0..) |candidate, index| {
         match_lines[index] = candidate.match_text;
         display_lines[index] = candidate.display_text;
     }
-
-    var selection = try runPicker(init, allocator, config, .{ .lines = match_lines, .display_texts = display_lines }, .{ .plain = config.plain });
+    var selection = try runPicker(
+        stdout,
+        init,
+        allocator,
+        config,
+        .{ .lines = match_lines, .display_texts = display_lines },
+        .{ .plain = config.plain },
+    );
     defer selection.deinit(allocator);
     if (selection.indexes.len == 0) std.process.exit(130);
     const result = try formatCandidateSelection(allocator, parsed, selection);
     defer allocator.free(result);
-    try writeOutput(init.io, result, config.output_file);
+    try writeOutput(stdout, init.io, result, config.output_file);
 }
 
-fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config) !void {
-    var stdout_file: std.Io.File = .stdout();
-    var stdout_buf: [1024]u8 = undefined;
-    var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
-    const stdout = &stdout_writer.interface;
-    defer stdout.flush() catch {};
-
+fn runHelp(
+    stdout: *std.Io.Writer,
+    allocator: std.mem.Allocator,
+    config: Config,
+) !void {
     if (config.filter) |query| {
         const terms = try matcher.parseQuery(allocator, query);
-        const ranked = try matcher.rankQueryTop(allocator, actions.help_lines[0..], terms, .{ .plain = true, .case_sensitive = matcher.hasUpper(query) }, actions.help_lines.len);
+        const ranked = try matcher.rankQueryTop(
+            allocator,
+            actions.help_lines[0..],
+            terms,
+            .{ .plain = true, .case_sensitive = matcher.hasUpper(query) },
+            actions.help_lines.len,
+        );
         if (ranked.len == 0) std.process.exit(1);
         writeRanked(stdout, ranked, null, config.debug_scores) catch std.process.exit(0);
         return;
@@ -119,13 +185,14 @@ fn runHelp(init: std.process.Init, allocator: std.mem.Allocator, config: Config)
     }
 }
 
-fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Config, source: picker.SourceData, rank_options: matcher.RankOptions) !picker.Selection {
-    var stdout_file: std.Io.File = .stdout();
-    var stdout_buf: [1024]u8 = undefined;
-    var stdout_writer = stdout_file.writer(init.io, &stdout_buf);
-    const stdout = &stdout_writer.interface;
-    defer stdout.flush() catch {};
-
+fn runPicker(
+    stdout: *std.Io.Writer,
+    init: std.process.Init,
+    allocator: std.mem.Allocator,
+    config: Config,
+    source: picker.SourceData,
+    rank_options: matcher.RankOptions,
+) !picker.Selection {
     if (config.filter) |query| {
         const terms = try matcher.parseQuery(allocator, query);
         var filter_options = rank_options;
@@ -139,7 +206,12 @@ fn runPicker(init: std.process.Init, allocator: std.mem.Allocator, config: Confi
     return picker.run(init, allocator, source, rank_options, config.show_scores, "");
 }
 
-fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, display_texts: ?[]const []const u8, debug_scores: bool) !void {
+fn writeRanked(
+    stdout: *std.Io.Writer,
+    ranked: []const matcher.RankedLine,
+    display_texts: ?[]const []const u8,
+    debug_scores: bool,
+) !void {
     for (ranked) |line| {
         const text = if (display_texts) |display| display[line.source_index] else line.text;
         if (debug_scores) {
@@ -160,13 +232,21 @@ fn writeRanked(stdout: *std.Io.Writer, ranked: []const matcher.RankedLine, displ
     }
 }
 
-fn collectSelectedLines(allocator: std.mem.Allocator, lines: []const []const u8, indexes: []const usize) ![]const []const u8 {
+fn collectSelectedLines(
+    allocator: std.mem.Allocator,
+    lines: []const []const u8,
+    indexes: []const usize,
+) ![]const []const u8 {
     const selected = try allocator.alloc([]const u8, indexes.len);
     for (indexes, 0..) |index, position| selected[position] = lines[index];
     return selected;
 }
 
-fn formatSelectedLines(allocator: std.mem.Allocator, lines: []const []const u8, indexes: []const usize) ![]const u8 {
+fn formatSelectedLines(
+    allocator: std.mem.Allocator,
+    lines: []const []const u8,
+    indexes: []const usize,
+) ![]const u8 {
     var result: std.Io.Writer.Allocating = .init(allocator);
     errdefer result.deinit();
 
@@ -178,7 +258,11 @@ fn formatSelectedLines(allocator: std.mem.Allocator, lines: []const []const u8, 
     return result.toOwnedSlice();
 }
 
-fn formatCandidateSelection(allocator: std.mem.Allocator, parsed: []const candidates.Candidate, selection: picker.Selection) ![]const u8 {
+fn formatCandidateSelection(
+    allocator: std.mem.Allocator,
+    parsed: []const candidates.Candidate,
+    selection: picker.Selection,
+) ![]const u8 {
     var entries: std.ArrayList(protocol.ResultEntry) = .empty;
     defer entries.deinit(allocator);
 
@@ -194,21 +278,23 @@ fn formatCandidateSelection(allocator: std.mem.Allocator, parsed: []const candid
     return protocol.formatResults(allocator, entries.items);
 }
 
-fn writeOutput(io: std.Io, result: []const u8, output_file: ?[]const u8) !void {
+fn writeOutput(
+    stdout: *std.Io.Writer,
+    io: std.Io,
+    result: []const u8,
+    output_file: ?[]const u8,
+) !void {
     if (output_file) |path| {
         try std.Io.Dir.writeFile(.cwd(), io, .{ .sub_path = path, .data = result });
         return;
     }
-
-    var stdout_file: std.Io.File = .stdout();
-    var stdout_buf: [1024]u8 = undefined;
-    var stdout_writer = stdout_file.writer(io, &stdout_buf);
-    const stdout = &stdout_writer.interface;
-    defer stdout.flush() catch unreachable;
     try stdout.writeAll(result);
 }
 
-fn relativeCurrentFile(cwd: []const u8, current_file: ?[]const u8) ?[]const u8 {
+fn relativeCurrentFile(
+    cwd: []const u8,
+    current_file: ?[]const u8,
+) ?[]const u8 {
     const file = current_file orelse return null;
     if (file.len == 0) return null;
     if (std.mem.eql(u8, file, cwd)) return null;
@@ -221,15 +307,10 @@ fn relativeCurrentFile(cwd: []const u8, current_file: ?[]const u8) ?[]const u8 {
     return file;
 }
 
-fn readStdin(io: std.Io, allocator: std.mem.Allocator) ![]const u8 {
-    var stdin_file: std.Io.File = .stdin();
-    var stdin_buf: [1024]u8 = undefined;
-    var stdin_reader = stdin_file.reader(io, &stdin_buf);
-    const stdin = &stdin_reader.interface;
-    return stdin.allocRemaining(allocator, .unlimited);
-}
-
-fn collectLines(allocator: std.mem.Allocator, input: []const u8) ![]const []const u8 {
+fn collectLines(
+    allocator: std.mem.Allocator,
+    input: []const u8,
+) ![]const []const u8 {
     var lines: std.ArrayList([]const u8) = .empty;
     var iter = std.mem.splitScalar(u8, std.mem.trim(u8, input, "\n"), '\n');
     while (iter.next()) |line| {
@@ -251,10 +332,10 @@ const Flag = enum {
 };
 
 const subcommands = std.StaticStringMap(Mode).initComptime(.{
+    .{ "help", .help },
     .{ "files", .files },
     .{ "stdin", .stdin },
     .{ "candidates", .candidates },
-    .{ "help", .help },
 });
 
 const flags = std.StaticStringMap(Flag).initComptime(.{
@@ -271,7 +352,10 @@ const flags = std.StaticStringMap(Flag).initComptime(.{
     .{ "--hide-scores", .hide_scores },
 });
 
-fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
+fn parseArgs(
+    args: []const []const u8,
+    stderr: *std.Io.Writer,
+) Config {
     if (args.len < 2) return usage(stderr, 2);
 
     const mode = subcommands.get(args[1]) orelse return usage(stderr, 2);
@@ -287,7 +371,12 @@ fn parseArgs(args: []const []const u8, stderr: *std.Io.Writer) Config {
     return config;
 }
 
-fn parseStdinFlags(config: *Config, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+fn parseStdinFlags(
+    config: *Config,
+    args: []const []const u8,
+    idx: *usize,
+    stderr: *std.Io.Writer,
+) void {
     while (idx.* < args.len) : (idx.* += 1) {
         const flag = parseFlag(args[idx.*], stderr);
         switch (flag) {
@@ -297,7 +386,12 @@ fn parseStdinFlags(config: *Config, args: []const []const u8, idx: *usize, stder
     }
 }
 
-fn parseFilesFlags(config: *Config, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+fn parseFilesFlags(
+    config: *Config,
+    args: []const []const u8,
+    idx: *usize,
+    stderr: *std.Io.Writer,
+) void {
     while (idx.* < args.len) : (idx.* += 1) {
         const flag = parseFlag(args[idx.*], stderr);
         switch (flag) {
@@ -307,7 +401,13 @@ fn parseFilesFlags(config: *Config, args: []const []const u8, idx: *usize, stder
     }
 }
 
-fn applySharedFlag(config: *Config, flag: Flag, args: []const []const u8, idx: *usize, stderr: *std.Io.Writer) void {
+fn applySharedFlag(
+    config: *Config,
+    flag: Flag,
+    args: []const []const u8,
+    idx: *usize,
+    stderr: *std.Io.Writer,
+) void {
     switch (flag) {
         .cwd => unreachable,
         .help => usage(stderr, 0),
@@ -320,11 +420,18 @@ fn applySharedFlag(config: *Config, flag: Flag, args: []const []const u8, idx: *
     }
 }
 
-fn parseFlag(arg: []const u8, stderr: *std.Io.Writer) Flag {
+fn parseFlag(
+    arg: []const u8,
+    stderr: *std.Io.Writer,
+) Flag {
     return flags.get(arg) orelse usage(stderr, 2);
 }
 
-fn nextArg(args: []const []const u8, index: *usize, stderr: *std.Io.Writer) []const u8 {
+fn nextArg(
+    args: []const []const u8,
+    index: *usize,
+    stderr: *std.Io.Writer,
+) []const u8 {
     index.* += 1;
     if (index.* >= args.len) usage(stderr, 2);
     return args[index.*];
@@ -352,9 +459,9 @@ fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
 test {
     _ = actions;
     _ = files;
-    _ = @import("picker/key_decoder.zig");
     _ = matcher;
     _ = picker;
+    _ = @import("picker/key_decoder.zig");
     _ = @import("picker/reducer.zig");
     _ = @import("picker/state.zig");
     _ = @import("picker/protocol.zig");

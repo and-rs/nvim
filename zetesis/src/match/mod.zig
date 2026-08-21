@@ -301,7 +301,11 @@ fn applyContextScore(line: []const u8, score: ScoreBreakdown, opts: RankOptions)
     return result;
 }
 
-fn rankStrictPath(haystack: []const u8, needle: []const u8, case_sensitive: bool) ?f64 {
+fn rankStrictPath(
+    haystack: []const u8,
+    needle: []const u8,
+    case_sensitive: bool,
+) ?f64 {
     var start: usize = 0;
 
     while (start < haystack.len) {
@@ -337,7 +341,10 @@ fn rankStrictPath(haystack: []const u8, needle: []const u8, case_sensitive: bool
     return null;
 }
 
-fn pathSegmentEnd(text: []const u8, start: usize) usize {
+fn pathSegmentEnd(
+    text: []const u8,
+    start: usize,
+) usize {
     var index = start;
     while (index < text.len) : (index += 1) {
         if (text[index] == '/' or text[index] == '\\') break;
@@ -345,7 +352,11 @@ fn pathSegmentEnd(text: []const u8, start: usize) usize {
     return index;
 }
 
-fn scoreSubsequence(haystack: []const u8, needle: []const u8, case_sensitive: bool) ?f64 {
+fn scoreSubsequence(
+    haystack: []const u8,
+    needle: []const u8,
+    case_sensitive: bool,
+) ?f64 {
     var haystack_index: usize = 0;
     var previous_match: ?usize = null;
     var score: f64 = 0;
@@ -367,7 +378,12 @@ fn scoreSubsequence(haystack: []const u8, needle: []const u8, case_sensitive: bo
     return score + coverage * 5.0;
 }
 
-fn matchIndexes(allocator: std.mem.Allocator, haystack: []const u8, needles: []const []const u8, case_sensitive: bool) ![]const usize {
+fn matchIndexes(
+    allocator: std.mem.Allocator,
+    haystack: []const u8,
+    needles: []const []const u8,
+    case_sensitive: bool,
+) ![]const usize {
     var indexes: std.ArrayList(usize) = .empty;
     errdefer indexes.deinit(allocator);
 
@@ -403,7 +419,6 @@ fn lessThanUsize(_: void, left: usize, right: usize) bool {
 
 fn findByte(haystack: []const u8, start: usize, needle: u8, case_sensitive: bool) ?usize {
     if (case_sensitive) return std.mem.indexOfScalarPos(u8, haystack, start, needle);
-
     const lower = std.ascii.toLower(needle);
     for (haystack[start..], start..) |byte, index| {
         if (std.ascii.toLower(byte) == lower) return index;
@@ -413,7 +428,6 @@ fn findByte(haystack: []const u8, start: usize, needle: u8, case_sensitive: bool
 
 fn isBoundary(text: []const u8, index: usize) bool {
     if (index == 0) return true;
-
     const previous = text[index - 1];
     const current = text[index];
     return previous == '/' or previous == '\\' or previous == '-' or previous == '_' or previous == '.' or
