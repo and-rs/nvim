@@ -62,7 +62,7 @@ map("t", "<C-e>", function()
 end, { desc = "Toggle FZF Preview", noremap = true })
 
 map("n", "<leader>sa", function()
-  fzf.builtin(get_opts())
+  fzf.builtin()
 end, { desc = "FZF Builtin" })
 map("n", "<leader>sh", function()
   fzf.help_tags(get_opts())
@@ -74,7 +74,10 @@ map("n", "<leader>sb", function()
   }))
 end, { desc = "Buffers" })
 map("n", "<leader>sg", function()
-  fzf.live_grep(get_opts())
+  fzf.live_grep(get_opts({
+    no_header = true,
+    no_header_i = true,
+  }))
 end, { desc = "Diagnostics" })
 map("n", "<leader>sd", function()
   fzf.diagnostics_document(get_opts())

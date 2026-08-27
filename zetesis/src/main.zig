@@ -15,7 +15,6 @@ const Mode = enum {
     stdin,
     files,
     candidates,
-    help,
 };
 
 const Config = struct {
@@ -64,13 +63,12 @@ pub fn main(init: std.process.Init) anyerror!void {
     defer Standard.flushAll();
 
     const args = try init.minimal.args.toSlice(allocator);
-    const config = parseArgs(args, Standard.err());
+    const config = parseArgs(args, Standard.err(), Standard.out());
 
     switch (config.mode) {
         .stdin => try runPick(Standard.out(), Standard.in(), init, allocator, config),
         .candidates => try runCandidates(Standard.out(), Standard.in(), init, allocator, config),
         .files => try runFiles(Standard.out(), init, allocator, config),
-        .help => try runHelp(Standard.out(), allocator, config),
     }
 }
 
@@ -92,7 +90,6 @@ fn runPick(
         .{ .plain = config.plain },
     );
     defer selection.deinit(allocator);
-
     if (selection.indexes.len == 0) std.process.exit(130);
     const result = try formatSelectedLines(allocator, lines, selection.indexes);
     defer allocator.free(result);
@@ -159,30 +156,6 @@ fn runCandidates(
     const result = try formatCandidateSelection(allocator, parsed, selection);
     defer allocator.free(result);
     try writeOutput(stdout, init.io, result, config.output_file);
-}
-
-fn runHelp(
-    stdout: *std.Io.Writer,
-    allocator: std.mem.Allocator,
-    config: Config,
-) !void {
-    if (config.filter) |query| {
-        const terms = try matcher.parseQuery(allocator, query);
-        const ranked = try matcher.rankQueryTop(
-            allocator,
-            actions.help_lines[0..],
-            terms,
-            .{ .plain = true, .case_sensitive = matcher.hasUpper(query) },
-            actions.help_lines.len,
-        );
-        if (ranked.len == 0) std.process.exit(1);
-        writeRanked(stdout, ranked, null, config.debug_scores) catch std.process.exit(0);
-        return;
-    }
-
-    for (actions.help_lines) |line| {
-        try stdout.print("{s}\n", .{line});
-    }
 }
 
 fn runPicker(
@@ -332,12 +305,40 @@ const Flag = enum {
 };
 
 const subcommands = std.StaticStringMap(Mode).initComptime(.{
-    .{ "help", .help },
     .{ "files", .files },
     .{ "stdin", .stdin },
     .{ "candidates", .candidates },
 });
 
+pub const FlagMetadata = struct {
+    long: []const u8,
+    short: ?*const [2:0]u8 = null,
+    description: []const u8,
+    args: ?[]const []const u8 = null,
+};
+
+const cantidates_flag = FlagMetadata{
+    .long = "candidates",
+    .description = "idk",
+};
+
+const files_flag = FlagMetadata{
+    .long = "files",
+    .description = "Filter files with tuned algorithm & git status ranking",
+};
+
+const stdin_flag = FlagMetadata{
+    .long = "stdin",
+    .description = "Pass multiple lines via stdin",
+};
+
+const help_flag = FlagMetadata{
+    .short = "-h",
+    .long = "--help",
+    .description = "Print tha help",
+};
+
+// TODO: generate a proper rich array of strucs
 const flags = std.StaticStringMap(Flag).initComptime(.{
     .{ "-h", .help },
     .{ "-p", .plain },
@@ -355,17 +356,15 @@ const flags = std.StaticStringMap(Flag).initComptime(.{
 fn parseArgs(
     args: []const []const u8,
     stderr: *std.Io.Writer,
+    stdout: *std.Io.Writer,
 ) Config {
-    if (args.len < 2) return usage(stderr, 2);
-
     const mode = subcommands.get(args[1]) orelse return usage(stderr, 2);
     var config: Config = .{ .mode = mode };
     var idx: usize = 2;
 
     switch (mode) {
-        .help => return config,
-        .stdin, .candidates => parseStdinFlags(&config, args, &idx, stderr),
-        .files => parseFilesFlags(&config, args, &idx, stderr),
+        .stdin, .candidates => parseStdinFlags(&config, args, &idx, stderr, stdout),
+        .files => parseFilesFlags(&config, args, &idx, stderr, stdout),
     }
 
     return config;
@@ -376,12 +375,13 @@ fn parseStdinFlags(
     args: []const []const u8,
     idx: *usize,
     stderr: *std.Io.Writer,
+    stdout: *std.Io.Writer,
 ) void {
     while (idx.* < args.len) : (idx.* += 1) {
         const flag = parseFlag(args[idx.*], stderr);
         switch (flag) {
             .cwd => usage(stderr, 2),
-            else => applySharedFlag(config, flag, args, idx, stderr),
+            else => applySharedFlag(config, flag, args, idx, stderr, stdout),
         }
     }
 }
@@ -391,12 +391,13 @@ fn parseFilesFlags(
     args: []const []const u8,
     idx: *usize,
     stderr: *std.Io.Writer,
+    stdout: *std.Io.Writer,
 ) void {
     while (idx.* < args.len) : (idx.* += 1) {
         const flag = parseFlag(args[idx.*], stderr);
         switch (flag) {
             .cwd => config.cwd = nextArg(args, idx, stderr),
-            else => applySharedFlag(config, flag, args, idx, stderr),
+            else => applySharedFlag(config, flag, args, idx, stderr, stdout),
         }
     }
 }
@@ -407,10 +408,11 @@ fn applySharedFlag(
     args: []const []const u8,
     idx: *usize,
     stderr: *std.Io.Writer,
+    stdout: *std.Io.Writer,
 ) void {
     switch (flag) {
         .cwd => unreachable,
-        .help => usage(stderr, 0),
+        .help => usage(stdout, 0),
         .plain => config.plain = true,
         .filter => config.filter = nextArg(args, idx, stderr),
         .output_file => config.output_file = nextArg(args, idx, stderr),
@@ -436,6 +438,15 @@ fn nextArg(
     if (index.* >= args.len) usage(stderr, 2);
     return args[index.*];
 }
+
+// // TODO: need to separate the usage() function into err and out callsite
+// fn helpUsage(stderr: *std.Io.Writer, code: u8) noreturn {
+//     stderr.writeAll(
+//         \\ this shit needs to be dynamically generated
+//     ) catch unreachable;
+//     stderr.flush() catch unreachable;
+//     std.process.exit(code);
+// }
 
 fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
     stderr.writeAll(
