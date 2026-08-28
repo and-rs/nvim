@@ -8,25 +8,10 @@ const actions = @import("picker/actions.zig");
 const candidates = @import("candidates.zig");
 const protocol = @import("picker/protocol.zig");
 const GitStatus = @import("files/git.zig").GitStatus;
+const flags = @import("flags.zig");
+const Config = flags.Config;
 
 pub const panic = vaxis.panic_handler;
-
-const Mode = enum {
-    stdin,
-    files,
-    candidates,
-};
-
-const Config = struct {
-    mode: Mode = .stdin,
-    filter: ?[]const u8 = null,
-    cwd: ?[]const u8 = null,
-    current_file: ?[]const u8 = null,
-    output_file: ?[]const u8 = null,
-    plain: bool = false,
-    show_scores: bool = true,
-    debug_scores: bool = false,
-};
 
 const Standard = struct {
     const Self = @This();
@@ -59,11 +44,12 @@ const Standard = struct {
 pub fn main(init: std.process.Init) anyerror!void {
     const io = init.io;
     const allocator = init.arena.allocator();
+
     Standard.init(io);
     defer Standard.flushAll();
 
     const args = try init.minimal.args.toSlice(allocator);
-    const config = parseArgs(args, Standard.err(), Standard.out());
+    const config = flags.parse(args, Standard.err(), Standard.out());
 
     switch (config.mode) {
         .stdin => try runPick(Standard.out(), Standard.in(), init, allocator, config),
@@ -173,6 +159,7 @@ fn runPicker(
         const ranked = try matcher.rankQueryTop(allocator, source.lines, terms, filter_options, source.lines.len);
         if (ranked.len == 0) std.process.exit(1);
         writeRanked(stdout, ranked, source.display_texts, config.debug_scores) catch std.process.exit(0);
+        stdout.flush() catch std.process.exit(0);
         std.process.exit(0);
     }
 
@@ -222,12 +209,10 @@ fn formatSelectedLines(
 ) ![]const u8 {
     var result: std.Io.Writer.Allocating = .init(allocator);
     errdefer result.deinit();
-
     for (indexes) |index| {
         try result.writer.writeAll(lines[index]);
         try result.writer.writeByte('\n');
     }
-
     return result.toOwnedSlice();
 }
 
@@ -238,7 +223,6 @@ fn formatCandidateSelection(
 ) ![]const u8 {
     var entries: std.ArrayList(protocol.ResultEntry) = .empty;
     defer entries.deinit(allocator);
-
     for (selection.indexes) |index| {
         const candidate = parsed[index];
         var action = selection.action;
@@ -247,7 +231,6 @@ fn formatCandidateSelection(
         }
         try entries.append(allocator, .{ .action = action, .output = candidate.output });
     }
-
     return protocol.formatResults(allocator, entries.items);
 }
 
@@ -271,12 +254,10 @@ fn relativeCurrentFile(
     const file = current_file orelse return null;
     if (file.len == 0) return null;
     if (std.mem.eql(u8, file, cwd)) return null;
-
     if (std.mem.startsWith(u8, file, cwd)) {
         const rest = file[cwd.len..];
         if (rest.len > 0 and (rest[0] == '/' or rest[0] == '\\')) return rest[1..];
     }
-
     return file;
 }
 
@@ -291,180 +272,6 @@ fn collectLines(
         try lines.append(allocator, line);
     }
     return lines.toOwnedSlice(allocator);
-}
-
-const Flag = enum {
-    cwd,
-    help,
-    plain,
-    filter,
-    output_file,
-    current_file,
-    debug_scores,
-    hide_scores,
-};
-
-const subcommands = std.StaticStringMap(Mode).initComptime(.{
-    .{ "files", .files },
-    .{ "stdin", .stdin },
-    .{ "candidates", .candidates },
-});
-
-pub const FlagMetadata = struct {
-    long: []const u8,
-    short: ?*const [2:0]u8 = null,
-    description: []const u8,
-    args: ?[]const []const u8 = null,
-};
-
-const cantidates_flag = FlagMetadata{
-    .long = "candidates",
-    .description = "idk",
-};
-
-const files_flag = FlagMetadata{
-    .long = "files",
-    .description = "Filter files with tuned algorithm & git status ranking",
-};
-
-const stdin_flag = FlagMetadata{
-    .long = "stdin",
-    .description = "Pass multiple lines via stdin",
-};
-
-const help_flag = FlagMetadata{
-    .short = "-h",
-    .long = "--help",
-    .description = "Print tha help",
-};
-
-// TODO: generate a proper rich array of strucs
-const flags = std.StaticStringMap(Flag).initComptime(.{
-    .{ "-h", .help },
-    .{ "-p", .plain },
-    .{ "-f", .filter },
-    .{ "--cwd", .cwd },
-    .{ "--help", .help },
-    .{ "--plain", .plain },
-    .{ "--filter", .filter },
-    .{ "--output-file", .output_file },
-    .{ "--current-file", .current_file },
-    .{ "--debug-scores", .debug_scores },
-    .{ "--hide-scores", .hide_scores },
-});
-
-fn parseArgs(
-    args: []const []const u8,
-    stderr: *std.Io.Writer,
-    stdout: *std.Io.Writer,
-) Config {
-    const mode = subcommands.get(args[1]) orelse return usage(stderr, 2);
-    var config: Config = .{ .mode = mode };
-    var idx: usize = 2;
-
-    switch (mode) {
-        .stdin, .candidates => parseStdinFlags(&config, args, &idx, stderr, stdout),
-        .files => parseFilesFlags(&config, args, &idx, stderr, stdout),
-    }
-
-    return config;
-}
-
-fn parseStdinFlags(
-    config: *Config,
-    args: []const []const u8,
-    idx: *usize,
-    stderr: *std.Io.Writer,
-    stdout: *std.Io.Writer,
-) void {
-    while (idx.* < args.len) : (idx.* += 1) {
-        const flag = parseFlag(args[idx.*], stderr);
-        switch (flag) {
-            .cwd => usage(stderr, 2),
-            else => applySharedFlag(config, flag, args, idx, stderr, stdout),
-        }
-    }
-}
-
-fn parseFilesFlags(
-    config: *Config,
-    args: []const []const u8,
-    idx: *usize,
-    stderr: *std.Io.Writer,
-    stdout: *std.Io.Writer,
-) void {
-    while (idx.* < args.len) : (idx.* += 1) {
-        const flag = parseFlag(args[idx.*], stderr);
-        switch (flag) {
-            .cwd => config.cwd = nextArg(args, idx, stderr),
-            else => applySharedFlag(config, flag, args, idx, stderr, stdout),
-        }
-    }
-}
-
-fn applySharedFlag(
-    config: *Config,
-    flag: Flag,
-    args: []const []const u8,
-    idx: *usize,
-    stderr: *std.Io.Writer,
-    stdout: *std.Io.Writer,
-) void {
-    switch (flag) {
-        .cwd => unreachable,
-        .help => usage(stdout, 0),
-        .plain => config.plain = true,
-        .filter => config.filter = nextArg(args, idx, stderr),
-        .output_file => config.output_file = nextArg(args, idx, stderr),
-        .current_file => config.current_file = nextArg(args, idx, stderr),
-        .debug_scores => config.debug_scores = true,
-        .hide_scores => config.show_scores = false,
-    }
-}
-
-fn parseFlag(
-    arg: []const u8,
-    stderr: *std.Io.Writer,
-) Flag {
-    return flags.get(arg) orelse usage(stderr, 2);
-}
-
-fn nextArg(
-    args: []const []const u8,
-    index: *usize,
-    stderr: *std.Io.Writer,
-) []const u8 {
-    index.* += 1;
-    if (index.* >= args.len) usage(stderr, 2);
-    return args[index.*];
-}
-
-// // TODO: need to separate the usage() function into err and out callsite
-// fn helpUsage(stderr: *std.Io.Writer, code: u8) noreturn {
-//     stderr.writeAll(
-//         \\ this shit needs to be dynamically generated
-//     ) catch unreachable;
-//     stderr.flush() catch unreachable;
-//     std.process.exit(code);
-// }
-
-fn usage(stderr: *std.Io.Writer, code: u8) noreturn {
-    stderr.writeAll(
-        \\Usage: zt [stdin|files|candidates|help] [options]
-        \\
-        \\Options:
-        \\  -f, --filter QUERY       Filter without interactive TUI.
-        \\      --cwd PATH           Working directory for files mode.
-        \\      --current-file PATH  Current editor file path.
-        \\      --output-file PATH   Write selected item to file after TUI exits.
-        \\  -p, --plain              Disable filepath ranking boosts.
-        \\      --hide-scores        Hide score column in interactive TUI.
-        \\      --debug-scores       Print score breakdown in filter mode.
-        \\  -h, --help               Show help.
-        \\
-    ) catch unreachable;
-    stderr.flush() catch unreachable;
-    std.process.exit(code);
 }
 
 test {
