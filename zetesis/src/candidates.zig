@@ -40,7 +40,6 @@ pub const Output = union(Kind) {
 };
 
 pub const Candidate = struct {
-    kind: Kind,
     match_text: []const u8,
     display_text: []const u8,
     output: Output,
@@ -177,7 +176,6 @@ fn normalizeCandidate(allocator: std.mem.Allocator, raw: RawCandidate) (std.mem.
     errdefer if (default_action) |action| allocator.free(action);
 
     return .{
-        .kind = raw.kind,
         .match_text = match_text,
         .display_text = display_text,
         .output = output,
@@ -218,7 +216,6 @@ test "parse minimal file candidate" {
     defer deinitCandidates(std.testing.allocator, candidates);
 
     try std.testing.expectEqual(@as(usize, 1), candidates.len);
-    try std.testing.expectEqual(Kind.file, candidates[0].kind);
     try std.testing.expectEqualStrings("src/main.zig", candidates[0].match_text);
     try std.testing.expectEqualStrings("src/main.zig", candidates[0].display_text);
     try std.testing.expectEqualStrings("src/main.zig", candidates[0].output.file.path);
@@ -229,7 +226,6 @@ test "parse location candidate" {
     defer deinitCandidates(std.testing.allocator, candidates);
 
     try std.testing.expectEqual(@as(usize, 1), candidates.len);
-    try std.testing.expectEqual(Kind.location, candidates[0].kind);
     try std.testing.expectEqualStrings("main", candidates[0].match_text);
     try std.testing.expectEqualStrings("main", candidates[0].display_text);
     try std.testing.expectEqualStrings("src/main.zig", candidates[0].output.location.path);
@@ -242,7 +238,6 @@ test "parse text candidate" {
     defer deinitCandidates(std.testing.allocator, candidates);
 
     try std.testing.expectEqual(@as(usize, 1), candidates.len);
-    try std.testing.expectEqual(Kind.text, candidates[0].kind);
     try std.testing.expectEqualStrings("hello", candidates[0].match_text);
     try std.testing.expectEqualStrings("hello", candidates[0].display_text);
     try std.testing.expectEqualStrings("hello", candidates[0].output.text.text);

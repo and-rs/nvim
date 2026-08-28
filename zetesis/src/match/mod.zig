@@ -38,15 +38,6 @@ pub fn hasSeparator(text: []const u8) bool {
     return false;
 }
 
-pub fn splitQuery(allocator: std.mem.Allocator, query: []const u8) ![]const []const u8 {
-    var needles: std.ArrayList([]const u8) = .empty;
-    var iter = std.mem.tokenizeAny(u8, query, " \t");
-    while (iter.next()) |needle| {
-        try needles.append(allocator, needle);
-    }
-    return needles.toOwnedSlice(allocator);
-}
-
 pub const QueryTerm = union(enum) {
     fuzzy: []const u8,
     basename: []const u8,

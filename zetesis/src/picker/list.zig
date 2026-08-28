@@ -19,7 +19,6 @@ pub const State = struct {
     rows: std.ArrayList(Row) = .empty,
     row_boxes: std.ArrayList(vxfw.SizedBox) = .empty,
     available_width: u16 = 0,
-    show_scores: bool = false,
 
     pub fn deinit(self: *State, allocator: std.mem.Allocator) void {
         self.marked.deinit(allocator);
@@ -84,7 +83,6 @@ pub const State = struct {
         ordered: bool,
     ) !void {
         self.clear(arena);
-        self.show_scores = show_scores;
 
         if (ordered) {
             try self.appendOrderedRows(arena, source, display_texts, mode, cursor);

@@ -106,9 +106,12 @@ fn runFiles(
     );
     defer selection.deinit(allocator);
     if (selection.indexes.len == 0) std.process.exit(130);
-    const paths = try collectSelectedLines(allocator, lines, selection.indexes);
-    defer allocator.free(paths);
-    const result = try protocol.formatActionResult(allocator, selection.action, paths);
+    const selected_entries = try allocator.alloc(protocol.ResultEntry, selection.indexes.len);
+    defer allocator.free(selected_entries);
+    for (selection.indexes, 0..) |index, position| {
+        selected_entries[position] = .{ .action = selection.action, .output = .{ .file = .{ .path = lines[index] } } };
+    }
+    const result = try protocol.formatResults(allocator, selected_entries);
     defer allocator.free(result);
     try writeOutput(stdout, init.io, result, config.output_file);
 }
@@ -190,16 +193,6 @@ fn writeRanked(
             try stdout.print("{s}\n", .{text});
         }
     }
-}
-
-fn collectSelectedLines(
-    allocator: std.mem.Allocator,
-    lines: []const []const u8,
-    indexes: []const usize,
-) ![]const []const u8 {
-    const selected = try allocator.alloc([]const u8, indexes.len);
-    for (indexes, 0..) |index, position| selected[position] = lines[index];
-    return selected;
 }
 
 fn formatSelectedLines(
