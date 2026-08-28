@@ -28,7 +28,7 @@ const Flag = enum {
     hide_scores,
 };
 
-pub const FlagMetadata = struct {
+const FlagMetadata = struct {
     id: Flag,
     short: ?[]const u8 = null,
     long: []const u8,
@@ -43,7 +43,7 @@ const CommandMetadata = struct {
     flags: []const Flag,
 };
 
-const metadata = [_]FlagMetadata{
+const flag_definitions = [_]FlagMetadata{
     .{ .id = .help, .short = "-h", .long = "--help", .description = "Show help." },
     .{ .id = .plain, .short = "-p", .long = "--plain", .description = "Disable filepath ranking boosts." },
     .{ .id = .filter, .short = "-f", .long = "--filter", .value_name = "QUERY", .description = "Filter without interactive TUI." },
@@ -54,7 +54,7 @@ const metadata = [_]FlagMetadata{
     .{ .id = .hide_scores, .long = "--hide-scores", .description = "Hide the score column in the interactive TUI." },
 };
 
-const stdin_flags = [_]Flag{
+const shared_input_flags = [_]Flag{
     .help,
     .plain,
     .filter,
@@ -74,9 +74,9 @@ const files_flags = [_]Flag{
 };
 
 const commands = [_]CommandMetadata{
-    .{ .name = "stdin", .mode = .stdin, .description = "Pick newline-delimited input from stdin.", .flags = &stdin_flags },
+    .{ .name = "stdin", .mode = .stdin, .description = "Pick newline-delimited input from stdin.", .flags = &shared_input_flags },
     .{ .name = "files", .mode = .files, .description = "Pick project files with Git-status ranking.", .flags = &files_flags },
-    .{ .name = "candidates", .mode = .candidates, .description = "Pick JSONL candidates from stdin.", .flags = &stdin_flags },
+    .{ .name = "candidates", .mode = .candidates, .description = "Pick JSONL candidates from stdin.", .flags = &shared_input_flags },
 };
 
 pub fn parse(
@@ -162,7 +162,7 @@ fn findFlag(
 }
 
 fn metadataForFlag(flag: Flag) *const FlagMetadata {
-    for (&metadata) |*item| {
+    for (&flag_definitions) |*item| {
         if (item.id == flag) return item;
     }
     unreachable;
