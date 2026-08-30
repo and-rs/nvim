@@ -1,5 +1,6 @@
 -- 1st
 require("config.settings")
+require("config.theme")
 require("config.keymaps")
 
 -- Force Neovim to use undercurls and underline colors in tmux

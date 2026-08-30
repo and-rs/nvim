@@ -1,40 +1,107 @@
+local theme = require("config.theme")
+
 vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
-vim.cmd("colorscheme tokyonight-day")
 
-if vim.o.background == "dark" then
-  vim.g.terminal_color_0 = "#181a27"
-  vim.g.terminal_color_8 = "#727AAC"
-  vim.g.terminal_color_1 = "#ff757f"
-  vim.g.terminal_color_9 = "#ff757f"
-  vim.g.terminal_color_2 = "#c3e88d"
-  vim.g.terminal_color_10 = "#c3e88d"
-  vim.g.terminal_color_3 = "#ffc777"
-  vim.g.terminal_color_11 = "#ffc777"
-  vim.g.terminal_color_4 = "#82aaff"
-  vim.g.terminal_color_12 = "#82aaff"
-  vim.g.terminal_color_5 = "#c099ff"
-  vim.g.terminal_color_13 = "#c099ff"
-  vim.g.terminal_color_6 = "#86e1fc"
-  vim.g.terminal_color_14 = "#86e1fc"
-  vim.g.terminal_color_7 = "#c8d3f5"
-  vim.g.terminal_color_15 = "#c8d3f5"
+if not theme.sourced then
+  return
 end
 
-if vim.o.background == "light" then
-  vim.g.terminal_color_0 = "#dfe2ec"
-  vim.g.terminal_color_8 = "#777C92"
-  vim.g.terminal_color_1 = "#C41C46"
-  vim.g.terminal_color_9 = "#C41C46"
-  vim.g.terminal_color_2 = "#587539"
-  vim.g.terminal_color_10 = "#587539"
-  vim.g.terminal_color_3 = "#A27629"
-  vim.g.terminal_color_11 = "#A27629"
-  vim.g.terminal_color_4 = "#2E7DE9"
-  vim.g.terminal_color_12 = "#2E7DE9"
-  vim.g.terminal_color_5 = "#9854F1"
-  vim.g.terminal_color_13 = "#9854F1"
-  vim.g.terminal_color_6 = "#007EA8"
-  vim.g.terminal_color_14 = "#007EA8"
-  vim.g.terminal_color_7 = "#D0D5E3"
-  vim.g.terminal_color_15 = "#3760BF"
+local cl = require("config.coloring")
+local p = theme.palette
+local light = theme.bg_is_light()
+local style = light and "day" or "moon"
+
+vim.o.background = light and "light" or "dark"
+
+---@param c table
+local function on_colors(c)
+  c.bg = p.bg
+  c.bg_dark = p.base
+  c.bg_dark1 = p.base
+  c.bg_highlight = p.surface2
+  c.fg = p.fg
+  c.fg_dark = p.white
+  c.fg_gutter = p.surface3
+  c.comment = p.surface5
+  c.dark3 = p.surface3
+  c.dark5 = p.surface5
+  c.black = p.black
+  c.red = p.red
+  c.red1 = p.red
+  c.green = p.green
+  c.green1 = p.cyan
+  c.green2 = p.cyan
+  c.yellow = p.yellow
+  c.orange = p.yellow
+  c.blue = p.blue
+  c.blue0 = p.selection
+  c.blue1 = p.cyan
+  c.blue2 = p.cyan
+  c.blue5 = p.cyan
+  c.blue6 = p.cyan
+  c.blue7 = p.surface3
+  c.cyan = p.cyan
+  c.magenta = p.magenta
+  c.magenta2 = p.red
+  c.purple = p.magenta
+  c.teal = p.cyan
+  c.terminal_black = p.bright_black
+  c.git.add = p.green
+  c.git.change = p.blue
+  c.git.delete = p.red
+  c.git.ignore = p.surface4
+  c.border = p.black
+  c.border_highlight = p.blue
+  c.bg_popup = p.base
+  c.bg_statusline = p.base
+  c.bg_sidebar = p.bg
+  c.bg_float = p.surface2
+  c.bg_visual = p.selection
+  c.bg_search = p.surface2
+  c.fg_sidebar = p.white
+  c.fg_float = p.fg
+  c.error = p.red
+  c.todo = p.blue
+  c.warning = p.yellow
+  c.info = p.cyan
+  c.hint = p.cyan
+  c.diff.add = cl.adjust_hex(p.green, 0.25)
+  c.diff.delete = cl.adjust_hex(p.red, 0.25)
+  c.diff.change = cl.adjust_hex(p.blue, 0.15)
+  c.diff.text = p.surface3
+  c.rainbow = {
+    p.blue,
+    p.yellow,
+    p.green,
+    p.cyan,
+    p.magenta,
+    p.magenta,
+    p.yellow,
+    p.red,
+  }
+  c.terminal.black = p.black
+  c.terminal.black_bright = p.bright_black
+  c.terminal.red = p.red
+  c.terminal.red_bright = p.red
+  c.terminal.green = p.green
+  c.terminal.green_bright = p.green
+  c.terminal.yellow = p.yellow
+  c.terminal.yellow_bright = p.yellow
+  c.terminal.blue = p.blue
+  c.terminal.blue_bright = p.blue
+  c.terminal.magenta = p.magenta
+  c.terminal.magenta_bright = p.magenta
+  c.terminal.cyan = p.cyan
+  c.terminal.cyan_bright = p.cyan
+  c.terminal.white = p.white
+  c.terminal.white_bright = p.white
 end
+
+require("tokyonight").setup({
+  style = style,
+  cache = false,
+  terminal_colors = true,
+  on_colors = on_colors,
+})
+
+vim.cmd.colorscheme("tokyonight-" .. style)

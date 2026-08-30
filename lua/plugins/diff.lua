@@ -13,13 +13,16 @@ local function load()
     },
   })
 
-  if vim.o.background == "light" then
+  local theme = require("config.theme")
+  if theme.sourced then
+    local cl = require("config.coloring")
+    local p = theme.palette
     require("codediff").setup({
       highlights = {
-        line_delete = "#ffcccc",
-        char_delete = "#ffaaaa",
-        line_insert = "#c0e9da",
-        char_insert = "#a3dcc1",
+        line_delete = cl.adjust_hex(p.red, 0.35),
+        char_delete = cl.adjust_hex(p.red, 0.5),
+        line_insert = cl.adjust_hex(p.green, 0.35),
+        char_insert = cl.adjust_hex(p.green, 0.5),
       },
     })
   end

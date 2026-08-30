@@ -2,9 +2,10 @@ vim.schedule(function()
   vim.pack.add({ "https://github.com/and-rs/flash.nvim" })
 
   local color = require("config.coloring")
+  local theme = require("config.theme")
+  local p = theme.palette
 
-  local function set_flash_rainbow(name, base_hl)
-    local fg_color = color.get(base_hl).fg
+  local function set_flash_rainbow(name, fg_color)
     if not fg_color then
       return
     end
@@ -16,22 +17,23 @@ vim.schedule(function()
     })
   end
 
-  -- Adding bold & underline to the rainbow
-  local groups = {
-    rainbow_red = "NvimRed",
-    rainbow_cyan = "NvimCyan",
-    rainbow_blue = "NvimBlue",
-    rainbow_amber = "NvimYellow",
-    rainbow_green = "NvimGreen",
-    rainbow_violet = "NvimViolet",
-    rainbow_fuchsia = "NvimPink",
-    rainbow_lime = "NvimGreen",
-    rainbow_teal = "NvimTeal",
-    rainbow_rose = "NvimRed",
-  }
+  if theme.sourced then
+    local groups = {
+      rainbow_red = p.red,
+      rainbow_cyan = p.cyan,
+      rainbow_blue = p.blue,
+      rainbow_amber = p.yellow,
+      rainbow_green = p.green,
+      rainbow_violet = p.magenta,
+      rainbow_fuchsia = p.red,
+      rainbow_lime = p.green,
+      rainbow_teal = p.cyan,
+      rainbow_rose = p.red,
+    }
 
-  for name, base in pairs(groups) do
-    set_flash_rainbow(name, base)
+    for name, fg in pairs(groups) do
+      set_flash_rainbow(name, fg)
+    end
   end
 
   require("flash").setup({

@@ -2,9 +2,11 @@ vim.schedule(function()
   vim.pack.add({ "https://github.com/shellRaining/hlchunk.nvim" })
 
   local colors = require("config.coloring")
+  local theme = require("config.theme")
+  local p = theme.palette
   require("hlchunk").setup({
     chunk = {
-      enable = false,
+      enable = true,
       chars = {
         horizontal_line = "─",
         vertical_line = "│",
@@ -12,13 +14,13 @@ vim.schedule(function()
         left_bottom = "└",
         right_arrow = "─",
       },
-      style = colors.get("NvimOrange").fg,
+      style = theme.sourced and p.yellow or nil,
       duration = 0,
       delay = 0,
     },
     blank = {
       enable = true,
-      style = colors.adjust_hex(colors.get("LineNrBelow").fg, 0.6),
+      style = theme.sourced and colors.adjust_hex(p.surface3, 0.6) or nil,
       chars = { "»" },
     },
   })

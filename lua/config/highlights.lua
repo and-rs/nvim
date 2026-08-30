@@ -1,5 +1,5 @@
 local color = require("config.coloring")
-local palette = require("config.palette")
+local theme = require("config.theme")
 
 ---@param specs table<string, vim.api.keyset.highlight>
 local function apply_specs(specs)
@@ -9,99 +9,104 @@ local function apply_specs(specs)
 end
 
 local function apply()
-  palette.apply()
+  if not theme.sourced then
+    return
+  end
+
+  local p = theme.palette
+  local grey = color.adjust_hex(p.surface5, 0.3)
 
   ---@type table<string, vim.api.keyset.highlight>
   local specs = {
     DiagnosticUnnecessary = { underline = true },
     DiagnosticUnderlineError = { underline = false, undercurl = true },
     DiagnosticVirtualTextInfo = {
-      fg = color.get("DiagnosticInfo").fg or color.get("NvimBlue").fg,
-      bg = color.adjust_hex(color.get("DiagnosticInfo").fg or color.get("NvimBlue").fg, 0.2),
+      fg = p.cyan,
+      bg = color.adjust_hex(p.cyan, 0.2),
     },
     DiagnosticVirtualTextHint = {
-      fg = color.get("DiagnosticHint").fg or color.get("NvimBlue").fg,
-      bg = color.adjust_hex(color.get("DiagnosticHint").fg or color.get("NvimBlue").fg, 0.2),
+      fg = p.cyan,
+      bg = color.adjust_hex(p.cyan, 0.2),
     },
     DiagnosticVirtualTextWarn = {
-      fg = color.get("DiagnosticWarn").fg or color.get("NvimYellow").fg,
-      bg = color.adjust_hex(color.get("DiagnosticWarn").fg or color.get("NvimYellow").fg, 0.2),
+      fg = p.yellow,
+      bg = color.adjust_hex(p.yellow, 0.2),
     },
     DiagnosticVirtualTextError = {
-      fg = color.get("DiagnosticError").fg or color.get("NvimRed").fg,
-      bg = color.adjust_hex(color.get("DiagnosticError").fg or color.get("NvimRed").fg, 0.2),
+      fg = p.red,
+      bg = color.adjust_hex(p.red, 0.2),
     },
 
     TabKey = {
-      fg = color.get("NvimBlue").fg,
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      fg = p.blue,
+      bg = grey,
       underline = true,
     },
     TabLine = {
-      fg = color.get("NvimBlue").fg,
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      fg = p.blue,
+      bg = grey,
     },
 
     TabKeySel = {
-      fg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      bg = color.get("NvimBlue").fg,
+      fg = grey,
+      bg = p.blue,
       underline = true,
       bold = true,
     },
     TabLineSel = {
-      fg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      bg = color.get("NvimBlue").fg,
+      fg = grey,
+      bg = p.blue,
       bold = true,
     },
 
     YaziFloat = { link = "NormalFloat" },
     YaziFloatBorder = { link = "FloatBorder" },
 
-    Substitute = { bg = color.get("NvimGreen").fg, fg = color.get("Normal").bg },
+    Substitute = { bg = p.green, fg = p.bg },
     Search = {
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      fg = color.get("NvimCyan").fg,
+      bg = grey,
+      fg = p.cyan,
       underline = true,
     },
     IncSearch = {
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      fg = color.get("NvimGreen").fg,
+      bg = grey,
+      fg = p.green,
       underline = true,
     },
     MatchParen = {
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
-      fg = color.get("NvimGreen").fg,
+      bg = grey,
+      fg = p.green,
       bold = true,
       underline = true,
     },
 
     MsgArea = {
-      fg = color.get("NvimCyan").fg,
+      fg = p.cyan,
     },
     Pmenu = {
-      fg = color.get("NvimCyan").fg,
-      bg = color.get("Normal").bg,
+      fg = p.cyan,
+      bg = p.bg,
     },
     PmenuSel = {
-      fg = color.get("NvimCyan").fg,
-      bg = color.get("Normal").bg,
+      fg = p.cyan,
+      bg = p.bg,
       bold = true,
     },
     PmenuMatch = {
-      fg = color.get("NvimCyan").fg,
-      bg = color.get("Normal").bg,
+      fg = p.cyan,
+      bg = p.bg,
       bold = true,
     },
 
     ["@markup.raw.markdown_inline"] = {
-      bg = color.adjust_hex(color.get("NvimGrey").fg, 0.3),
+      bg = grey,
     },
 
-    Select = { bg = color.get("Normal").bg },
-    YankHighlight = { bg = color.adjust_hex(color.get("NvimGreen").fg, 0.5) },
+    Select = { bg = p.bg },
+    YankHighlight = { bg = color.adjust_hex(p.green, 0.5) },
     VisualNonText = {
-      fg = color.adjust_hex(color.get("Visual").bg, 1.2),
-      bg = color.get("Visual").bg,
+      fg = color.adjust_hex(p.selection, 1.2),
+      bg = p.selection,
     },
   }
 
@@ -124,6 +129,8 @@ vim.api.nvim_create_autocmd("OptionSet", {
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = color.augroup,
   callback = function()
-    vim.highlight.on_yank({ higroup = "YankHighlight" })
+    vim.highlight.on_yank({
+      higroup = theme.sourced and "YankHighlight" or "IncSearch",
+    })
   end,
 })

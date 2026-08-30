@@ -41,17 +41,21 @@ local function progress()
 end
 
 local cl = require("config.coloring")
+local theme = require("config.theme")
 
 local function get_colors()
-  local p = require("config.palette").palettes["tokyonight-day"]
+  if not theme.sourced then
+    return nil
+  end
+  local p = theme.palette
   return {
-    bg = cl.get("NormalFloat").bg,
-    red = p.NvimRed,
-    blue = p.NvimBlue,
-    cyan = p.NvimCyan,
-    green = p.NvimGreen,
-    orange = p.NvimOrange,
-    violet = p.NvimViolet,
+    bg = p.surface1,
+    red = p.red,
+    blue = p.blue,
+    cyan = p.cyan,
+    green = p.green,
+    orange = p.yellow,
+    violet = p.magenta,
   }
 end
 
@@ -94,7 +98,7 @@ local function setup_lualine()
       globalstatus = true,
       component_separators = { left = " ┃ ", right = " ┃ " },
       section_separators = "",
-      theme = get_theme(colors),
+      theme = colors and get_theme(colors) or "auto",
     },
 
     inactive_sections = {
@@ -132,12 +136,12 @@ local function setup_lualine()
         progress,
         {
           "diff",
-          colored = true,
-          diff_color = {
+          colored = colors ~= nil,
+          diff_color = colors and {
             added = { fg = colors.green },
             modified = { fg = colors.blue },
             removed = { fg = colors.red },
-          },
+          } or nil,
           separator = "@",
           symbols = { added = "+", modified = "~", removed = "-" },
           padding = { right = 1, left = 1 },

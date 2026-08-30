@@ -6,20 +6,26 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   group = color.augroup,
   pattern = "*",
   callback = function()
+    local theme = require("config.theme")
+    if not theme.sourced then
+      return
+    end
+    local p = theme.palette
+    local cursor_bg = color.adjust_hex(p.surface2, 0.8)
     color.set("CursorLineSign", {
-      bg = color.adjust_hex(color.get("CursorLine").bg, 0.8),
+      bg = cursor_bg,
     })
     color.set("CursorLineNr", {
-      fg = color.get("NvimCyan").fg,
-      bg = color.adjust_hex(color.get("CursorLine").bg, 0.8),
+      fg = p.cyan,
+      bg = cursor_bg,
       bold = true,
     })
     color.set("CursorLine", {
-      bg = color.adjust_hex(color.get("CursorLine").bg, 0.8),
+      bg = cursor_bg,
     })
     color.set("Folded", {
-      fg = color.get("Visual").bg,
-      bg = color.adjust_hex(color.get("Visual").bg, 0.7),
+      fg = p.selection,
+      bg = color.adjust_hex(p.selection, 0.7),
     })
   end,
 })
