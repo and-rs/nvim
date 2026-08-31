@@ -11,7 +11,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       return
     end
     local p = theme.palette
-    local cursor_bg = color.adjust_hex(p.surface2, 0.8)
+    local cursor_bg = color.adjust_hex(p.surface2, 0.6)
     color.set("CursorLineSign", {
       bg = cursor_bg,
     })

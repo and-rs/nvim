@@ -22,7 +22,7 @@ local function on_colors(c)
   c.fg = p.fg
   c.fg_dark = p.white
   c.fg_gutter = p.surface3
-  c.comment = p.surface5
+  c.comment = p.surface3
   c.dark3 = p.surface3
   c.dark5 = p.surface5
   c.black = p.black
