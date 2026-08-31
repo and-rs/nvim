@@ -55,7 +55,7 @@ local function on_colors(c)
   c.bg_popup = p.base
   c.bg_statusline = p.base
   c.bg_sidebar = p.bg
-  c.bg_float = p.surface2
+  c.bg_float = p.surface1
   c.bg_visual = p.selection
   c.bg_search = p.surface2
   c.fg_sidebar = p.white
