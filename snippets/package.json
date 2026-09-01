@@ -31,6 +31,12 @@
           "nu"
         ],
         "path": "./nu.json"
+      },
+      {
+        "language": [
+          "qmljs"
+        ],
+        "path": "./qmljs.json"
       }
     ]
   },

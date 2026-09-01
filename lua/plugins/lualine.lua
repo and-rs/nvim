@@ -20,8 +20,27 @@ local function location()
   end
 end
 
+local function is_outside_cwd()
+  local current_cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":p")
+  if current_cwd ~= "/" then
+    current_cwd = current_cwd:gsub("/+$", "")
+  end
+  local buffer_name = vim.api.nvim_buf_get_name(0)
+  if buffer_name ~= "" and vim.bo.buftype == "" then
+    local buffer_path = vim.fn.fnamemodify(buffer_name, ":p")
+    return buffer_path ~= current_cwd
+      and (current_cwd == "/" or buffer_path:sub(1, #current_cwd + 1) ~= current_cwd .. "/")
+  end
+  return false
+end
+
 local function cwd()
-  return vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+  local current_cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":p")
+  if current_cwd ~= "/" then
+    current_cwd = current_cwd:gsub("/+$", "")
+  end
+  local display_cwd = vim.fn.fnamemodify(current_cwd, ":~")
+  return display_cwd
 end
 
 local function progress()
@@ -114,6 +133,21 @@ local function setup_lualine()
         "separator",
         { "mode", padding = { right = 0, left = 2 } },
         cwd,
+        {
+          function()
+            return is_outside_cwd() and "[OUT]" or ""
+          end,
+          color = colors and { fg = colors.red },
+          padding = { left = 1, right = 0 },
+          separator = "",
+        },
+        {
+          function()
+            return is_outside_cwd() and "/" or ""
+          end,
+          padding = { left = 0, right = 0 },
+          separator = "",
+        },
         {
           "filename",
           path = 4,
