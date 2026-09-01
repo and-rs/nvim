@@ -66,10 +66,17 @@ vim.diagnostic.config({
   },
 })
 
-local quickshell = vim.fn.resolve(vim.fn.exepath("quickshell"))
-local qml_import_path = vim.uv.os_homedir()
-  .. "/.config/quickshell:"
-  .. quickshell:gsub("bin/quickshell", "lib/qt-6/qml")
+local qml_dir = function(executable)
+  return vim.fn
+    .resolve(vim.fn.exepath(executable))
+    :gsub("/bin/" .. executable .. "$", "/lib/qt-6/qml")
+end
+local qml_import_paths = {
+  vim.uv.os_homedir() .. "/.config/quickshell",
+  qml_dir("qmlls"),
+  qml_dir("quickshell"),
+}
+local qml_import_path = table.concat(qml_import_paths, ":")
 
 vim.lsp.config("qmlls", {
   cmd = { "qmlls", "-E" },
@@ -77,6 +84,7 @@ vim.lsp.config("qmlls", {
     QML_IMPORT_PATH = qml_import_path,
   },
 })
+
 local enabled_lsps = {
   "qmlls",
   -- js
