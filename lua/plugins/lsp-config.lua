@@ -67,22 +67,48 @@ vim.diagnostic.config({
 })
 
 local qml_dir = function(executable)
-  return vim.fn
-    .resolve(vim.fn.exepath(executable))
-    :gsub("/bin/" .. executable .. "$", "/lib/qt-6/qml")
+  local path = vim.fn.resolve(vim.fn.exepath(executable))
+  path = path:gsub("/bin/" .. executable .. "$", "/lib/qt-6/qml")
+  return path
 end
+
+local quickshell_build_dir = function()
+  local config = vim.fn.expand("~/.config/quickshell/.qmlls.ini")
+  if vim.fn.filereadable(config) ~= 1 then
+    return nil
+  end
+
+  for _, line in ipairs(vim.fn.readfile(config)) do
+    local path = line:match('^buildDir="([^"]+)"$')
+    if path then
+      return path
+    end
+  end
+end
+
+local quickshell_vfs = quickshell_build_dir()
 local qml_import_paths = {
   vim.uv.os_homedir() .. "/.config/quickshell",
   qml_dir("qmlls"),
   qml_dir("quickshell"),
 }
+if quickshell_vfs then
+  table.insert(qml_import_paths, quickshell_vfs)
+end
 local qml_import_path = table.concat(qml_import_paths, ":")
+local qmlls_cmd = { "qmlls", "-E" }
+if quickshell_vfs then
+  vim.list_extend(qmlls_cmd, { "-b", quickshell_vfs, "-I", quickshell_vfs })
+end
 
 vim.lsp.config("qmlls", {
-  cmd = { "qmlls", "-E" },
+  cmd = qmlls_cmd,
   cmd_env = {
     QML_IMPORT_PATH = qml_import_path,
   },
+  on_attach = function(client)
+    client.server_capabilities.semanticTokensProvider = nil
+  end,
 })
 
 local enabled_lsps = {

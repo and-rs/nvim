@@ -15,7 +15,7 @@ conform.formatters = {
     command = "biome",
   },
   qmlformat = {
-    append_args = { "-w 2" },
+    append_args = { "-w 4" },
   },
   sleek = {
     append_args = { "--indent-spaces=2", "--lines-between-queries=1" },
