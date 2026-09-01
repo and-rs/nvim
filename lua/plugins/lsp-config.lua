@@ -66,7 +66,19 @@ vim.diagnostic.config({
   },
 })
 
+local quickshell = vim.fn.resolve(vim.fn.exepath("quickshell"))
+local qml_import_path = vim.uv.os_homedir()
+  .. "/.config/quickshell:"
+  .. quickshell:gsub("bin/quickshell", "lib/qt-6/qml")
+
+vim.lsp.config("qmlls", {
+  cmd = { "qmlls", "-E" },
+  cmd_env = {
+    QML_IMPORT_PATH = qml_import_path,
+  },
+})
 local enabled_lsps = {
+  "qmlls",
   -- js
   "html",
   "biome",
@@ -96,7 +108,6 @@ local enabled_lsps = {
   "ast_grep",
   "glsl_analyzer",
 }
-
 vim.lsp.enable(enabled_lsps)
 
 vim.lsp.config.biome = {

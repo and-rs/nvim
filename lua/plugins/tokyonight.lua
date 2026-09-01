@@ -16,13 +16,13 @@ vim.o.background = light and "light" or "dark"
 ---@param c table
 local function on_colors(c)
   c.bg = p.bg
-  c.bg_dark = p.base
-  c.bg_dark1 = p.base
+  c.bg_dark = p.bg
+  c.bg_dark1 = p.bg
   c.bg_highlight = p.surface2
   c.fg = p.fg
   c.fg_dark = p.white
   c.fg_gutter = p.surface3
-  c.comment = p.surface3
+  c.comment = p.surface4
   c.dark3 = p.surface3
   c.dark5 = p.surface5
   c.black = p.black
@@ -52,9 +52,9 @@ local function on_colors(c)
   c.git.ignore = p.surface4
   c.border = p.black
   c.border_highlight = p.blue
-  c.bg_popup = p.base
-  c.bg_statusline = p.base
-  c.bg_sidebar = p.bg
+  c.bg_popup = p.surface1
+  c.bg_statusline = p.surface1
+  c.bg_sidebar = p.surface1
   c.bg_float = p.surface1
   c.bg_visual = p.selection
   c.bg_search = p.surface2
@@ -79,8 +79,8 @@ local function on_colors(c)
     p.yellow,
     p.red,
   }
-  c.terminal.black = p.black
-  c.terminal.black_bright = p.bright_black
+  c.terminal.black = p.surface2
+  c.terminal.black_bright = p.fg
   c.terminal.red = p.red
   c.terminal.red_bright = p.red
   c.terminal.green = p.green

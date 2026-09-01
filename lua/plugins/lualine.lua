@@ -49,7 +49,7 @@ local function get_colors()
   end
   local p = theme.palette
   return {
-    bg = p.surface1,
+    bg = p.black,
     red = p.red,
     blue = p.blue,
     cyan = p.cyan,
