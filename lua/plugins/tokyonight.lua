@@ -20,8 +20,8 @@ local function on_colors(c)
   c.bg_dark1 = p.bg
   c.bg_highlight = p.surface2
   c.fg = p.fg
-  c.fg_dark = p.white
-  c.fg_gutter = p.surface3
+  c.fg_dark = p.surface5
+  c.fg_gutter = p.surface4
   c.comment = p.surface4
   c.dark3 = p.surface3
   c.dark5 = p.surface5
@@ -32,7 +32,7 @@ local function on_colors(c)
   c.green1 = p.cyan
   c.green2 = p.cyan
   c.yellow = p.yellow
-  c.orange = p.yellow
+  c.orange = p.red
   c.blue = p.blue
   c.blue0 = p.selection
   c.blue1 = p.cyan
@@ -56,7 +56,7 @@ local function on_colors(c)
   c.bg_statusline = p.surface1
   c.bg_sidebar = p.surface1
   c.bg_float = p.surface1
-  c.bg_visual = p.selection
+  c.bg_visual = p.surface2
   c.bg_search = p.surface2
   c.fg_sidebar = p.white
   c.fg_float = p.fg

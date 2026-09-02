@@ -2,6 +2,7 @@ local map = require("config.map").set
 
 -- repeat last macro
 map("n", "Q", "@@", "Repeat last macro")
+map("n", "<leader>R", "<cmd>restart<CR>", "Restart Neovim UI")
 
 -- search visual selection (very nice)
 map(

@@ -19,7 +19,7 @@ vim.schedule(function()
     },
     blank = {
       enable = true,
-      style = theme.sourced and p.surface3 or nil,
+      style = theme.sourced and p.surface2 or nil,
       chars = { "»" },
     },
   })

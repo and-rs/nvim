@@ -18,10 +18,10 @@ fzf.setup({
     fzf = {
       ["ctrl-i"] = "up+toggle",
       ["ctrl-y"] = "toggle+down",
-      ["ctrl-b"] = "page-up",
-      ["ctrl-f"] = "page-down",
-      ["ctrl-u"] = "half-page-up",
-      ["ctrl-d"] = "half-page-down",
+      ["ctrl-alt-b"] = "page-up",
+      ["ctrl-alt-f"] = "page-down",
+      ["ctrl-alt-u"] = "half-page-up",
+      ["ctrl-alt-d"] = "half-page-down",
       ["ctrl-alt-h"] = "unix-line-discard",
     },
   },
@@ -62,7 +62,7 @@ map("t", "<C-e>", function()
 end, { desc = "Toggle FZF Preview", noremap = true })
 
 map("n", "<leader>sa", function()
-  fzf.builtin()
+  fzf.builtin(get_opts())
 end, { desc = "FZF Builtin" })
 map("n", "<leader>sh", function()
   fzf.help_tags(get_opts())

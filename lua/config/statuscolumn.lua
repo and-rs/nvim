@@ -11,7 +11,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       return
     end
     local p = theme.palette
-    local cursor_bg = color.adjust_hex(p.surface2, 0.65)
+    local cursor_bg = p.black
     color.set("CursorLineSign", {
       bg = cursor_bg,
     })
@@ -27,19 +27,45 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       fg = p.selection,
       bg = color.adjust_hex(p.selection, 0.7),
     })
+
+    color.set("SignColumn", {
+      fg = p.surface3,
+      bg = p.black,
+    })
+    color.set("LineNr", {
+      fg = p.surface4,
+      bg = p.black,
+    })
+    color.set("Border", {
+      fg = p.surface3,
+      bg = p.black,
+    })
   end,
 })
 
 local function render_border()
-  return "▕ "
+  return "%#Border#▕%#None# "
+end
+
+local function render_zero_border()
+  local mode = vim.fn.mode()
+  if mode == "v" or mode == "V" or mode == "\22" then
+    return "%#CursorLineNr#▕%#Normal# "
+  end
+
+  return "%#CursorLineNr#▕ "
 end
 
 local function render_normal_statuscolumn()
   local line_number = vim.v.lnum
+  if vim.v.relnum == 0 then
+    return "%s%=" .. string.format("%4d", line_number) .. render_zero_border()
+  end
+
   if vim.v.virtnum ~= 0 then
     return "%s%=    " .. render_border()
   end
-  return "%s%=" .. string.format("%4d", line_number) .. render_border()
+  return "%s%=%#LineNr#" .. string.format("%4d", line_number) .. render_border()
 end
 
 local function clear_statuscolumn(win)
