@@ -14,6 +14,7 @@ vim.cmd([[
 require("config.highlights")
 require("config.statuscolumn")
 require("config.tabline")
+require("config.ekhos")
 -- 3rd
 require("config.profiling")
 Deferred_group = vim.api.nvim_create_augroup("Deferred", { clear = true })
