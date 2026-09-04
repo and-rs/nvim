@@ -48,7 +48,7 @@ vim.api.nvim_create_autocmd("CmdlineEnter", {
   group = group,
   pattern = { ":", "/", "?" },
   callback = function(event)
-    play(event.match == ":" and "scan" or "bloom")
+    play(event.match == ":" and "release" or "bloom")
   end,
 })
 
@@ -67,9 +67,9 @@ vim.api.nvim_create_autocmd("ModeChanged", {
   end,
 })
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = group,
-  callback = function()
-    play("release")
-  end,
-})
+-- vim.api.nvim_create_autocmd("VimLeavePre", {
+--   group = group,
+--   callback = function()
+--     play("release")
+--   end,
+-- })
