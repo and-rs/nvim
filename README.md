@@ -27,13 +27,17 @@ I built it because the current picker landscape did not quite fit the interactio
 
 When invoked, Neovim starts `zt files` in a small floating terminal. Zetesis gathers project files from Git when possible and falls back to filesystem walking otherwise. It fuzzy-ranks the query interactively, shows Git status in the results, and returns selections as JSON Lines. The Lua bridge decodes that protocol and performs the requested Neovim action: edit, vertical split, tab, or quickfix. The protocol also supports locations and text entries, leaving room for non-file picker sources later.
 
-The binary is expected at `zetesis/zig-out/bin/zt`. Build it from the `zetesis` directory with Zig before using `<leader>sf`:
+The binary is expected at `zetesis/zig-out/bin/zt`. Build the local Zig projects before using `<leader>sf`:
 
 ```sh
-zig build
+just bootstrap
 ```
 
 If it is not built, Neovim reports the missing binary instead of silently falling back to another picker.
+
+## Ekhos
+
+Ekhos is a local Zig sound renderer for Neovim interaction cues. `just bootstrap` renders its WAV palette into `ekhos/zig-out/sounds/`; Neovim uses the platform audio player when a configured event occurs.
 
 ## Requirements
 
@@ -44,7 +48,8 @@ Use the current stable Neovim release. The rest is intentionally external and mo
 | `git` | Plugin downloads, Git-aware Zetesis file discovery | Yes |
 | `ripgrep` | fzf-lua file search | Recommended |
 | `fd` | General file finding | Recommended |
-| Zig | Building Zetesis | For `<leader>sf` |
+| Zig | Building Zetesis and Ekhos | For local picker and sounds |
+| just | Building local Zig projects | For `just bootstrap` |
 | Language servers and formatters | LSP and formatting features | Only for the languages you use |
 | `tmux` | Cross-pane navigation and resizing | Optional |
 | `yazi` | File manager integration | Optional |
@@ -53,7 +58,7 @@ Language tooling is configured, not installed or managed here. Install only the 
 
 ## Getting started
 
-Place this repository at Neovim's configuration path (normally `~/.config/nvim` on Linux and macOS), start Neovim to let `vim.pack` fetch the declared plugins, and build Zetesis if you want the primary file picker.
+Place this repository at Neovim's configuration path (normally `~/.config/nvim` on Linux and macOS), run `just bootstrap`, then start Neovim to let `vim.pack` fetch the declared plugins.
 
 This is a personal configuration, so newcomers should treat it as readable source rather than a turnkey distribution. In particular, review:
 

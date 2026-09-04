@@ -157,7 +157,7 @@ end
 local function ensure_binary()
   local bin = binary_path()
   if vim.fn.executable(bin) ~= 1 then
-    vim.notify("zetesis binary missing: run `cd zetesis && zig build`", vim.log.levels.ERROR)
+    vim.notify("zetesis binary missing: run `just bootstrap`", vim.log.levels.ERROR)
     return nil
   end
   return bin

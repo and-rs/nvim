@@ -4,7 +4,7 @@ local warned = false
 local function player_command(path)
   local sysname = vim.uv.os_uname().sysname
   if sysname == "Linux" then
-    return { "pw-play", "--latency", "25ms", "--volume", "3", path }
+    return { "pw-play", "--media-role", "Event", "--latency", "25ms", "--volume", "3", path }
   end
   if sysname == "Darwin" then
     return { "afplay", "--volume", "2", path }
@@ -36,7 +36,7 @@ local function play(cue)
   if vim.fn.filereadable(path) ~= 1 then
     if not warned then
       warned = true
-      vim.notify("Ekhos sound missing: run `cd ekhos && zig build`", vim.log.levels.WARN)
+      vim.notify("Ekhos sounds missing: run `just bootstrap`", vim.log.levels.WARN)
     end
     return
   end
@@ -67,7 +67,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
   end,
 })
 
-vim.api.nvim_create_autocmd("QuitPre", {
+vim.api.nvim_create_autocmd("VimLeavePre", {
   group = group,
   callback = function()
     play("release")
