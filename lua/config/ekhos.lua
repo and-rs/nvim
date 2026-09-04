@@ -4,7 +4,7 @@ local warned = false
 local function player_command(path)
   local sysname = vim.uv.os_uname().sysname
   if sysname == "Linux" then
-    return { "pw-play", "--media-role", "Event", "--latency", "25ms", "--volume", "3", path }
+    return { "pw-play", "--media-role", "Event", "--latency", "120ms", "--volume", "3", path }
   end
   if sysname == "Darwin" then
     return { "afplay", "--volume", "2", path }
