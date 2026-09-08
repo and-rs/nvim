@@ -4,7 +4,20 @@ local warned = false
 local function player_command(path)
   local sysname = vim.uv.os_uname().sysname
   if sysname == "Linux" then
-    return { "pw-play", "--media-role", "Event", "--latency", "120ms", "--volume", "3", path }
+    return {
+      "pw-play",
+      "--media-type",
+      "Audio",
+      "--media-category",
+      "Playback",
+      "--media-role",
+      "Event",
+      "--latency",
+      "25ms",
+      "--volume",
+      "3",
+      path,
+    }
   end
   if sysname == "Darwin" then
     return { "afplay", "--volume", "2", path }
@@ -44,14 +57,6 @@ local function play(cue)
   vim.fn.jobstart(player_command(path), { detach = true })
 end
 
-vim.api.nvim_create_autocmd("CmdlineEnter", {
-  group = group,
-  pattern = { ":", "/", "?" },
-  callback = function(event)
-    play(event.match == ":" and "release" or "bloom")
-  end,
-})
-
 local function is_visual(mode)
   local first = mode:sub(1, 1)
   return first == "v" or first == "V" or first == "\22"
@@ -61,15 +66,11 @@ vim.api.nvim_create_autocmd("ModeChanged", {
   group = group,
   callback = function(event)
     local old_mode, new_mode = event.match:match("^(.-):(.*)$")
-    if old_mode and is_visual(old_mode) ~= is_visual(new_mode) then
+    if new_mode:sub(1, 1) == "c" and old_mode:sub(1, 1) ~= "c" then
+      local cmdtype = vim.fn.getcmdtype()
+      play(cmdtype == ":" and "droplet" or "bloom")
+    elseif old_mode and is_visual(old_mode) ~= is_visual(new_mode) then
       play("toggle")
     end
   end,
 })
-
--- vim.api.nvim_create_autocmd("VimLeavePre", {
---   group = group,
---   callback = function()
---     play("release")
---   end,
--- })
