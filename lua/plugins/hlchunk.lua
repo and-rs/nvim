@@ -17,9 +17,10 @@ vim.schedule(function()
       duration = 0,
       delay = 0,
     },
-    blank = {
+    indent = {
+      use_treesitter = true,
       enable = true,
-      style = theme.sourced and p.surface2 or nil,
+      style = p.surface3,
       chars = { "»" },
     },
   })

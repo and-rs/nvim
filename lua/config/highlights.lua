@@ -8,12 +8,13 @@ local function apply_specs(specs)
   end
 end
 
+local p = theme.palette
+
 local function apply()
   if not theme.sourced then
     return
   end
 
-  local p = theme.palette
   local grey = color.adjust_hex(p.surface5, 0.3)
 
   ---@type table<string, vim.api.keyset.highlight>
@@ -103,7 +104,10 @@ local function apply()
     },
 
     Select = { bg = p.bg },
-    YankHighlight = { bg = color.adjust_hex(p.green, 0.5) },
+    YankHighlight = {
+      fg = color.adjust_hex(p.green, 0.5),
+      bg = color.adjust_hex(p.green, 0.5),
+    },
     VisualNonText = {
       fg = color.adjust_hex(p.selection, 1.1),
       bg = color.get("Visual").bg,
