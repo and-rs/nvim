@@ -85,6 +85,13 @@ end, { desc = "Diagnostics" })
 map("n", "gd", function()
   fzf.lsp_definitions(get_opts({ jump1 = true }))
 end, { desc = "LSP Def" })
+map("n", "gD", function()
+  fzf.lsp_definitions(get_opts({
+    jump1 = true,
+    jump1_action = fzf.actions.file_tabedit,
+    actions = { ["enter"] = fzf.actions.file_tabedit },
+  }))
+end, { desc = "LSP Def in tab" })
 map("n", "<leader>lr", function()
   fzf.lsp_references(get_opts({ includeDeclaration = false, ignore_current_line = true }))
 end, { desc = "LSP Ref" })

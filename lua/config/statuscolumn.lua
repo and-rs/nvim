@@ -56,23 +56,32 @@ local function render_zero_border()
   return "%#CursorLineNr#▕ "
 end
 
+local function number_width()
+  local win = vim.g.statusline_winid or 0
+  local buf = vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) or 0
+  return math.max(4, #tostring(vim.api.nvim_buf_line_count(buf)))
+end
+
 local function render_normal_statuscolumn()
   local line_number = vim.v.lnum
-  if vim.v.relnum == 0 then
-    return "%s%=" .. string.format("%4d", line_number) .. render_zero_border()
-  end
+  local width = number_width()
 
   if vim.v.virtnum ~= 0 then
-    return "%s%=    " .. render_border()
+    return "%#LineNr#%=" .. string.rep(" ", width) .. render_border()
   end
-  return "%s%=%#LineNr#" .. string.format("%4d", line_number) .. render_border()
+  if vim.v.relnum == 0 then
+    return "%s%=%#CursorLineNr#"
+      .. string.format("%" .. width .. "d", line_number)
+      .. render_zero_border()
+  end
+  return "%s%=%#LineNr#" .. string.format("%" .. width .. "d", line_number) .. render_border()
 end
 
 local function clear_statuscolumn(win)
-  vim.api.nvim_set_option_value("relativenumber", false, { win = win })
-  vim.api.nvim_set_option_value("numberwidth", 1, { win = win })
+  vim.api.nvim_set_option_value("number", false, { win = win })
   vim.api.nvim_set_option_value("signcolumn", "no", { win = win })
-  vim.api.nvim_set_option_value("statuscolumn", "%s", { win = win })
+  vim.api.nvim_set_option_value("statuscolumn", "", { win = win })
+  vim.api.nvim_set_option_value("relativenumber", false, { win = win })
 end
 
 local function is_edit_window(buf, win)
@@ -105,6 +114,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType", "WinEnter" 
       return
     end
 
+    vim.api.nvim_set_option_value("number", true, { win = win })
     vim.api.nvim_set_option_value("relativenumber", true, { win = win })
     vim.api.nvim_set_option_value("signcolumn", "yes:1", { win = win })
     vim.api.nvim_set_option_value(
