@@ -62,13 +62,31 @@ local function is_visual(mode)
   return first == "v" or first == "V" or first == "\22"
 end
 
+-- arrival.wav
+-- bloom.wav
+-- chime.wav
+-- droplet.wav
+-- error.wav
+-- loading.wav
+-- page.wav
+-- press.wav
+-- pulse.wav
+-- ready.wav
+-- release.wav
+-- scan.wav
+-- sparkle.wav
+-- success.wav
+-- tick.wav
+-- toggle.wav
+-- whisper.wav
+
 vim.api.nvim_create_autocmd("ModeChanged", {
   group = group,
   callback = function(event)
     local old_mode, new_mode = event.match:match("^(.-):(.*)$")
     if new_mode:sub(1, 1) == "c" and old_mode:sub(1, 1) ~= "c" then
       local cmdtype = vim.fn.getcmdtype()
-      play(cmdtype == ":" and "droplet" or "bloom")
+      play(cmdtype == ":" and "arrival" or "bloom")
     elseif old_mode and is_visual(old_mode) ~= is_visual(new_mode) then
       play("toggle")
     end
