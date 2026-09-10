@@ -105,7 +105,7 @@ local function apply()
 
     Select = { bg = p.bg },
     YankHighlight = {
-      fg = color.adjust_hex(p.green, 0.5),
+      fg = p.surface2,
       bg = color.adjust_hex(p.green, 0.5),
     },
     VisualNonText = {
