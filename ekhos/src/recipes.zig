@@ -55,22 +55,22 @@ pub fn filename(cue: Cue) []const u8 {
 
 pub fn duration(cue: Cue) f64 {
     return switch (cue) {
-        .chime => 0.5,
-        .sparkle => 0.4,
-        .droplet => 0.35,
-        .bloom => 0.7,
+        .chime => 0.75,
+        .sparkle => 0.5,
+        .droplet => 0.5,
+        .bloom => 0.9,
         .whisper => 0.35,
         .tick, .press => 0.06,
         .release => 0.12,
         .toggle => 0.1,
-        .success => 0.4,
+        .success => 0.65,
         .error_cue => 0.3,
         .page => 0.2,
-        .loading => 0.45,
-        .ready => 0.5,
+        .loading => 0.6,
+        .ready => 0.7,
         .pulse => 0.2,
-        .scan => 0.3,
-        .arrival => 0.75,
+        .scan => 0.4,
+        .arrival => 1.1,
     };
 }
 

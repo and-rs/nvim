@@ -6,7 +6,7 @@ zetesis:
     cd zetesis && zig build
 
 ekhos:
-    cd ekhos && zig build
+    cd ekhos && zig build && zig-out/bin/ekhos-render
 
 test:
     cd zetesis && zig build test
