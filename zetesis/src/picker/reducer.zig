@@ -45,18 +45,3 @@ pub fn reduce(mode: state.Mode, command: key_decoder.Command) Effect {
         .up => .move_up,
     };
 }
-
-test "escape quits files but returns from help" {
-    try std.testing.expectEqual(Effect.quit, reduce(.files, .back));
-    try std.testing.expectEqual(Effect.switch_files, reduce(.help, .back));
-}
-
-test "help key only switches from files" {
-    try std.testing.expectEqual(Effect.switch_help, reduce(.files, .help));
-    try std.testing.expectEqual(Effect.none, reduce(.help, .help));
-}
-
-test "file-only actions stay out of help search" {
-    try std.testing.expectEqual(Effect.mark, reduce(.files, .mark));
-    try std.testing.expectEqual(Effect.none, reduce(.help, .mark));
-}

@@ -27,8 +27,3 @@ pub fn collectProjectEntries(allocator: std.mem.Allocator, io: std.Io, cwd: []co
 
     return walk.collectEntries(allocator, io, dir);
 }
-
-test {
-    _ = git;
-    _ = walk;
-}

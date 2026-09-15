@@ -1,14 +1,15 @@
 const std = @import("std");
 const vaxis = @import("vaxis");
+const zetesis = @import("zetesis");
 
-const matcher = @import("match/mod.zig");
-const files = @import("files/mod.zig");
-const picker = @import("picker/mod.zig");
-const actions = @import("picker/actions.zig");
-const candidates = @import("candidates.zig");
-const protocol = @import("picker/protocol.zig");
-const GitStatus = @import("files/git.zig").GitStatus;
-const flags = @import("flags.zig");
+const matcher = zetesis.matcher;
+const files = zetesis.files;
+const picker = zetesis.picker;
+const actions = zetesis.actions;
+const candidates = zetesis.candidates;
+const protocol = zetesis.protocol;
+const GitStatus = zetesis.git.GitStatus;
+const flags = zetesis.flags;
 const Config = flags.Config;
 
 pub const panic = vaxis.panic_handler;
@@ -265,17 +266,4 @@ fn collectLines(
         try lines.append(allocator, line);
     }
     return lines.toOwnedSlice(allocator);
-}
-
-test {
-    _ = actions;
-    _ = files;
-    _ = matcher;
-    _ = picker;
-    _ = @import("picker/key_decoder.zig");
-    _ = @import("picker/reducer.zig");
-    _ = @import("picker/state.zig");
-    _ = @import("picker/protocol.zig");
-    _ = @import("picker/results.zig");
-    _ = @import("candidates.zig");
 }

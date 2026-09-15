@@ -17,7 +17,7 @@ pub const Config = struct {
     debug_scores: bool = false,
 };
 
-const Flag = enum {
+pub const Flag = enum {
     cwd,
     help,
     plain,
@@ -36,7 +36,7 @@ const FlagMetadata = struct {
     description: []const u8,
 };
 
-const CommandMetadata = struct {
+pub const CommandMetadata = struct {
     name: []const u8,
     mode: Mode,
     description: []const u8,
@@ -140,14 +140,14 @@ fn isHelpFlag(arg: []const u8) bool {
     return std.mem.eql(u8, arg, help.long) or std.mem.eql(u8, arg, help.short.?);
 }
 
-fn findCommand(name: []const u8) ?*const CommandMetadata {
+pub fn findCommand(name: []const u8) ?*const CommandMetadata {
     for (&commands) |*command| {
         if (std.mem.eql(u8, name, command.name)) return command;
     }
     return null;
 }
 
-fn findFlag(
+pub fn findFlag(
     command: *const CommandMetadata,
     name: []const u8,
 ) ?Flag {
@@ -248,13 +248,4 @@ fn writeGridRow(
     try writer.writeAll(label);
     for (label.len..width) |_| try writer.writeByte(' ');
     try writer.print("  {s}\n", .{description});
-}
-
-test "command metadata scopes flags" {
-    const stdin_command = findCommand("stdin").?;
-    const files_command = findCommand("files").?;
-
-    try std.testing.expectEqual(Flag.filter, findFlag(stdin_command, "-f").?);
-    try std.testing.expect(findFlag(stdin_command, "--cwd") == null);
-    try std.testing.expectEqual(Flag.cwd, findFlag(files_command, "--cwd").?);
 }

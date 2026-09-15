@@ -77,15 +77,3 @@ fn decodeByte(byte: ?u8, ctrl: bool) Command {
         else => .none,
     };
 }
-
-test "ctrl g opens help" {
-    try std.testing.expectEqual(Command.help, decodeInput(.{ .byte = 'g', .ctrl = true }));
-}
-
-test "f1 opens help" {
-    try std.testing.expectEqual(Command.help, decodeInput(.{ .special = .f1 }));
-}
-
-test "question mark is not help" {
-    try std.testing.expectEqual(Command.none, decodeInput(.{ .byte = '?' }));
-}

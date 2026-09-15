@@ -91,33 +91,3 @@ pub fn helpEntryAt(lines: []const []const u8, cursor: usize) ?HelpEntry {
     if (cursor >= lines.len) return null;
     return helpEntryForText(lines[cursor]);
 }
-
-test "help lines mirror help entries" {
-    try std.testing.expectEqual(help_entries.len, help_lines.len);
-    for (help_entries, 0..) |entry, index| {
-        try std.testing.expectEqualStrings(entry.text, help_lines[index]);
-    }
-}
-
-test "help actions dispatch to shared picker actions" {
-    try std.testing.expectEqual(HelpDispatch{ .file_action = .edit }, dispatchForHelpAction(.open));
-    try std.testing.expectEqual(HelpDispatch{ .file_action = .vsplit }, dispatchForHelpAction(.vsplit));
-    try std.testing.expectEqual(HelpDispatch.mark, dispatchForHelpAction(.mark));
-    try std.testing.expectEqual(HelpDispatch.back, dispatchForHelpAction(.back));
-    try std.testing.expectEqual(HelpDispatch.quit, dispatchForHelpAction(.quit));
-}
-
-test "action label parser matches labels" {
-    try std.testing.expectEqual(Action.edit, Action.parse("edit").?);
-    try std.testing.expectEqual(Action.vsplit, Action.parse("vsplit").?);
-    try std.testing.expectEqual(Action.tabedit, Action.parse("tabedit").?);
-    try std.testing.expectEqual(Action.quickfix, Action.parse("quickfix").?);
-    try std.testing.expectEqual(null, Action.parse("bogus"));
-}
-
-test "help entry lookup handles empty results" {
-    try std.testing.expectEqual(null, helpEntryAt(&.{}, 0));
-    try std.testing.expectEqual(null, helpEntryAt(&.{"missing"}, 0));
-    const entry = helpEntryAt(help_lines[0..], 0) orelse return error.MissingHelpEntry;
-    try std.testing.expectEqual(HelpAction.open, entry.action);
-}
