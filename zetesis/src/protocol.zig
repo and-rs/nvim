@@ -1,11 +1,11 @@
 const std = @import("std");
 
-const Action = @import("actions.zig").Action;
-const candidates = @import("../candidates.zig");
+const Action = @import("action.zig").Action;
+const jsonl = @import("jsonl.zig");
 
 pub const ResultEntry = struct {
     action: Action,
-    output: candidates.Output,
+    output: jsonl.Output,
 };
 
 pub fn formatResults(allocator: std.mem.Allocator, entries: []const ResultEntry) ![]const u8 {

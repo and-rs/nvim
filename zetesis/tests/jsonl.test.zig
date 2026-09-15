@@ -1,9 +1,9 @@
 const std = @import("std");
-const candidates = @import("zetesis").candidates;
+const jsonl = @import("zetesis").jsonl;
 
 test "parse minimal file candidate" {
-    const parsed = try candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"file\",\"path\":\"src/main.zig\"}\n");
-    defer candidates.deinitCandidates(std.testing.allocator, parsed);
+    const parsed = try jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"file\",\"path\":\"src/main.zig\"}\n");
+    defer jsonl.deinitCandidates(std.testing.allocator, parsed);
 
     try std.testing.expectEqual(@as(usize, 1), parsed.len);
     try std.testing.expectEqualStrings("src/main.zig", parsed[0].match_text);
@@ -12,8 +12,8 @@ test "parse minimal file candidate" {
 }
 
 test "parse location candidate" {
-    const parsed = try candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"location\",\"path\":\"src/main.zig\",\"line\":10,\"col\":5,\"text\":\"main\"}\n");
-    defer candidates.deinitCandidates(std.testing.allocator, parsed);
+    const parsed = try jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"location\",\"path\":\"src/main.zig\",\"line\":10,\"col\":5,\"text\":\"main\"}\n");
+    defer jsonl.deinitCandidates(std.testing.allocator, parsed);
 
     try std.testing.expectEqual(@as(usize, 1), parsed.len);
     try std.testing.expectEqualStrings("main", parsed[0].match_text);
@@ -24,8 +24,8 @@ test "parse location candidate" {
 }
 
 test "parse text candidate" {
-    const parsed = try candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"text\",\"text\":\"hello\"}\n");
-    defer candidates.deinitCandidates(std.testing.allocator, parsed);
+    const parsed = try jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"text\",\"text\":\"hello\"}\n");
+    defer jsonl.deinitCandidates(std.testing.allocator, parsed);
 
     try std.testing.expectEqual(@as(usize, 1), parsed.len);
     try std.testing.expectEqualStrings("hello", parsed[0].match_text);
@@ -34,12 +34,12 @@ test "parse text candidate" {
 }
 
 test "match and display fallback rules" {
-    const parsed = try candidates.parseJsonl(
+    const parsed = try jsonl.parseJsonl(
         std.testing.allocator,
         "{\"kind\":\"file\",\"path\":\"src/main.zig\",\"display\":\"main file\",\"match\":\"main\",\"action\":\"vsplit\"}\n" ++
             "{\"kind\":\"text\",\"display\":\"Shown\",\"match\":\"Find me\"}\n",
     );
-    defer candidates.deinitCandidates(std.testing.allocator, parsed);
+    defer jsonl.deinitCandidates(std.testing.allocator, parsed);
 
     try std.testing.expectEqualStrings("main", parsed[0].match_text);
     try std.testing.expectEqualStrings("main file", parsed[0].display_text);
@@ -51,21 +51,21 @@ test "match and display fallback rules" {
 }
 
 test "invalid action returns error" {
-    try std.testing.expectError(error.InvalidAction, candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"file\",\"path\":\"src/main.zig\",\"action\":\"bogus\"}\n"));
+    try std.testing.expectError(error.InvalidAction, jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"file\",\"path\":\"src/main.zig\",\"action\":\"bogus\"}\n"));
 }
 
 test "parse malformed json returns error" {
-    try std.testing.expectError(error.InvalidJson, candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"file\"\n"));
+    try std.testing.expectError(error.InvalidJson, jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"file\"\n"));
 }
 
 test "missing required field returns error" {
-    try std.testing.expectError(error.MissingPath, candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"file\"}\n"));
+    try std.testing.expectError(error.MissingPath, jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"file\"}\n"));
 }
 
 test "unknown kind returns error" {
-    try std.testing.expectError(error.UnknownKind, candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"whatever\",\"text\":\"x\"}\n"));
+    try std.testing.expectError(error.UnknownKind, jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"whatever\",\"text\":\"x\"}\n"));
 }
 
 test "invalid field type returns error" {
-    try std.testing.expectError(error.InvalidFieldType, candidates.parseJsonl(std.testing.allocator, "{\"kind\":\"location\",\"path\":\"src/main.zig\",\"line\":\"ten\"}\n"));
+    try std.testing.expectError(error.InvalidFieldType, jsonl.parseJsonl(std.testing.allocator, "{\"kind\":\"location\",\"path\":\"src/main.zig\",\"line\":\"ten\"}\n"));
 }

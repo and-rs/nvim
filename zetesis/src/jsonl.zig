@@ -1,5 +1,5 @@
 const std = @import("std");
-const Action = @import("picker/actions.zig").Action;
+const Action = @import("action.zig").Action;
 
 pub const ParseError = error{
     InvalidJson,
