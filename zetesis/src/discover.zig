@@ -58,6 +58,7 @@ const GitJob = struct {
     stdout: ?[]u8 = null,
     stderr: ?[]u8 = null,
     ok: bool = false,
+    done: std.atomic.Value(bool) = .init(false),
 
     fn deinit(self: *GitJob) void {
         if (self.stdout) |stdout| self.allocator.free(stdout);
@@ -67,24 +68,55 @@ const GitJob = struct {
     }
 };
 
-pub const Discover = struct {
+const FdJob = struct {
     allocator: Allocator,
     io: std.Io,
     cwd: std.process.Child.Cwd,
     fd_bin: []const u8,
-    leftover: std.ArrayList(u8) = .empty,
-    fd_child: ?std.process.Child = null,
+    mutex: std.atomic.Mutex = .unlocked,
+    queue: std.ArrayList([]u8) = .empty,
+    child: ?std.process.Child = null,
+    stop: std.atomic.Value(bool) = .init(false),
+    done: std.atomic.Value(bool) = .init(false),
+
+    fn deinit(self: *FdJob) void {
+        for (self.queue.items) |path| self.allocator.free(path);
+        self.queue.deinit(self.allocator);
+    }
+
+    fn pushPath(self: *FdJob, path: []const u8) void {
+        const cleaned = normalizePath(path);
+        if (cleaned.len == 0) return;
+        const owned = self.allocator.dupe(u8, cleaned) catch return;
+        while (!self.mutex.tryLock()) {}
+        defer self.mutex.unlock();
+        self.queue.append(self.allocator, owned) catch {
+            self.allocator.free(owned);
+        };
+    }
+};
+
+pub const Discover = struct {
+    allocator: Allocator,
+    io: std.Io,
+    fd_job: FdJob,
     git_job: GitJob,
+    fd_thread: ?std.Thread = null,
     git_thread: ?std.Thread = null,
     finished: bool = false,
+    overlaid: bool = false,
 
     pub fn start(self: *Discover, allocator: Allocator, io: std.Io, cwd: std.process.Child.Cwd) !void {
         const fd_bin = findFd(io, cwd) orelse return error.FdMissing;
         self.* = .{
             .allocator = allocator,
             .io = io,
-            .cwd = cwd,
-            .fd_bin = fd_bin,
+            .fd_job = .{
+                .allocator = allocator,
+                .io = io,
+                .cwd = cwd,
+                .fd_bin = fd_bin,
+            },
             .git_job = .{
                 .allocator = allocator,
                 .io = io,
@@ -94,108 +126,88 @@ pub const Discover = struct {
 
         self.git_thread = try std.Thread.spawn(.{}, gitWorker, .{&self.git_job});
         errdefer {
-            self.joinGit();
+            self.stopWorkers();
+            self.fd_job.deinit();
             self.git_job.deinit();
-            self.leftover.deinit(self.allocator);
         }
 
-        self.fd_child = spawnFd(io, cwd, mainFdArgv(fd_bin)) catch |err| switch (err) {
+        self.fd_job.child = spawnFd(io, cwd, mainFdArgv(fd_bin)) catch |err| switch (err) {
             error.FileNotFound => return error.FdMissing,
             else => |e| return e,
         };
+        self.fd_thread = try std.Thread.spawn(.{}, fdWorker, .{&self.fd_job});
     }
 
     pub fn deinit(self: *Discover) void {
-        self.killFd();
-        self.joinGit();
+        self.stopWorkers();
+        self.fd_job.deinit();
         self.git_job.deinit();
-        self.leftover.deinit(self.allocator);
         self.* = undefined;
     }
 
     pub fn pump(self: *Discover, index: *Index) !Pump {
         if (self.finished) return .done;
 
-        if (self.fd_child) |*child| {
-            const stdout = child.stdout orelse return error.Unexpected;
-            var chunk: [65536]u8 = undefined;
-            const n = stdout.readStreaming(self.io, &.{chunk[0..]}) catch |err| switch (err) {
-                error.EndOfStream => {
-                    try self.finish(index);
-                    return .done;
-                },
-                else => |e| return e,
-            };
-            try takeNulPaths(index, &self.leftover, chunk[0..n], false);
-            return .more;
-        }
+        try self.drainQueue(index);
 
-        try self.finish(index);
+        const fd_done = self.fd_job.done.load(.acquire);
+        const git_done = self.git_job.done.load(.acquire);
+        if (!(fd_done and git_done)) return .more;
+
+        self.joinWorkers();
+        if (!self.overlaid) {
+            try overlayGit(index, &self.git_job);
+            self.overlaid = true;
+        }
+        self.finished = true;
         return .done;
     }
 
-    fn finish(self: *Discover, index: *Index) !void {
-        try self.flushLeftover(index);
-        self.closeFd();
-        try self.mergeEnvFiles(index);
-        self.joinGit();
-        try overlayGit(index, &self.git_job);
-        self.finished = true;
-    }
-
-    fn closeFd(self: *Discover) void {
-        if (self.fd_child) |*child| {
-            _ = child.wait(self.io) catch {};
-            self.fd_child = null;
+    fn drainQueue(self: *Discover, index: *Index) !void {
+        if (!self.fd_job.mutex.tryLock()) return;
+        defer self.fd_job.mutex.unlock();
+        for (self.fd_job.queue.items) |path| {
+            try index.add(path);
+            self.allocator.free(path);
         }
+        self.fd_job.queue.clearRetainingCapacity();
     }
 
-    fn killFd(self: *Discover) void {
-        if (self.fd_child) |*child| {
+    fn stopWorkers(self: *Discover) void {
+        self.fd_job.stop.store(true, .release);
+        if (self.fd_job.child) |*child| {
             child.kill(self.io);
-            self.fd_child = null;
+            self.fd_job.child = null;
         }
+        self.joinWorkers();
     }
 
-    fn joinGit(self: *Discover) void {
+    fn joinWorkers(self: *Discover) void {
+        if (self.fd_thread) |thread| {
+            thread.join();
+            self.fd_thread = null;
+        }
         if (self.git_thread) |thread| {
             thread.join();
             self.git_thread = null;
         }
     }
-
-    fn flushLeftover(self: *Discover, index: *Index) !void {
-        if (self.leftover.items.len == 0) return;
-        try index.add(self.leftover.items);
-        self.leftover.clearRetainingCapacity();
-    }
-
-    fn mergeEnvFiles(self: *Discover, index: *Index) !void {
-        const result = std.process.run(self.allocator, self.io, .{
-            .argv = envFdArgv(self.fd_bin),
-            .cwd = self.cwd,
-        }) catch return;
-        defer self.allocator.free(result.stdout);
-        defer self.allocator.free(result.stderr);
-        switch (result.term) {
-            .exited => |code| if (code != 0) return,
-            else => return,
-        }
-        try takeNulPaths(index, &self.leftover, result.stdout, true);
-    }
 };
 
 pub fn collect(allocator: Allocator, io: std.Io, cwd: std.process.Child.Cwd) !Index {
-    var discover: Discover = undefined;
-    try discover.start(allocator, io, cwd);
-    defer discover.deinit();
+    var d: Discover = undefined;
+    try d.start(allocator, io, cwd);
+    defer d.deinit();
     var index = Index.init(allocator);
     errdefer index.deinit();
-    while (try discover.pump(&index) == .more) {}
+    while (try d.pump(&index) == .more) {
+        try io.sleep(.fromMilliseconds(1), .real);
+    }
     return index;
 }
 
 fn gitWorker(job: *GitJob) void {
+    defer job.done.store(true, .release);
     const result = std.process.run(job.allocator, job.io, .{
         .argv = &.{ "git", "status", "--porcelain=v1", "-z" },
         .cwd = job.cwd,
@@ -206,6 +218,63 @@ fn gitWorker(job: *GitJob) void {
         .exited => |code| code == 0,
         else => false,
     };
+}
+
+fn fdWorker(job: *FdJob) void {
+    defer job.done.store(true, .release);
+    drinkFd(job);
+    if (job.stop.load(.acquire)) return;
+    mergeEnvFiles(job);
+}
+
+fn drinkFd(job: *FdJob) void {
+    const stdout = (job.child orelse return).stdout orelse return;
+    var leftover: std.ArrayList(u8) = .empty;
+    defer leftover.deinit(job.allocator);
+    while (!job.stop.load(.acquire)) {
+        var chunk: [65536]u8 = undefined;
+        const n = stdout.readStreaming(job.io, &.{chunk[0..]}) catch |err| switch (err) {
+            error.EndOfStream => {
+                if (leftover.items.len > 0) job.pushPath(leftover.items);
+                return;
+            },
+            else => return,
+        };
+        takeNulIntoJob(job, &leftover, chunk[0..n]);
+    }
+}
+
+fn takeNulIntoJob(job: *FdJob, leftover: *std.ArrayList(u8), chunk: []const u8) void {
+    var start: usize = 0;
+    while (start < chunk.len) {
+        const rel = std.mem.indexOfScalarPos(u8, chunk, start, 0) orelse break;
+        if (leftover.items.len > 0) {
+            leftover.appendSlice(job.allocator, chunk[start..rel]) catch return;
+            job.pushPath(leftover.items);
+            leftover.clearRetainingCapacity();
+        } else {
+            job.pushPath(chunk[start..rel]);
+        }
+        start = rel + 1;
+    }
+    if (start < chunk.len) leftover.appendSlice(job.allocator, chunk[start..]) catch {};
+}
+
+fn mergeEnvFiles(job: *FdJob) void {
+    const result = std.process.run(job.allocator, job.io, .{
+        .argv = envFdArgv(job.fd_bin),
+        .cwd = job.cwd,
+    }) catch return;
+    defer job.allocator.free(result.stdout);
+    defer job.allocator.free(result.stderr);
+    switch (result.term) {
+        .exited => |code| if (code != 0) return,
+        else => return,
+    }
+    var leftover: std.ArrayList(u8) = .empty;
+    defer leftover.deinit(job.allocator);
+    takeNulIntoJob(job, &leftover, result.stdout);
+    if (leftover.items.len > 0) job.pushPath(leftover.items);
 }
 
 fn overlayGit(index: *Index, job: *GitJob) !void {
@@ -276,26 +345,6 @@ fn spawnFd(io: std.Io, cwd: std.process.Child.Cwd, argv: []const []const u8) !st
         .stdout = .pipe,
         .stderr = .ignore,
     });
-}
-
-fn takeNulPaths(index: *Index, leftover: *std.ArrayList(u8), chunk: []const u8, flush: bool) !void {
-    var start: usize = 0;
-    while (start < chunk.len) {
-        const rel = std.mem.indexOfScalarPos(u8, chunk, start, 0) orelse break;
-        if (leftover.items.len > 0) {
-            try leftover.appendSlice(index.allocator, chunk[start..rel]);
-            try index.add(leftover.items);
-            leftover.clearRetainingCapacity();
-        } else {
-            try index.add(chunk[start..rel]);
-        }
-        start = rel + 1;
-    }
-    if (start < chunk.len) try leftover.appendSlice(index.allocator, chunk[start..]);
-    if (flush and leftover.items.len > 0) {
-        try index.add(leftover.items);
-        leftover.clearRetainingCapacity();
-    }
 }
 
 fn normalizePath(path: []const u8) []const u8 {

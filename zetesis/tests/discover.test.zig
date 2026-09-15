@@ -82,6 +82,7 @@ test "pump drains until done" {
     while (try d.pump(&index) == .more) {
         steps += 1;
         if (steps > 10_000) return error.TestUnexpectedResult;
+        try io.sleep(.fromMilliseconds(1), .real);
     }
     try std.testing.expect(index.contains("a.txt"));
     try std.testing.expect(index.contains("b.txt"));

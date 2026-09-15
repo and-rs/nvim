@@ -5,3 +5,11 @@
 - flag parsing already has a reasonable shape:
   - we need to generate help output dynamically (not hardcode a print).
   - we need to have robust parsing, args, positions, actions, etc.
+
+- this right here, should be the threaded/concurrent architecture
+
+```
+fd thread (drink + .env merge) ─┐
+git thread (already there)     ─┼─ queue ─ tick drain ─ append rows ─ redraw
+vxfw: keys + draw              ─┘
+```

@@ -3,6 +3,7 @@ const vaxis = @import("vaxis");
 const zetesis = @import("zetesis");
 
 const flags = zetesis.flags;
+const picker = zetesis.picker;
 
 pub const panic = vaxis.panic_handler;
 
@@ -36,5 +37,34 @@ pub fn main(init: std.process.Init) anyerror!void {
     defer Standard.flushAll();
 
     const args = try init.minimal.args.toSlice(allocator);
-    _ = flags.parse(args, Standard.err(), Standard.out());
+    const config = flags.parse(args, Standard.err(), Standard.out());
+
+    switch (config.mode) {
+        .stdin => {
+            try Standard.err().writeAll("stdin mode is not wired yet\n");
+            std.process.exit(1);
+        },
+        .files => try runFiles(init, allocator, config),
+    }
+}
+
+fn runFiles(init: std.process.Init, allocator: std.mem.Allocator, config: flags.Config) !void {
+    const cwd: std.process.Child.Cwd = if (config.cwd) |path| .{ .path = path } else .inherit;
+    var selection = picker.run(init, allocator, .{
+        .cwd = cwd,
+        .output_file = config.output_file,
+    }) catch |err| switch (err) {
+        error.FdMissing => {
+            try Standard.err().writeAll("fd binary missing\n");
+            std.process.exit(1);
+        },
+        else => |e| return e,
+    };
+    defer selection.deinit(allocator);
+
+    if (selection.paths.len == 0) std.process.exit(130);
+
+    const payload = try picker.formatSelection(allocator, selection);
+    defer allocator.free(payload);
+    try picker.writeOutput(init.io, Standard.out(), payload, config.output_file);
 }
