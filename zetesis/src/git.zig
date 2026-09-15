@@ -25,7 +25,7 @@ pub fn collectNulDelimitedLines(allocator: std.mem.Allocator, input: []const u8)
     return lines.toOwnedSlice(allocator);
 }
 
-fn gitStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.StringHashMap(GitStatus) {
+pub fn parseStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.StringHashMap(GitStatus) {
     var map = std.StringHashMap(GitStatus).init(allocator);
     errdefer map.deinit();
 
@@ -50,7 +50,7 @@ fn gitStatusMap(allocator: std.mem.Allocator, status_output: []const u8) !std.St
 }
 
 pub fn gitStatusForPath(allocator: std.mem.Allocator, status_output: []const u8, path: []const u8) !GitStatus {
-    var map = try gitStatusMap(allocator, status_output);
+    var map = try parseStatusMap(allocator, status_output);
     defer map.deinit();
     return map.get(path) orelse .none;
 }
