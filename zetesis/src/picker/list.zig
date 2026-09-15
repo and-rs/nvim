@@ -147,9 +147,10 @@ pub const State = struct {
         }
     }
 
-    fn scoreText(arena: std.mem.Allocator, score: f64) ![]const u8 {
+    fn scoreText(arena: std.mem.Allocator, score: f64) !?[]const u8 {
         const rounded: i64 = @intFromFloat(@round(score));
-        return std.fmt.allocPrint(arena, "{d}", .{rounded});
+        if (rounded == 0) return null;
+        return try std.fmt.allocPrint(arena, "{d}", .{rounded});
     }
 
     fn appendRowBoxes(self: *State, arena: std.mem.Allocator) !void {
@@ -224,9 +225,14 @@ test "score text appears only when enabled" {
 }
 
 test "score text is rounded integer" {
-    const text = try State.scoreText(std.testing.allocator, 12.75);
+    const text = try State.scoreText(std.testing.allocator, 12.75) orelse return error.TestUnexpectedResult;
     defer std.testing.allocator.free(text);
     try std.testing.expectEqualStrings("13", text);
+}
+
+test "score text is hidden at zero" {
+    try std.testing.expectEqual(@as(?[]const u8, null), try State.scoreText(std.testing.allocator, 0));
+    try std.testing.expectEqual(@as(?[]const u8, null), try State.scoreText(std.testing.allocator, 0.4));
 }
 
 test "list rows get git status and match indexes" {

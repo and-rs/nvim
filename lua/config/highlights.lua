@@ -106,7 +106,10 @@ local function apply()
     Select = { bg = p.bg },
     YankHighlight = {
       fg = p.surface2,
-      bg = color.adjust_hex(p.green, 0.5),
+      bg = color.adjust_hex(p.cyan, 0.8),
+    },
+    Whitespace = {
+      fg = p.surface3,
     },
     VisualNonText = {
       fg = color.adjust_hex(p.selection, 1.1),
