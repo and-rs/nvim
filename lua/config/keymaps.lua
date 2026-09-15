@@ -15,7 +15,7 @@ map(
 )
 
 map("n", "<leader>sf", function()
-  require("config.zetesis").files()
+  require("zetesis.files").open()
 end, "Zetesis files")
 -- quickfix navigation
 map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")

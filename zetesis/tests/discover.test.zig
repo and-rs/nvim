@@ -88,6 +88,14 @@ test "pump drains until done" {
     try std.testing.expect(index.contains("b.txt"));
 }
 
+test "static indexes retain duplicate input" {
+    var index = discover.Index.init(std.testing.allocator);
+    defer index.deinit();
+    try index.append("same");
+    try index.append("same");
+    try std.testing.expectEqual(@as(usize, 2), index.items.items.len);
+}
+
 fn collectOrSkip(dir: std.Io.Dir) !discover.Index {
     return discover.collect(std.testing.allocator, std.testing.io, .{ .dir = dir }) catch |err| switch (err) {
         error.FdMissing => return error.SkipZigTest,

@@ -1,5 +1,7 @@
 pub const discover = @import("discover.zig");
 pub const flags = @import("flags.zig");
+pub const fields = @import("fields.zig");
 pub const git = @import("git.zig");
+pub const match = @import("match.zig");
 pub const picker = @import("picker.zig");
 pub const row = @import("row.zig");

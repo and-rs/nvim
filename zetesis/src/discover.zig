@@ -32,11 +32,16 @@ pub const Index = struct {
         const cleaned = normalizePath(path);
         if (cleaned.len == 0) return;
         if (self.by_path.contains(cleaned)) return;
+        try self.append(cleaned);
+        try self.by_path.put(self.items.items[self.items.items.len - 1].path, self.items.items.len - 1);
+    }
+
+    pub fn append(self: *Index, path: []const u8) !void {
+        const cleaned = normalizePath(path);
+        if (cleaned.len == 0) return;
         const owned = try self.allocator.dupe(u8, cleaned);
         errdefer self.allocator.free(owned);
-        const item_index = self.items.items.len;
         try self.items.append(self.allocator, .{ .path = owned });
-        try self.by_path.put(owned, item_index);
     }
 
     pub fn contains(self: *const Index, path: []const u8) bool {

@@ -33,7 +33,10 @@ pub fn widget(self: *const Row) vxfw.Widget {
 
 fn typeErasedDrawFn(ptr: *anyopaque, ctx: vxfw.DrawContext) std.mem.Allocator.Error!vxfw.Surface {
     const self: *const Row = @ptrCast(@alignCast(ptr));
-    const max = ctx.max.size();
+    const max: vxfw.Size = .{
+        .width = ctx.max.width orelse ctx.min.width,
+        .height = ctx.max.height orelse 1,
+    };
     const surface = try vxfw.Surface.init(ctx.arena, self.widget(), .{ .width = max.width, .height = 1 });
     const base_style = if (self.isCurrent()) self.styles.current else self.styles.normal;
     @memset(surface.buffer, .{ .style = base_style });
