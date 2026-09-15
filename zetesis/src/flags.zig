@@ -3,7 +3,6 @@ const std = @import("std");
 pub const Mode = enum {
     stdin,
     files,
-    candidates,
 };
 
 pub const Config = struct {
@@ -12,7 +11,12 @@ pub const Config = struct {
     cwd: ?[]const u8 = null,
     current_file: ?[]const u8 = null,
     output_file: ?[]const u8 = null,
+    delimiter: ?[]const u8 = null,
+    nth: ?[]const u8 = null,
+    with_nth: ?[]const u8 = null,
+    accept_nth: ?[]const u8 = null,
     plain: bool = false,
+    ansi: bool = false,
     show_scores: bool = true,
     debug_scores: bool = false,
 };
@@ -26,6 +30,11 @@ pub const Flag = enum {
     current_file,
     debug_scores,
     hide_scores,
+    delimiter,
+    nth,
+    with_nth,
+    accept_nth,
+    ansi,
 };
 
 const FlagMetadata = struct {
@@ -50,6 +59,11 @@ const flag_definitions = [_]FlagMetadata{
     .{ .id = .cwd, .long = "--cwd", .value_name = "PATH", .description = "Working directory for file discovery." },
     .{ .id = .output_file, .long = "--output-file", .value_name = "PATH", .description = "Write the selection after the TUI exits." },
     .{ .id = .current_file, .long = "--current-file", .value_name = "PATH", .description = "Current editor file path." },
+    .{ .id = .delimiter, .long = "--delimiter", .value_name = "REGEX", .description = "Split input lines into fields." },
+    .{ .id = .nth, .long = "--nth", .value_name = "FIELDS", .description = "Fields used for matching." },
+    .{ .id = .with_nth, .long = "--with-nth", .value_name = "FIELDS", .description = "Fields shown in the picker." },
+    .{ .id = .accept_nth, .long = "--accept-nth", .value_name = "FIELDS", .description = "Fields written after selection." },
+    .{ .id = .ansi, .long = "--ansi", .description = "Render ANSI color codes in input." },
     .{ .id = .debug_scores, .long = "--debug-scores", .description = "Print score breakdowns in filter mode." },
     .{ .id = .hide_scores, .long = "--hide-scores", .description = "Hide the score column in the interactive TUI." },
 };
@@ -61,6 +75,11 @@ const shared_input_flags = [_]Flag{
     .output_file,
     .debug_scores,
     .hide_scores,
+    .delimiter,
+    .nth,
+    .with_nth,
+    .accept_nth,
+    .ansi,
 };
 const files_flags = [_]Flag{
     .help,
@@ -76,7 +95,6 @@ const files_flags = [_]Flag{
 const commands = [_]CommandMetadata{
     .{ .name = "stdin", .mode = .stdin, .description = "Pick newline-delimited input from stdin.", .flags = &shared_input_flags },
     .{ .name = "files", .mode = .files, .description = "Pick project files with Git-status ranking.", .flags = &files_flags },
-    .{ .name = "candidates", .mode = .candidates, .description = "Pick JSONL candidates from stdin.", .flags = &shared_input_flags },
 };
 
 pub fn parse(
@@ -130,6 +148,11 @@ fn applyFlag(
         .filter => config.filter = nextArg(args, index, stderr, command),
         .output_file => config.output_file = nextArg(args, index, stderr, command),
         .current_file => config.current_file = nextArg(args, index, stderr, command),
+        .delimiter => config.delimiter = nextArg(args, index, stderr, command),
+        .nth => config.nth = nextArg(args, index, stderr, command),
+        .with_nth => config.with_nth = nextArg(args, index, stderr, command),
+        .accept_nth => config.accept_nth = nextArg(args, index, stderr, command),
+        .ansi => config.ansi = true,
         .debug_scores => config.debug_scores = true,
         .hide_scores => config.show_scores = false,
     }
