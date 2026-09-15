@@ -73,6 +73,23 @@ test "growing the index rematches without looping" {
     try std.testing.expect(!result.changed);
 }
 
+test "file footer shows counts and help hint" {
+    const allocator = std.testing.allocator;
+    const footer = try picker.formatFooter(allocator, .files, 3, 10, false, false);
+    defer allocator.free(footer);
+    try std.testing.expectEqualStrings("3 / 10 files · ctrl-g help", footer);
+
+    const marked = try picker.formatFooter(allocator, .files, 3, 10, true, true);
+    defer allocator.free(marked);
+    try std.testing.expectEqualStrings("3 / 10 files … · marked · ctrl-g help", marked);
+}
+
+test "help footer is static" {
+    const footer = try picker.formatFooter(std.testing.allocator, .help, 2, 10, true, true);
+    defer std.testing.allocator.free(footer);
+    try std.testing.expectEqualStrings("esc files · enter run", footer);
+}
+
 fn pumpIdle(session: *picker.Session) !void {
     var steps: usize = 0;
     while ((try session.step(null)).busy) {

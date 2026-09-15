@@ -1,28 +1,17 @@
 const std = @import("std");
 const vaxis = @import("vaxis");
+const actions = @import("actions.zig");
+const keys = @import("keys.zig");
 const discover = @import("discover.zig");
 const matcher = @import("match/path.zig");
 const fuzzy = @import("match/fuzzy.zig");
 const Row = @import("row.zig");
+const GitStatus = @import("git.zig").GitStatus;
 const vxfw = vaxis.vxfw;
 const Index = discover.Index;
 const Discover = discover.Discover;
 
-pub const Action = enum {
-    edit,
-    vsplit,
-    tabedit,
-    quickfix,
-
-    pub fn label(self: Action) []const u8 {
-        return switch (self) {
-            .edit => "edit",
-            .vsplit => "vsplit",
-            .tabedit => "tabedit",
-            .quickfix => "quickfix",
-        };
-    }
-};
+pub const Action = actions.Action;
 
 pub const Selection = struct {
     action: Action = .edit,
@@ -216,6 +205,12 @@ const Model = struct {
     streaming: bool = true,
     display_texts: ?[]const []const u8 = null,
     output_texts: ?[]const []const u8 = null,
+    mode: keys.Mode = .files,
+    help_query: []const u8 = &.{},
+    help_ranked: [actions.help_entries.len]actions.RankedHelp = undefined,
+    help_count: usize = 0,
+    file_cursor: u32 = 0,
+    help_cursor: u32 = 0,
 
     fn init(gpa: std.mem.Allocator, io: std.Io, cwd: std.process.Child.Cwd, match_options: matcher.Options, match_mode: MatchMode) !*Model {
         const model = try gpa.create(Model);
@@ -294,6 +289,7 @@ const Model = struct {
         self.text_field.deinit();
         self.footer_arena.deinit();
         self.match_arena.deinit();
+        if (self.help_query.len > 0) gpa.free(self.help_query);
         gpa.destroy(self);
     }
 
@@ -310,34 +306,9 @@ const Model = struct {
         const self: *Model = @ptrCast(@alignCast(ptr));
         switch (event) {
             .key_press => |key| {
-                if (key.matches(vaxis.Key.escape, .{}) or key.matches('c', .{ .ctrl = true })) {
-                    ctx.quit = true;
-                    return ctx.consumeAndRedraw();
-                }
-                if (key.matches(vaxis.Key.enter, .{})) {
-                    try self.finish(ctx, .edit);
-                    return;
-                }
-                if (key.matches('y', .{ .ctrl = true })) {
-                    try self.toggleMark(ctx);
-                    return;
-                }
-                if (key.matches('v', .{ .ctrl = true })) {
-                    try self.finish(ctx, .vsplit);
-                    return;
-                }
-                if (key.matches('t', .{ .ctrl = true })) {
-                    try self.finish(ctx, .tabedit);
-                    return;
-                }
-                if (key.matches(vaxis.Key.down, .{}) or key.matches('j', .{}) or key.matches('n', .{ .ctrl = true })) {
-                    self.scroll_view.nextItem(ctx);
-                    return ctx.consumeAndRedraw();
-                }
-                if (key.matches(vaxis.Key.up, .{}) or key.matches('k', .{}) or key.matches('p', .{ .ctrl = true })) {
-                    self.scroll_view.prevItem(ctx);
-                    return ctx.consumeAndRedraw();
-                }
+                const command = keys.decodeKey(key);
+                if (command == .none) return;
+                try self.applyEffect(ctx, keys.reduce(self.mode, command));
             },
             else => {},
         }
@@ -356,15 +327,41 @@ const Model = struct {
         }
     }
 
+    fn applyEffect(self: *Model, ctx: *vxfw.EventContext, effect: keys.Effect) !void {
+        switch (effect) {
+            .none => {},
+            .quit => {
+                ctx.quit = true;
+                return ctx.consumeAndRedraw();
+            },
+            .switch_files => try self.switchMode(ctx, .files),
+            .switch_help => try self.switchMode(ctx, .help),
+            .open => try self.open(ctx),
+            .mark => try self.toggleMark(ctx),
+            .vsplit => try self.finish(ctx, .vsplit),
+            .tabedit => try self.finish(ctx, .tabedit),
+            .move_down => {
+                self.scroll_view.nextItem(ctx);
+                self.saveCursor();
+                return ctx.consumeAndRedraw();
+            },
+            .move_up => {
+                self.scroll_view.prevItem(ctx);
+                self.saveCursor();
+                return ctx.consumeAndRedraw();
+            },
+        }
+    }
+
     fn ingest(self: *Model, ctx: *vxfw.EventContext) !void {
         const result = try self.session.step(if (self.has_discover) &self.discover else null);
-        if (result.changed) try self.syncRows();
+        if (self.mode == .files and result.changed) try self.syncFileRows();
         if (result.changed or result.streaming != self.streaming) ctx.redraw = true;
         self.streaming = result.streaming;
         if (result.busy) try ctx.tick(16, self.widget());
     }
 
-    fn syncRows(self: *Model) !void {
+    fn syncFileRows(self: *Model) !void {
         _ = self.match_arena.reset(.free_all);
         const items = self.session.index.items.items;
         if (self.rows.items.len > self.session.ranked.len) self.rows.clearRetainingCapacity();
@@ -376,31 +373,59 @@ const Model = struct {
                 .path => try matcher.match(self.match_arena.allocator(), item.path, self.session.query, self.session.match_options),
             };
             const match_indexes = if (matched) |result| result.indexes else &.{};
-            if (i < self.rows.items.len) {
-                self.rows.items[i].text = display_text;
-                self.rows.items[i].git_status = item.git;
-                self.rows.items[i].marked = self.isMarked(ranked.source_index);
-                self.rows.items[i].match_indexes = match_indexes;
-            } else {
-                try self.rows.append(self.gpa, .{
-                    .text = display_text,
-                    .index = i,
-                    .cursor = &self.scroll_view.cursor,
-                    .marked = self.isMarked(ranked.source_index),
-                    .git_status = item.git,
-                    .match_indexes = match_indexes,
-                });
-            }
+            try self.putRow(i, display_text, self.isMarked(ranked.source_index), item.git, match_indexes);
         }
-        self.scroll_view.item_count = @intCast(self.rows.items.len);
-        if (self.rows.items.len == 0) {
-            self.scroll_view.cursor = 0;
+        self.finishRows(self.session.ranked.len, self.file_cursor);
+    }
+
+    fn syncHelpRows(self: *Model) !void {
+        _ = self.match_arena.reset(.free_all);
+        self.help_count = actions.rankHelp(self.help_query, self.help_ranked[0..]);
+        if (self.rows.items.len > self.help_count) self.rows.clearRetainingCapacity();
+        for (self.help_ranked[0..self.help_count], 0..) |ranked, i| {
+            const entry = actions.help_entries[ranked.index];
+            const matched = if (self.help_query.len == 0) null else try fuzzy.match(self.match_arena.allocator(), entry.text, self.help_query, fuzzy.hasUpper(self.help_query));
+            const match_indexes = if (matched) |result| result.indexes else &.{};
+            try self.putRow(i, entry.text, false, .none, match_indexes);
+        }
+        self.finishRows(self.help_count, self.help_cursor);
+    }
+
+    fn putRow(self: *Model, i: usize, text: []const u8, marked: bool, git_status: GitStatus, match_indexes: []const usize) !void {
+        if (i < self.rows.items.len) {
+            self.rows.items[i].text = text;
+            self.rows.items[i].git_status = git_status;
+            self.rows.items[i].marked = marked;
+            self.rows.items[i].match_indexes = match_indexes;
             return;
         }
-        if (self.scroll_view.cursor >= self.rows.items.len) {
-            self.scroll_view.cursor = @intCast(self.rows.items.len - 1);
+        try self.rows.append(self.gpa, .{
+            .text = text,
+            .index = i,
+            .cursor = &self.scroll_view.cursor,
+            .marked = marked,
+            .git_status = git_status,
+            .match_indexes = match_indexes,
+        });
+    }
+
+    fn finishRows(self: *Model, count: usize, wanted_cursor: u32) void {
+        self.scroll_view.item_count = @intCast(count);
+        if (count == 0) {
+            self.scroll_view.cursor = 0;
+            self.saveCursor();
+            return;
         }
+        self.scroll_view.cursor = @min(wanted_cursor, @as(u32, @intCast(count - 1)));
+        self.saveCursor();
         self.scroll_view.ensureScroll();
+    }
+
+    fn saveCursor(self: *Model) void {
+        switch (self.mode) {
+            .files => self.file_cursor = self.scroll_view.cursor,
+            .help => self.help_cursor = self.scroll_view.cursor,
+        }
     }
 
     fn isMarked(self: *const Model, source_index: usize) bool {
@@ -411,6 +436,7 @@ const Model = struct {
     }
 
     fn toggleMark(self: *Model, ctx: *vxfw.EventContext) !void {
+        if (self.mode != .files) return ctx.consumeAndRedraw();
         const cursor = self.scroll_view.cursor;
         if (cursor >= self.rows.items.len) return ctx.consumeAndRedraw();
         const source_index = self.session.ranked[cursor].source_index;
@@ -421,7 +447,10 @@ const Model = struct {
             try self.marked.append(self.gpa, source_index);
             self.rows.items[cursor].marked = true;
         }
-        if (cursor + 1 < self.rows.items.len) self.scroll_view.nextItem(ctx);
+        if (cursor + 1 < self.rows.items.len) {
+            self.scroll_view.nextItem(ctx);
+            self.saveCursor();
+        }
         return ctx.consumeAndRedraw();
     }
 
@@ -435,15 +464,75 @@ const Model = struct {
     fn onSubmit(maybe_ptr: ?*anyopaque, ctx: *vxfw.EventContext, _: []const u8) anyerror!void {
         const ptr = maybe_ptr orelse return;
         const self: *Model = @ptrCast(@alignCast(ptr));
-        try self.finish(ctx, .edit);
+        try self.open(ctx);
     }
 
     fn onChange(maybe_ptr: ?*anyopaque, ctx: *vxfw.EventContext, query: []const u8) anyerror!void {
         const ptr = maybe_ptr orelse return;
         const self: *Model = @ptrCast(@alignCast(ptr));
-        if (!try self.session.setQuery(query)) return;
-        try ctx.tick(16, self.widget());
+        switch (self.mode) {
+            .help => {
+                if (std.mem.eql(u8, self.help_query, query)) return;
+                if (self.help_query.len > 0) self.gpa.free(self.help_query);
+                self.help_query = try self.gpa.dupe(u8, query);
+                try self.syncHelpRows();
+                return ctx.consumeAndRedraw();
+            },
+            .files => {
+                if (!try self.session.setQuery(query)) return;
+                try ctx.tick(16, self.widget());
+                return ctx.consumeAndRedraw();
+            },
+        }
+    }
+
+    fn open(self: *Model, ctx: *vxfw.EventContext) !void {
+        return switch (self.mode) {
+            .files => self.finish(ctx, .edit),
+            .help => self.executeHelpAction(ctx),
+        };
+    }
+
+    fn executeHelpAction(self: *Model, ctx: *vxfw.EventContext) !void {
+        const entry = actions.helpEntryAt(self.help_ranked[0..self.help_count], self.scroll_view.cursor) orelse return ctx.consumeAndRedraw();
+        switch (actions.dispatchForHelpAction(entry.action)) {
+            .back => return self.switchMode(ctx, .files),
+            .quit => {
+                ctx.quit = true;
+                return ctx.consumeAndRedraw();
+            },
+            .mark => {
+                try self.switchMode(ctx, .files);
+                return self.toggleMark(ctx);
+            },
+            .file_action => |action| {
+                try self.switchMode(ctx, .files);
+                return self.finish(ctx, action);
+            },
+        }
+    }
+
+    fn switchMode(self: *Model, ctx: *vxfw.EventContext, mode: keys.Mode) !void {
+        self.saveCursor();
+        self.mode = mode;
+        const query = switch (mode) {
+            .files => self.session.query,
+            .help => self.help_query,
+        };
+        try self.setTextFieldValue(query);
+        switch (mode) {
+            .files => try self.syncFileRows(),
+            .help => try self.syncHelpRows(),
+        }
         return ctx.consumeAndRedraw();
+    }
+
+    fn setTextFieldValue(self: *Model, query: []const u8) !void {
+        self.text_field.buf.clearAndFree();
+        try self.text_field.buf.insertSliceAtCursor(query);
+        self.text_field.buf.moveGapLeft(0);
+        self.text_field.buf.allocator.free(self.text_field.previous_val);
+        self.text_field.previous_val = if (query.len == 0) "" else try self.text_field.buf.allocator.dupe(u8, query);
     }
 
     fn finish(self: *Model, ctx: *vxfw.EventContext, action: Action) !void {
@@ -492,7 +581,7 @@ const Model = struct {
     fn typeErasedDraw(ptr: *anyopaque, ctx: vxfw.DrawContext) std.mem.Allocator.Error!vxfw.Surface {
         const self: *Model = @ptrCast(@alignCast(ptr));
         const max = ctx.max.size();
-        const prompt: vxfw.Text = .{ .text = "$", .style = .{ .fg = .{ .index = 2 } } };
+        const prompt: vxfw.Text = .{ .text = if (self.mode == .help) ":" else "$", .style = .{ .fg = .{ .index = 2 } } };
         const prompt_surface: vxfw.SubSurface = .{
             .origin = .{ .row = 0, .col = 0 },
             .surface = try prompt.draw(ctx.withConstraints(ctx.min, .{ .width = 2, .height = 1 })),
@@ -515,11 +604,14 @@ const Model = struct {
         };
 
         _ = self.footer_arena.reset(.free_all);
-        const footer_text = std.fmt.allocPrint(
+        const footer_text = formatFooter(
             self.footer_arena.allocator(),
-            "{d} files{s}",
-            .{ self.session.index.items.items.len, if (self.streaming) " …" else "" },
-        ) catch "files";
+            self.mode,
+            if (self.mode == .help) self.help_count else self.session.ranked.len,
+            self.session.index.items.items.len,
+            self.marked.items.len > 0,
+            self.streaming,
+        ) catch "ctrl-g help";
         const footer_help: vxfw.Text = .{
             .text = footer_text,
             .style = .{ .fg = .{ .index = 8 }, .bg = .{ .index = 0 } },
@@ -585,6 +677,25 @@ pub fn runStatic(init: std.process.Init, allocator: std.mem.Allocator, source: S
     const result = model.result;
     model.result = .{};
     return result;
+}
+
+pub fn formatFooter(
+    allocator: std.mem.Allocator,
+    mode: keys.Mode,
+    shown: usize,
+    total: usize,
+    marked: bool,
+    streaming: bool,
+) ![]u8 {
+    return switch (mode) {
+        .help => allocator.dupe(u8, "esc files · enter run"),
+        .files => std.fmt.allocPrint(allocator, "{d} / {d} files{s}{s} · ctrl-g help", .{
+            shown,
+            total,
+            if (streaming) " …" else "",
+            if (marked) " · marked" else "",
+        }),
+    };
 }
 
 pub fn formatSelection(allocator: std.mem.Allocator, selection: Selection) ![]u8 {
