@@ -56,7 +56,7 @@ local function on_colors(c)
   c.bg_statusline = p.surface1
   c.bg_sidebar = p.surface1
   c.bg_float = p.surface1
-  c.bg_visual = p.surface2
+  c.bg_visual = p.surface3
   c.bg_search = p.surface2
   c.fg_sidebar = p.white
   c.fg_float = p.fg

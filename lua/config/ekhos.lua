@@ -15,7 +15,7 @@ local function player_command(path)
       "--latency",
       "25ms",
       "--volume",
-      "3",
+      "2",
       path,
     }
   end
