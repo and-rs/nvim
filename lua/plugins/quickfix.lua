@@ -1,6 +1,10 @@
 vim.pack.add({ "https://github.com/stevearc/quicker.nvim" })
 
 require("quicker").setup({
+  highlight = {
+    treesitter = false,
+    lsp = false,
+  },
   borders = {
     vert = " ╎ ",
     -- Strong headers separate results from different files
