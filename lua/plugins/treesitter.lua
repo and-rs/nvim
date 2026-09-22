@@ -19,6 +19,9 @@ vim.filetype.add({
   pattern = {
     ["%.env%.[%w_.-]+"] = "env",
     ["SYSTEM.md"] = "xml",
+    ["build.md"] = "xml",
+    ["teach.md"] = "xml",
+    ["plan.md"] = "xml",
   },
 })
 
