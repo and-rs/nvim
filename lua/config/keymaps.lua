@@ -15,6 +15,9 @@ map(
 )
 
 -- quickfix navigation
+map("n", "<leader>q", function()
+  require("quicker").toggle()
+end, "Toggle quickfix list")
 map("n", "]q", "<cmd>cnext<CR>", "Next quickfix item")
 map("n", "[q", "<cmd>cprev<CR>", "Prev quickfix item")
 
