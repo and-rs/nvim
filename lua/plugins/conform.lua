@@ -4,6 +4,10 @@ local conform = require("conform")
 local prose_wrap = false
 
 conform.formatters = {
+  xmlstarlet = {
+    command = "xmlstarlet",
+    args = { "format", "--indent-spaces", "2", "-o", "-" },
+  },
   topiary_nu = {
     command = "topiary",
     args = { "format", "--language", "nu" },
