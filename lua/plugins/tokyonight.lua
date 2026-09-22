@@ -22,7 +22,7 @@ local function on_colors(c)
   c.fg = p.fg
   c.fg_dark = p.surface5
   c.fg_gutter = p.surface4
-  c.comment = p.surface4
+  c.comment = cl.adjust_hex(p.surface5, 0.7)
   c.dark3 = p.surface3
   c.dark5 = p.surface5
   c.black = p.black

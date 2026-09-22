@@ -33,7 +33,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       bg = p.black,
     })
     color.set("LineNr", {
-      fg = p.surface4,
+      fg = color.adjust_hex(p.surface5, 0.8),
       bg = p.black,
     })
     color.set("Border", {

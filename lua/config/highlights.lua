@@ -15,7 +15,7 @@ local function apply()
     return
   end
 
-  local grey = color.adjust_hex(p.surface5, 0.3)
+  local grey = color.adjust_hex(p.surface5, 0.2)
 
   ---@type table<string, vim.api.keyset.highlight>
   local specs = {
@@ -71,7 +71,8 @@ local function apply()
     },
     IncSearch = {
       bg = grey,
-      fg = p.green,
+      fg = p.magenta,
+      bold = true,
       underline = true,
     },
     MatchParen = {

@@ -18,8 +18,8 @@ vim.schedule(function()
       delay = 0,
     },
     indent = {
-      use_treesitter = true,
-      enable = true,
+      use_treesitter = false,
+      enable = false,
       style = p.surface3,
       chars = { "»" },
     },
