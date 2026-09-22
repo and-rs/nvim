@@ -73,12 +73,6 @@ map("n", "<leader>sb", function()
     no_header_i = true,
   }))
 end, { desc = "Buffers" })
-map("n", "<leader>sg", function()
-  fzf.live_grep(get_opts({
-    no_header = true,
-    no_header_i = true,
-  }))
-end, { desc = "Diagnostics" })
 map("n", "<leader>sd", function()
   fzf.diagnostics_document(get_opts())
 end, { desc = "Diagnostics" })

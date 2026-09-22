@@ -32,6 +32,10 @@
       "rev": "5c22774c3ecc7f8883af5d143b366e45b1f0875d",
       "src": "https://github.com/hat0uma/csvview.nvim"
     },
+    "fff": {
+      "rev": "e3f694a2e4f82bb755418e8d305dcff779c59c27",
+      "src": "https://github.com/dmtrKovalenko/fff"
+    },
     "fidget.nvim": {
       "rev": "6f793b2bcd2d35e201c09520f698bb763220908a",
       "src": "https://github.com/j-hui/fidget.nvim"
