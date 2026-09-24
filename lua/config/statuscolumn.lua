@@ -1,5 +1,6 @@
 local color = require("config.coloring")
 local statuscolumn_group = vim.api.nvim_create_augroup("StatusColumn", { clear = true })
+local eob_ns = vim.api.nvim_create_namespace("statuscolumn_eob")
 vim.opt.cursorline = true
 
 vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
@@ -40,32 +41,59 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       fg = p.surface3,
       bg = p.black,
     })
+    color.set("EobBar", {
+      fg = p.surface3,
+      bg = "NONE",
+    })
   end,
 })
 
+local side_border = "🮇"
+local bottom_border = "▔"
+
 local function render_border()
-  return "%#Border#▕%#None# "
+  return "%#Border#" .. side_border .. "%#None# "
 end
 
 local function render_zero_border()
   local mode = vim.fn.mode()
   if mode == "v" or mode == "V" or mode == "\22" then
-    return "%#CursorLineNr#▕%#Normal# "
+    return "%#CursorLineNr#" .. side_border .. "%#Normal# "
   end
 
-  return "%#CursorLineNr#▕ "
+  return "%#CursorLineNr#" .. side_border .. " "
 end
 
 local function number_width()
   local win = vim.g.statusline_winid or 0
   local buf = vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) or 0
+  if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
+    return 4
+  end
   return math.max(4, #tostring(vim.api.nvim_buf_line_count(buf)))
+end
+
+local function update_eob_bar(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return
+  end
+  if vim.bo[buf].buftype ~= "" then
+    vim.api.nvim_buf_clear_namespace(buf, eob_ns, 0, -1)
+    return
+  end
+  vim.api.nvim_buf_set_extmark(buf, eob_ns, vim.api.nvim_buf_line_count(buf) - 1, 0, {
+    id = 1,
+    virt_lines = { { { "", "EobBar" } } },
+  })
 end
 
 local function render_normal_statuscolumn()
   local line_number = vim.v.lnum
   local width = number_width()
 
+  if vim.v.virtnum < 0 then
+    return "%#EobBar#" .. string.rep(bottom_border, 2 + width + 1) .. "%#None# "
+  end
   if vim.v.virtnum ~= 0 then
     return "%#LineNr#%=" .. string.rep(" ", width) .. render_border()
   end
@@ -122,6 +150,14 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType", "WinEnter" 
       "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()",
       { win = win }
     )
+    update_eob_bar(buf)
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+  group = statuscolumn_group,
+  callback = function(event)
+    update_eob_bar(event.buf)
   end,
 })
 
