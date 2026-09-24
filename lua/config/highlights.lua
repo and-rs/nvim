@@ -104,6 +104,7 @@ local function apply()
       bg = grey,
     },
 
+    EndOfBuffer = { bg = "" },
     Select = { bg = p.bg },
     YankHighlight = {
       fg = p.surface2,
