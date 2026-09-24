@@ -67,13 +67,13 @@ local function apply()
     Search = {
       bg = grey,
       fg = p.cyan,
-      underline = true,
+      undercurl = true,
     },
     IncSearch = {
       bg = grey,
       fg = p.magenta,
       bold = true,
-      underline = true,
+      undercurl = true,
     },
     MatchParen = {
       bg = grey,
