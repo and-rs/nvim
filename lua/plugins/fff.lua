@@ -12,14 +12,34 @@ vim.api.nvim_create_autocmd("PackChanged", {
 
 vim.pack.add({ "https://github.com/dmtrKovalenko/fff" })
 
+local p = require("config.theme").palette
 local color = require("config.coloring")
-local function match_title_to_border()
+
+local function apply_theme_highlights()
   color.set("FFFTitle", { link = "FloatBorder" })
+  color.set("FFFCursor", { fg = p.blue, bg = p.surface2, bold = true })
+  color.set("FFFSelected", { fg = p.blue, bg = p.surface2 })
+  color.set("FFFSelectedActive", { fg = p.white, bg = p.blue, bold = true })
+
+  local git_colors = {
+    Staged = p.green,
+    Modified = p.blue,
+    Deleted = p.red,
+    Renamed = p.cyan,
+    Untracked = p.yellow,
+    Ignored = p.surface5,
+  }
+  for status, fg in pairs(git_colors) do
+    color.set("FFFGit" .. status, { fg = fg })
+    color.set("FFFGitSign" .. status, { fg = fg })
+    color.set("FFFGitSign" .. status .. "Selected", { fg = fg, bg = p.selection })
+  end
 end
-match_title_to_border()
+
+apply_theme_highlights()
 vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
   group = color.augroup,
-  callback = match_title_to_border,
+  callback = apply_theme_highlights,
 })
 
 require("fff").setup({
@@ -27,7 +47,30 @@ require("fff").setup({
   lazy_sync = true,
   title = "Files",
   preview = { enabled = false },
-  hl = { title = "FFFTitle" },
+  hl = {
+    title = "FFFTitle",
+    cursor = "FFFCursor",
+    selected = "FFFSelected",
+    selected_active = "FFFSelectedActive",
+    git_staged = "FFFGitStaged",
+    git_modified = "FFFGitModified",
+    git_deleted = "FFFGitDeleted",
+    git_renamed = "FFFGitRenamed",
+    git_untracked = "FFFGitUntracked",
+    git_ignored = "FFFGitIgnored",
+    git_sign_staged = "FFFGitSignStaged",
+    git_sign_modified = "FFFGitSignModified",
+    git_sign_deleted = "FFFGitSignDeleted",
+    git_sign_renamed = "FFFGitSignRenamed",
+    git_sign_untracked = "FFFGitSignUntracked",
+    git_sign_ignored = "FFFGitSignIgnored",
+    git_sign_staged_selected = "FFFGitSignStagedSelected",
+    git_sign_modified_selected = "FFFGitSignModifiedSelected",
+    git_sign_deleted_selected = "FFFGitSignDeletedSelected",
+    git_sign_renamed_selected = "FFFGitSignRenamedSelected",
+    git_sign_untracked_selected = "FFFGitSignUntrackedSelected",
+    git_sign_ignored_selected = "FFFGitSignIgnoredSelected",
+  },
   layout = {
     prompt_position = "top",
     width = function(cols)

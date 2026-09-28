@@ -30,7 +30,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
     })
 
     color.set("SignColumn", {
-      fg = p.surface3,
+      fg = p.surface2,
       bg = p.black,
     })
     color.set("LineNr", {
@@ -38,11 +38,11 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       bg = p.black,
     })
     color.set("Border", {
-      fg = p.surface3,
+      fg = p.surface2,
       bg = p.black,
     })
     color.set("EobBar", {
-      fg = p.surface3,
+      fg = p.surface2,
       bg = "NONE",
     })
   end,

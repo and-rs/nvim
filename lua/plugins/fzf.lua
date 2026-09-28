@@ -1,6 +1,13 @@
 vim.pack.add({ "https://github.com/ibhagwan/fzf-lua" })
 
 local fzf = require("fzf-lua")
+local p = require("config.theme").palette
+
+local inherited_opts = vim.env.FZF_DEFAULT_OPTS or ""
+inherited_opts = inherited_opts:gsub("%s*%-%-color%s+%S+", "")
+inherited_opts = inherited_opts:gsub("%s*%-%-color=?%S+", "")
+vim.env.FZF_DEFAULT_OPTS = inherited_opts:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+
 fzf.register_ui_select()
 
 local function get_opts(opts)
@@ -14,6 +21,28 @@ local function get_opts(opts)
 end
 
 fzf.setup({
+  fzf_colors = {
+    fg = p.white,
+    bg = "-1",
+    ["fg+"] = p.white,
+    ["bg+"] = p.surface2,
+    hl = p.cyan,
+    ["hl+"] = p.cyan,
+    info = p.surface5,
+    prompt = p.blue,
+    pointer = p.blue,
+    marker = p.green,
+    spinner = p.cyan,
+    header = p.cyan,
+    query = p.white,
+    border = p.surface5,
+    scrollbar = p.surface3,
+    separator = p.surface3,
+    label = p.cyan,
+    ["preview-fg"] = p.white,
+    ["preview-bg"] = "-1",
+    gutter = "-1",
+  },
   keymap = {
     fzf = {
       ["ctrl-i"] = "up+toggle",

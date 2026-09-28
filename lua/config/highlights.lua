@@ -110,6 +110,26 @@ local function apply()
       fg = p.surface2,
       bg = color.adjust_hex(p.cyan, 0.8),
     },
+
+    -- remove to disable transparency
+    NormalNC = {
+      fg = p.white,
+      bg = "",
+    },
+    NormalFloat = {
+      fg = p.white,
+      bg = p.surface1,
+    },
+    NormalSB = {
+      fg = p.white,
+      bg = "",
+    },
+    Normal = {
+      fg = p.white,
+      bg = "",
+    },
+    -- transparency
+
     Whitespace = {
       fg = p.surface3,
     },
