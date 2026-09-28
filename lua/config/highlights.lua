@@ -110,6 +110,7 @@ local function apply()
       fg = p.surface2,
       bg = color.adjust_hex(p.cyan, 0.8),
     },
+    GitsignsCurrentLineBlame = { fg = p.surface4 },
 
     -- remove to disable transparency
     NormalNC = {

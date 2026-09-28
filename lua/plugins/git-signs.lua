@@ -1,7 +1,7 @@
 vim.pack.add({ "https://github.com/lewis6991/gitsigns.nvim" })
 
 local gitsigns = require("gitsigns")
-gitsigns.setup()
+gitsigns.setup({ current_line_blame = true })
 
 local function map(mode, l, r, opts)
   opts = opts or {}
