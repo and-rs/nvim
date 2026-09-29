@@ -135,7 +135,7 @@ local function apply()
       fg = p.surface3,
     },
     VisualNonText = {
-      fg = color.adjust_hex(p.selection, 1.1),
+      fg = color.adjust_hex(p.selection, 1.2),
       bg = color.get("Visual").bg,
     },
   }
