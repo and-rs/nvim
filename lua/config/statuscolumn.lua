@@ -94,8 +94,8 @@ local function render_normal_statuscolumn()
   if vim.v.virtnum < 0 then
     return "%#EobBar#" .. string.rep(bottom_border, 2 + width + 1) .. "%#None# "
   end
-  if vim.v.virtnum ~= 0 then
-    return "%#LineNr#%=" .. string.rep(" ", width) .. render_border()
+  if vim.v.virtnum > 0 then
+    return "%#LineNr#%=" .. string.rep(" ", width - 1) .. "↳" .. render_border()
   end
   if vim.v.relnum == 0 then
     return "%s%=%#CursorLineNr#"
