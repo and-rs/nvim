@@ -16,7 +16,6 @@ local p = require("config.theme").palette
 local color = require("config.coloring")
 
 local function apply_theme_highlights()
-  color.set("FFFTitle", { link = "FloatBorder" })
   color.set("FFFCursor", { fg = p.blue, bg = p.surface2, bold = true })
   color.set("FFFSelected", { fg = p.blue, bg = p.surface2 })
   color.set("FFFSelectedActive", { fg = p.white, bg = p.blue, bold = true })
@@ -48,8 +47,9 @@ require("fff").setup({
   title = "Files",
   preview = { enabled = false },
   hl = {
+    title = "FloatBorder",
     winhl = {
-      list = "Normal:NormalFloat,FloatBorder:FloatBorder,FloatTitle:FFFTitle,SignColumn:NormalFloat,CursorLineSign:NormalFloat",
+      list = "Normal:NormalFloat,FloatBorder:FloatBorder,FloatTitle:FloatBorder,SignColumn:NormalFloat,CursorLineSign:NormalFloat",
     },
   },
   layout = {
