@@ -75,11 +75,6 @@ conform.setup({
     nix = { "nixfmt" },
     sql = { "sqlfluff" },
   },
-  format_on_save = {
-    lsp_fallback = true,
-    timeout_ms = 2000,
-    async = false,
-  },
 })
 
 vim.keymap.set("n", "<leader>mp", function()
