@@ -16,9 +16,9 @@ local p = require("config.theme").palette
 local color = require("config.coloring")
 
 local function apply_theme_highlights()
-  color.set("FFFCursor", { fg = p.blue, bg = p.surface2, bold = true })
-  color.set("FFFSelected", { fg = p.blue, bg = p.surface2 })
-  color.set("FFFSelectedActive", { fg = p.white, bg = p.blue, bold = true })
+  color.set("fff_Cursor", { fg = p.blue, bg = p.surface2, bold = true })
+  color.set("fff_Selected", { fg = p.blue })
+  color.set("fff_SelectedActive", { fg = p.blue, bg = p.surface2, bold = true })
 
   local git_colors = {
     Staged = p.green,
@@ -31,7 +31,7 @@ local function apply_theme_highlights()
   for status, fg in pairs(git_colors) do
     color.set("FFFGit" .. status, { fg = fg })
     color.set("FFFGitSign" .. status, { fg = fg })
-    color.set("FFFGitSign" .. status .. "Selected", { fg = fg, bg = p.selection })
+    color.set("FFFGitSign" .. status .. "Selected", { fg = fg })
   end
 end
 
@@ -47,6 +47,9 @@ require("fff").setup({
   title = "Files",
   preview = { enabled = false },
   hl = {
+    selected_active = "fff_SelectedActive",
+    selected = "fff_Selected",
+    cursor = "fff_Cursor",
     title = "FloatBorder",
     winhl = {
       list = "Normal:NormalFloat,FloatBorder:FloatBorder,FloatTitle:FloatBorder,SignColumn:NormalFloat,CursorLineSign:NormalFloat",

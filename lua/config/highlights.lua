@@ -15,8 +15,6 @@ local function apply()
     return
   end
 
-  local grey = color.adjust_hex(p.surface5, 0.2)
-
   ---@type table<string, vim.api.keyset.highlight>
   local specs = {
     DiagnosticUnnecessary = { underline = true },
@@ -40,22 +38,22 @@ local function apply()
 
     TabKey = {
       fg = p.blue,
-      bg = grey,
+      bg = p.surface2,
       underline = true,
     },
     TabLine = {
       fg = p.blue,
-      bg = grey,
+      bg = p.surface2,
     },
 
     TabKeySel = {
-      fg = grey,
+      fg = p.surface2,
       bg = p.blue,
       underline = true,
       bold = true,
     },
     TabLineSel = {
-      fg = grey,
+      fg = p.surface2,
       bg = p.blue,
       bold = true,
     },
@@ -65,19 +63,19 @@ local function apply()
 
     Substitute = { bg = p.green, fg = p.bg },
     Search = {
-      bg = grey,
-      fg = p.cyan,
-      undercurl = true,
+      bg = p.blue,
+      fg = p.bg,
+      underline = true,
     },
     IncSearch = {
-      bg = grey,
-      fg = p.magenta,
+      bg = p.magenta,
+      fg = p.bg,
       bold = true,
-      undercurl = true,
+      underline = true,
     },
     MatchParen = {
-      bg = grey,
-      fg = p.green,
+      bg = p.blue,
+      fg = p.bg,
       bold = true,
       underline = true,
     },
@@ -101,7 +99,7 @@ local function apply()
     },
 
     ["@markup.raw.markdown_inline"] = {
-      bg = grey,
+      bg = p.surface2,
     },
 
     EndOfBuffer = { bg = "" },
@@ -133,6 +131,12 @@ local function apply()
 
     Whitespace = {
       fg = p.surface3,
+    },
+
+    Visual = {
+      fg = color.adjust_hex(p.blue, 1.1),
+      bg = color.get("Visual").bg,
+      bold = true
     },
     VisualNonText = {
       fg = color.adjust_hex(p.selection, 1.2),
