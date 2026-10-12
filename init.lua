@@ -2,6 +2,8 @@
 require("config.settings")
 require("config.theme")
 require("config.keymaps")
+require("config.music.filetypes")
+require("config.music.keymaps")
 
 -- Force Neovim to use undercurls and underline colors in tmux
 vim.cmd("set shell=bash")
@@ -34,6 +36,7 @@ require("plugins.git-signs")
 require("plugins.lsp-config")
 require("plugins.lualine")
 require("plugins.quickfix")
+require("plugins.mini-align")
 require("plugins.scissors")
 require("plugins.surround")
 require("plugins.tmux")
