@@ -12,6 +12,7 @@ vim.filetype.add({
     j2 = "j2",
     azcli = "bash",
     env = "env",
+    tidal = "tidal",
   },
   filename = {
     [".env"] = "env",
@@ -91,10 +92,10 @@ function M.has_highlighting(buf)
 end
 
 vim.schedule(function()
-  vim.api.nvim_create_autocmd({ "FileType", "BufEnter" }, {
+  vim.api.nvim_create_autocmd("FileType", {
     pattern = filetypes,
-    callback = function()
-      vim.treesitter.start()
+    callback = function(event)
+      vim.treesitter.start(event.buf)
     end,
   })
 end)
