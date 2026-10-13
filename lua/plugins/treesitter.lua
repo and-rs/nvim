@@ -12,7 +12,6 @@ vim.filetype.add({
     j2 = "j2",
     azcli = "bash",
     env = "env",
-    tidal = "tidal",
   },
   filename = {
     [".env"] = "env",

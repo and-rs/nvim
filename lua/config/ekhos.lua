@@ -1,7 +1,7 @@
 local group = vim.api.nvim_create_augroup("Ekhos", { clear = true })
 local warned = false
 
-local function player_command(path)
+local function player_command(path, volume)
   local sysname = vim.uv.os_uname().sysname
   if sysname == "Linux" then
     return {
@@ -15,12 +15,12 @@ local function player_command(path)
       "--latency",
       "25ms",
       "--volume",
-      "2",
+      volume,
       path,
     }
   end
   if sysname == "Darwin" then
-    return { "afplay", "--volume", "2", path }
+    return { "afplay", "--volume",volume, path }
   end
   if sysname == "Windows_NT" then
     return {
@@ -44,8 +44,11 @@ if vim.fn.executable(probe[1]) ~= 1 then
   return
 end
 
-local function play(cue)
+---@param cue string
+---@param volume string | nil
+local function play(cue, volume)
   local path = vim.fn.stdpath("config") .. "/ekhos/zig-out/sounds/" .. cue .. ".wav"
+  local vol = volume or "2"
   if vim.fn.filereadable(path) ~= 1 then
     if not warned then
       warned = true
@@ -53,8 +56,7 @@ local function play(cue)
     end
     return
   end
-
-  vim.fn.jobstart(player_command(path), { detach = true })
+  vim.fn.jobstart(player_command(path, vol), { detach = true })
 end
 
 local function is_visual(mode)
@@ -86,9 +88,9 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     local old_mode, new_mode = event.match:match("^(.-):(.*)$")
     if new_mode:sub(1, 1) == "c" and old_mode:sub(1, 1) ~= "c" then
       local cmdtype = vim.fn.getcmdtype()
-      play(cmdtype == ":" and "arrival" or "bloom")
+      play(cmdtype == ":" and "scan" or "bloom")
     elseif old_mode and is_visual(old_mode) ~= is_visual(new_mode) then
-      play("toggle")
+      play("tick", "1")
     end
   end,
 })
