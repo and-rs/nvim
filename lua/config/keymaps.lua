@@ -62,6 +62,10 @@ map("n", "J", "mzJ`z", "Move current line up")
 map("n", "n", "nzzzv", "Next result in search /")
 map("n", "N", "Nzzzv", "Previous result in search /")
 
+-- horizontal scrolling
+map("n", "H", "4zh", "Scroll left")
+map("n", "L", "4zl", "Scroll right")
+
 -- next greatest remap ever : asbjornHaland (yanking and pasting)
 map("v", "<leader>y", [["+y]], "Yank to clipboard")
 map("n", "<leader>yy", [["+yy]], "Yank line to clipboard")
