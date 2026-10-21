@@ -66,6 +66,8 @@ conform.setup({
     j2 = { "sqlfluff" },
 
     ocaml = { "ocamlformat" },
+    c = { "clang-format" },
+    cpp = { "clang-format" },
 
     markdown = { "deno_fmt_md" },
     qmljs = { "qmlformat" },

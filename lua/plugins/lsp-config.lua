@@ -133,6 +133,7 @@ local enabled_lsps = {
   "bashls",
 
   "zls",
+  "clangd",
   "gopls",
   "buf_ls",
   "yamlls",

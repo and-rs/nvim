@@ -1,3 +1,10 @@
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.autoindent = false
+vim.opt.smartindent = false
+vim.opt.cindent = false
+vim.opt.lisp = false
+vim.opt.indentexpr = ""
+vim.opt.indentkeys = ""
+vim.opt.expandtab = false
+vim.opt.softtabstop = 0
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2

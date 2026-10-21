@@ -36,6 +36,8 @@ local parser_languages = {
   "xml",
   "bicep",
   "rust",
+  "c",
+  "cpp",
   "ocaml",
   "qmljs",
   "json",
