@@ -12,6 +12,7 @@ vim.filetype.add({
     j2 = "j2",
     azcli = "bash",
     env = "env",
+    tmpl = "gotmpl",
   },
   filename = {
     [".env"] = "env",
@@ -24,6 +25,19 @@ vim.filetype.add({
     ["plan.md"] = "xml",
   },
 })
+
+vim.treesitter.query.add_directive("inject-tmpl-language!", function(_, _, source, _, metadata)
+  if type(source) ~= "number" then
+    return
+  end
+
+  local filename = vim.api.nvim_buf_get_name(source):gsub("%.tmpl$", "")
+  local filetype = vim.filetype.match({ filename = filename, buf = source })
+  local language = filetype and vim.treesitter.language.get_lang(filetype)
+  if language and language ~= "gotmpl" then
+    metadata["injection.language"] = language
+  end
+end)
 
 require("nvim-treesitter").setup({
   install_dir = vim.fn.stdpath("data") .. "/site",
@@ -68,6 +82,7 @@ local parser_languages = {
   "lua",
   "zig",
   "go",
+  "gotmpl",
 }
 
 vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {

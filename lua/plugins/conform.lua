@@ -8,6 +8,10 @@ conform.formatters = {
     command = "xmlstarlet",
     args = { "format", "--indent-spaces", "2", "-o", "-" },
   },
+  gotmplfmt = {
+    command = "gotmplfmt",
+    stdin = true,
+  },
   topiary_nu = {
     command = "topiary",
     args = { "format", "--language", "nu" },
@@ -64,6 +68,7 @@ conform.setup({
     htmldjango = { "djlint", "rustywind" },
     jinja = { "djlint", "rustywind" },
     j2 = { "sqlfluff" },
+    gotmpl = { "gotmplfmt" },
 
     ocaml = { "ocamlformat" },
     c = { "clang-format" },
