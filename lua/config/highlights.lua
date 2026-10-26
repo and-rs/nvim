@@ -74,8 +74,8 @@ local function apply()
       underline = true,
     },
     MatchParen = {
-      bg = p.blue,
-      fg = p.bg,
+      bg = p.bg,
+      fg = p.fg,
       bold = true,
       underline = true,
     },
