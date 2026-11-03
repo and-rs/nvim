@@ -64,12 +64,7 @@ local function open_files(paths)
   local ok, err = pcall(function()
     local directory = vim.env.YAZI_CONFIG_HOME
       or ((vim.env.XDG_CONFIG_HOME or vim.fn.expand("~/.config")) .. "/yazi")
-    local config = vim.json.decode(output({
-      "python3",
-      "-c",
-      'import json, sys, tomllib; print(json.dumps(tomllib.load(open(sys.argv[1], "rb"))))',
-      directory .. "/yazi.toml",
-    }))
+    local config = require("vendor.tinytoml").parse(directory .. "/yazi.toml")
     local editor_files = {}
     for _, path in ipairs(paths) do
       local mime = "folder/directory"

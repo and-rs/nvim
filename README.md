@@ -1,32 +1,17 @@
 # Neovim Configuration
 
+My setup. Sounds: `just bootstrap` (requires Zig).
+
+## Dependencies
+
+Plugins are managed by `vim.pack`; external tools are installed separately.
+
+- **Core:** recent Neovim with `vim.pack` and `vim._core.ui2`, Git, Bash, `~/.config/colors/current.lua` (from my dotfiles).
+- **Search / files:** `fzf`, `ripgrep`, `fd`, `yazi`, `file`; external openers configured in `yazi.toml`.
+- **Parser installation:** C compiler, `curl`, `tar`, `tree-sitter` CLI.
+- **Language servers (as needed):** `qmlls`, `vtsls` + TypeScript, `vscode-html-language-server`, `biome`, `vscode-css-language-server`, `vscode-json-language-server`, `vscode-eslint-language-server`, `tailwindcss-language-server`, `ty`, `ruff`, `fish-lsp`, `nu`, `bash-language-server`, `zls`, `clangd`, `gopls`, `buf`, `yaml-language-server`, `nil`, `lua-language-server`, `ocamllsp`, `ast-grep`, `glsl_analyzer`, `rust-analyzer`. Node.js for JS-based servers.
+- **Formatters (as needed):** `biome`, `rustywind`, `deno`, `xmlstarlet`, `topiary` (with Nushell grammar/config), `beautysh`, `fish_indent`, `djlint`, `sqlfluff`, `gotmplfmt`, `ocamlformat`, `clang-format`, `qmlformat`, `yamlfmt`, `kdlfmt`, `stylua`, `nixfmt`.
+- **Optional:** `tmux`, Neovide, clipboard provider for your platform; Zig + `just` for sounds, `pw-play` (Linux) / `afplay` (macOS) / PowerShell (Windows) for playback; `sclang` + `tidal` for live coding; Rust/Cargo if FFF needs building instead of a prebuilt binary.
+
 <img width="2525" height="1517" alt="image" src="https://github.com/user-attachments/assets/699605b6-ebf1-4ec5-996d-178d7c45ad9c" />
 <img width="2525" height="1517" alt="image" src="https://github.com/user-attachments/assets/748abb06-f949-49fa-ad6f-789bddd98301" />
-
-this is my neovim setup. with a conjoined zig project for sounds (ekhos).
-
-> [!NOTE]
-> run `just bootstrap` with zig installed to build ekhos.
-
-## What is here
-
-- I use vimpack, it's better, I found some ways to lazy load myself. it's simple.
-- Formatting with conform.
-- Lsp setup with blink completion, fidget progress notifications, diagnostic ui, and rust support through rustaceanvim.
-- FFF for primary file search. Fzf-lua for buffers, help, diagnostics, lsp, and secondary search.
-- Some treesitter changes, snippets, tag support, commentstring handling, and visual whitespace.
-- Gitsigns, codediff, and a the quickfix list plugin.
-- Tokyo night based semantic highlights, but drinks the actual hex colors from a different source. (external file set by chezmoi)
-- Custom tabline and statuscolumn, folding, rounded ui borders, and no mouse.
-- Tmux-aware split movement/resizing, yazi integration, and neovide-specific adjustments.
-
-| Tool                            | Used for                                           | Required?                      |
-| ------------------------------- | -------------------------------------------------- | ------------------------------ |
-| `git`                           | Plugin downloads                                   | Yes                            |
-| `ripgrep`                       | fzf-lua file search                                | Recommended                    |
-| `fd`                            | General file finding                               | Recommended                    |
-| Zig                             | Building Ekhos                                     | For sounds                     |
-| just                            | Building local Zig projects                        | For `just bootstrap`           |
-| Language servers and formatters | LSP and formatting features                        | Only for the languages you use |
-| `tmux`                          | Cross-pane navigation and resizing                 | Optional                       |
-| `yazi`                          | File manager integration                           | Optional                       |
