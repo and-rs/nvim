@@ -1,5 +1,16 @@
 local map = require("config.map").set
 
+vim.opt.autoindent = false
+vim.opt.smartindent = false
+vim.opt.cindent = false
+vim.opt.lisp = false
+vim.opt.indentexpr = ""
+vim.opt.indentkeys = ""
+vim.opt.expandtab = false
+vim.opt.softtabstop = 0
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+
 local function clean_and_parenthesize(opening)
   local start_line = vim.fn.line("v")
   local end_line = vim.fn.line(".")

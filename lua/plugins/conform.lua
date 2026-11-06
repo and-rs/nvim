@@ -4,6 +4,9 @@ local conform = require("conform")
 local prose_wrap = false
 
 conform.formatters = {
+  nufmt = {
+    prepend_args = { "--config", vim.fn.stdpath("config") .. "/nufmt.nuon" },
+  },
   xmlstarlet = {
     command = "xmlstarlet",
     args = { "format", "--indent-spaces", "2", "-o", "-" },
@@ -11,10 +14,6 @@ conform.formatters = {
   gotmplfmt = {
     command = "gotmplfmt",
     stdin = true,
-  },
-  topiary_nu = {
-    command = "topiary",
-    args = { "format", "--language", "nu" },
   },
   ["biome-organize-imports"] = {
     command = "biome",
@@ -59,7 +58,7 @@ conform.setup({
     jsonc = { "deno_fmt" },
     json = { "deno_fmt" },
 
-    nu = { "topiary_nu" },
+    nu = { "nufmt" },
     sh = { "beautysh" },
     -- bash = { "shfmt" },
     fish = { "fish_indent" },
