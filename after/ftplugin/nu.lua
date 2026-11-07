@@ -27,6 +27,7 @@ local function clean_and_parenthesize(opening)
   table.insert(lines, 1, opening or "(")
   table.insert(lines, ")")
   vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, lines)
+  vim.cmd(("%d,%dnormal! =="):format(start_line, start_line + #lines - 1))
   vim.api.nvim_input([[<C-\><C-n>]])
 end
 
