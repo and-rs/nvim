@@ -24,8 +24,7 @@ local function load()
   cmp.build():wait(600)
   cmp.setup({
     enabled = function()
-      local filetype = vim.bo[0].filetype == "fzf"
-      return filetype and false or true
+      return vim.bo[0].filetype ~= "fzf"
     end,
 
     snippets = {

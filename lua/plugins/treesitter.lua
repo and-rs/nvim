@@ -100,7 +100,12 @@ local M = {
 }
 
 function M.has_parser(filetype)
-  return pcall(vim.treesitter.language.get_lang, filetype)
+  local language = vim.treesitter.language.get_lang(filetype)
+  if not language then
+    return false
+  end
+  local ok, loaded = pcall(vim.treesitter.language.add, language)
+  return ok and loaded == true
 end
 
 vim.schedule(function()
