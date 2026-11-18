@@ -103,10 +103,6 @@ function M.has_parser(filetype)
   return pcall(vim.treesitter.language.get_lang, filetype)
 end
 
-function M.has_highlighting(buf)
-  return vim.treesitter.highlighter.active[buf] ~= nil
-end
-
 vim.schedule(function()
   vim.api.nvim_create_autocmd("FileType", {
     pattern = filetypes,

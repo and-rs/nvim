@@ -58,7 +58,6 @@ vim.api.nvim_create_autocmd({ "FileType", "VimEnter" }, {
 })
 
 require("vim._core.ui2").enable({ enable = true })
-vim.g.smart_splits_multiplexer_integration = "tmux"
 
 vim.keymap.set({ "c", "t" }, "<D-BS>", "<C-w>")
 vim.keymap.set({ "c", "t" }, "<M-BS>", "<C-u>")
