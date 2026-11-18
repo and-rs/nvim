@@ -49,7 +49,6 @@ local function progress()
   end
 end
 
-local cl = require("config.coloring")
 local theme = require("config.theme")
 
 local function get_colors()
@@ -190,8 +189,3 @@ local function setup_lualine()
 end
 
 setup_lualine()
-
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = cl.augroup,
-  callback = setup_lualine,
-})

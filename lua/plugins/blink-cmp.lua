@@ -3,14 +3,7 @@ vim.pack.add({ "https://github.com/saghen/blink.lib" })
 local function load(event)
   vim.api.nvim_del_autocmd(event.id)
   vim.pack.add({
-    "https://github.com/L3MON4D3/LuaSnip",
-    "https://github.com/rafamadriz/friendly-snippets",
     { src = "https://github.com/saghen/blink.cmp" },
-  })
-
-  require("luasnip.loaders.from_vscode").lazy_load()
-  require("luasnip.loaders.from_vscode").lazy_load({
-    paths = "~/.config/nvim/snippets",
   })
 
   local cmp = require("blink.cmp")
@@ -146,6 +139,17 @@ local function load(event)
 end
 
 vim.schedule(function()
+  vim.pack.add({
+    "https://github.com/L3MON4D3/LuaSnip",
+    "https://github.com/rafamadriz/friendly-snippets",
+  })
+  require("luasnip.loaders.from_vscode").lazy_load({
+    paths = {
+      vim.pack.get({ "friendly-snippets" }, { info = false })[1].path,
+      vim.fn.stdpath("config") .. "/snippets",
+    },
+  })
+
   vim.api.nvim_create_autocmd({ "CmdlineEnter", "InsertEnter" }, {
     group = Deferred_group,
     callback = load,
