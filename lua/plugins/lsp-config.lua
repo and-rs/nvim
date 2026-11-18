@@ -119,13 +119,11 @@ local enabled_lsps = {
   "cssls",
   "jsonls",
   "eslint",
-  -- "unocss",
   "tailwindcss",
 
   -- py
   "ty",
   "ruff",
-  -- "basedpyright",
 
   -- shells
   "fish_lsp",
@@ -154,9 +152,6 @@ vim.lsp.config.biome = {
 }
 
 vim.lsp.config("tailwindcss", require("lsp.tailwind"))
-vim.lsp.config("unocss", {
-  cmd = { "bunx", "--bun", "-p", "unocss-language-server", "unocss-language-server", "--stdio" },
-})
 
 vim.lsp.config.nil_ls = {
   settings = { ["nil"] = { nix = { flake = { autoArchive = true } } } },
@@ -165,19 +160,6 @@ vim.lsp.config.nil_ls = {
 vim.lsp.config.zls = {
   settings = {
     semantic_tokens = "none",
-  },
-}
-
-vim.lsp.config.basedpyright = {
-  settings = {
-    pyright = {
-      disableOrganizeImports = true,
-    },
-    python = {
-      analysis = {
-        ignore = { "*" },
-      },
-    },
   },
 }
 

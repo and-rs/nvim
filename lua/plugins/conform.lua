@@ -15,17 +15,11 @@ conform.formatters = {
     command = "gotmplfmt",
     stdin = true,
   },
-  ["biome-organize-imports"] = {
-    command = "biome",
-  },
   biome = {
     command = "biome",
   },
   qmlformat = {
     append_args = { "-w 4" },
-  },
-  sleek = {
-    append_args = { "--indent-spaces=2", "--lines-between-queries=1" },
   },
   sqlfluff = {
     command = "sqlfluff",
