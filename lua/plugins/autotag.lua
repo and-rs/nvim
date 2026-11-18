@@ -13,9 +13,4 @@ local function load()
   })
 end
 
-vim.schedule(function()
-  vim.api.nvim_create_autocmd({ "InsertEnter", "BufEnter", "BufFilePre" }, {
-    group = Deferred_group,
-    callback = load,
-  })
-end)
+vim.schedule(load)

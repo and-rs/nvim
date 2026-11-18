@@ -46,7 +46,6 @@ require("plugins.typescript")
 require("plugins.visual-whitespace")
 require("plugins.whichkey")
 require("plugins.yazi")
-require("plugins.diff")
 require("plugins.treesitter")
 
 -- when I open nu term buffer in neovim

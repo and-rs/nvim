@@ -1,6 +1,7 @@
 vim.pack.add({ "https://github.com/saghen/blink.lib" })
 
-local function load()
+local function load(event)
+  vim.api.nvim_del_autocmd(event.id)
   vim.pack.add({
     "https://github.com/L3MON4D3/LuaSnip",
     "https://github.com/rafamadriz/friendly-snippets",
@@ -147,7 +148,6 @@ end
 vim.schedule(function()
   vim.api.nvim_create_autocmd({ "CmdlineEnter", "InsertEnter" }, {
     group = Deferred_group,
-    once = true,
     callback = load,
   })
 end)

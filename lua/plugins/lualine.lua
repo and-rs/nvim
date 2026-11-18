@@ -1,15 +1,5 @@
 vim.pack.add({ "https://github.com/nvim-lualine/lualine.nvim" })
 
-local function get_git_branch()
-  local handle = io.popen("git rev-parse --abbrev-ref HEAD 2>/dev/null")
-  if not handle then
-    return nil
-  end
-  local branch = handle:read("*a"):gsub("%s+$", "")
-  handle:close()
-  return (branch ~= "" and branch ~= "HEAD") and branch or ""
-end
-
 local function location()
   local line = vim.fn.line(".")
   local col = vim.fn.charcol(".")
@@ -181,7 +171,8 @@ local function setup_lualine()
           padding = { right = 1, left = 1 },
         },
         {
-          get_git_branch,
+          "branch",
+          icon = "",
         },
         {
           "vim.bo.filetype",

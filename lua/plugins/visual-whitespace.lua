@@ -2,6 +2,7 @@ vim.pack.add({ "https://github.com/mcauley-penney/visual-whitespace.nvim" })
 vim.api.nvim_create_autocmd("ModeChanged", {
   group = vim.api.nvim_create_augroup("load-visual-whitespace", { clear = true }),
   pattern = "*",
+  once = true,
   callback = function()
     require("visual-whitespace").setup({
       list_chars = {

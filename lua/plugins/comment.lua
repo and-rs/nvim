@@ -21,6 +21,7 @@ end
 vim.schedule(function()
   vim.api.nvim_create_autocmd("BufEnter", {
     group = Deferred_group,
+    once = true,
     callback = load,
   })
 end)

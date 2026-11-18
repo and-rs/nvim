@@ -16,6 +16,7 @@ end
 
 vim.api.nvim_create_autocmd("FileType", {
   group = Deferred_group,
+  once = true,
   callback = load,
   pattern = "csv",
 })
