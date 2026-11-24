@@ -45,33 +45,16 @@ vim.api.nvim_create_autocmd({ "VimEnter", "ColorScheme" }, {
       fg = p.surface2,
       bg = "NONE",
     })
+    color.set("EobBarActive", {
+      fg = p.cyan,
+      bg = "NONE",
+    })
   end,
 })
 
 local side_border = "🮇"
+local dim_side_border = "%#Border#" .. side_border .. "%#None# "
 local bottom_border = "▔"
-
-local function render_border()
-  return "%#Border#" .. side_border .. "%#None# "
-end
-
-local function render_zero_border()
-  local mode = vim.fn.mode()
-  if mode == "v" or mode == "V" or mode == "\22" then
-    return "%#CursorLineNr#" .. side_border .. "%#Normal# "
-  end
-
-  return "%#CursorLineNr#" .. side_border .. " "
-end
-
-local function number_width()
-  local win = vim.g.statusline_winid or 0
-  local buf = vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) or 0
-  if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
-    return 4
-  end
-  return math.max(4, #tostring(vim.api.nvim_buf_line_count(buf)))
-end
 
 local function update_eob_bar(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
@@ -88,47 +71,32 @@ local function update_eob_bar(buf)
 end
 
 local function render_normal_statuscolumn()
+  local win = vim.g.statusline_winid
   local line_number = vim.v.lnum
-  local width = number_width()
+  local line_count = vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(win))
+  local width = math.max(4, #tostring(line_count))
 
   if vim.v.virtnum < 0 then
-    return "%#EobBar#" .. string.rep(bottom_border, 2 + width + 1) .. "%#None# "
+    local on_last_line = line_number == line_count
+      and line_number == vim.api.nvim_win_get_cursor(win)[1]
+    local highlight = on_last_line and "EobBarActive" or "EobBar"
+    return "%#" .. highlight .. "#" .. string.rep(bottom_border, 2 + width + 1) .. "%#None# "
   end
   if vim.v.virtnum > 0 then
-    return "%#LineNr#%=" .. string.rep(" ", width - 1) .. "↳" .. render_border()
+    return "%#LineNr#%=" .. string.rep(" ", width - 1) .. "↳" .. dim_side_border
   end
-  if vim.v.relnum == 0 then
-    return "%s%=%#CursorLineNr#"
-      .. string.format("%" .. width .. "d", line_number)
-      .. render_zero_border()
-  end
-  return "%s%=%#LineNr#" .. string.format("%" .. width .. "d", line_number) .. render_border()
-end
 
-local function clear_statuscolumn(win)
-  vim.api.nvim_set_option_value("number", false, { win = win })
-  vim.api.nvim_set_option_value("signcolumn", "no", { win = win })
-  vim.api.nvim_set_option_value("statuscolumn", "", { win = win })
-  vim.api.nvim_set_option_value("relativenumber", false, { win = win })
+  local highlight, border = "LineNr", dim_side_border
+  if vim.v.relnum == 0 then
+    local mode = vim.fn.mode()
+    local visual = mode == "v" or mode == "V" or mode == "\22"
+    highlight, border = "CursorLineNr", side_border .. (visual and "%#Normal# " or " ")
+  end
+  return "%s%=%#" .. highlight .. "#" .. string.format("%" .. width .. "d", line_number) .. border
 end
 
 local function is_edit_window(buf, win)
-  if not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_win_is_valid(win) then
-    return false
-  end
-  if vim.fn.win_gettype(win) ~= "" then
-    return false
-  end
-  if vim.api.nvim_win_get_config(win).relative ~= "" then
-    return false
-  end
-  if vim.wo[win].diff or vim.wo[win].previewwindow then
-    return false
-  end
-  if vim.bo[buf].buftype ~= "" then
-    return false
-  end
-  return true
+  return vim.fn.win_gettype(win) == "" and not vim.wo[win].diff and vim.bo[buf].buftype == ""
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType", "WinEnter" }, {
@@ -136,21 +104,20 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType", "WinEnter" 
   callback = function(event)
     local buf = event.buf
     local win = vim.api.nvim_get_current_win()
+    local edit = is_edit_window(buf, win)
+    local opts = { win = win }
 
-    if not is_edit_window(buf, win) then
-      clear_statuscolumn(win)
-      return
-    end
-
-    vim.api.nvim_set_option_value("number", true, { win = win })
-    vim.api.nvim_set_option_value("relativenumber", true, { win = win })
-    vim.api.nvim_set_option_value("signcolumn", "yes:1", { win = win })
+    vim.api.nvim_set_option_value("number", edit, opts)
+    vim.api.nvim_set_option_value("relativenumber", edit, opts)
+    vim.api.nvim_set_option_value("signcolumn", edit and "yes:1" or "no", opts)
     vim.api.nvim_set_option_value(
       "statuscolumn",
-      "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()",
-      { win = win }
+      edit and "%!v:lua.require('config.statuscolumn').render_normal_statuscolumn()" or "",
+      opts
     )
-    update_eob_bar(buf)
+    if edit then
+      update_eob_bar(buf)
+    end
   end,
 })
 
@@ -162,6 +129,5 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 })
 
 return {
-  render_border = render_border,
   render_normal_statuscolumn = render_normal_statuscolumn,
 }
